@@ -1,0 +1,10 @@
+1. SSH: 22
+
+2. netcat: actively connect to any open port
+           do Banner Grabbing; PowerCat is Windows version
+           SoCat can upgrade a shell to a fully interactive TTY
+
+3. tmux: Terminal multiplexers, like tmux or Screen
+         https://tmuxcheatsheet.com/
+
+4. 
