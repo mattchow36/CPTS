@@ -7,4 +7,14 @@
 3. tmux: Terminal multiplexers, like tmux or Screen
          https://tmuxcheatsheet.com/
 
-4. 
+4. Vim: i insert mode, esc back to normal/read mode, : command mode
+
+5. Nmap
+
+6. smbclient
+
+7. snmpwalk, onesixtyone
+
+8. GoBuster
+
+9. ffuf
