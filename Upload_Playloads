@@ -1,0 +1,5 @@
+1. Open a http server on local, use wget OR curl
+
+2. scp to target with ssh credentials
+
+3. Use base64 encode playload to binary before uploading, use base64 on target to decode; use md5sum to hash on local and target to validate
