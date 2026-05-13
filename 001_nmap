@@ -1,0 +1,16 @@
+-sn:  disable ports scan, discover host only
+
+-iL:  a txt with hosts to scan
+
+-PE:  send ICMP, after ARP
+
+--disable-arp-ping:  disable ARP
+
+--packet-trace:  show all send and received packets
+
+--reason:  show reason for result
+
+
+
+CheatSheet:
+  https://nmap.org/book/host-discovery-strategies.html
