@@ -1,16 +1,29 @@
+-sV:  get services version
+
 -sn:  disable ports scan, discover host only
 
 -iL:  a txt with hosts to scan
 
+-Pn:  disable ICMP
 -PE:  send ICMP, after ARP
-
 --disable-arp-ping:  disable ARP
 
 --packet-trace:  show all send and received packets
 
 --reason:  show reason for result
 
+default = top 1000 ports
+-F:  top 100 ports
+--top-ports=10:  top 10 ports
 
+-p:  specify ports
+
+-n:  disable DNS
+
+-sS:  do TCP 2 shake
+-sT:  do TCP 3 shake
+-sU:  do UDP
 
 offical mannual:
   https://nmap.org/book/toc.html
+  https://nmap.org/book/man-port-scanning-techniques.html
