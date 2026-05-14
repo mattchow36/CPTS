@@ -5,9 +5,9 @@
 
 -iL:  a txt with hosts to scan
 
--Pn:  disable ICMP
+-Pn:  disable ICMP; assume host alive, go scan ports
 -PE:  send ICMP, after ARP
---disable-arp-ping:  disable ARP
+--disable-arp-ping:  disable ARP; can do with -Pn
 
 --packet-trace:  show all send and received packets
 
@@ -25,23 +25,32 @@ default = top 1000 ports
 -sS:  do TCP 2 shake
 -sT:  do TCP 3 shake
 -sU:  do UDP
+-sA:  send ACK packet to bypass firewall, as firewall may block SYN from external, but can't tell whetehr ACK from internal or external
 
 -v: show verbose
 --stats-every=5s: show status every 5 seconds
 
--sC: use default scripts
---script: use specified scripts
---script discovery: use discovery category scripts
---script vuln: use vuln category scripts
--A: aggresive scane
+-sC:  use default scripts
+--script:  use specified scripts
+--script discovery:  use discovery category scripts
+--script vuln:  use vuln category scripts
+-A:  aggresive scane
 
 -T 5: insane timing template; defaults is 3
 
---initial-rtt-timeout 50ms --max-rtt-timeout 100ms: rtt too low may overlook hosts
---max-retries 0: 1 try only; default is 10
---min-rate 300: send 300 packets per second
+--initial-rtt-timeout 50ms --max-rtt-timeout 100ms:  rtt too low may overlook hosts
+--max-retries 0:  1 try only; default is 10
+--min-rate 300:  send 300 packets per second
+
+-D RND:5  :  place true IP into 5 random decoy IPs
+-S:  mannully specified a IP
+-g 53  :  specified 53 as source port
+--dns-server:  specified a DNS; DNSs in DMZ is better
 
 
 offical mannual:
   https://nmap.org/book/toc.html
   https://nmap.org/book/man-port-scanning-techniques.html
+
+
+sudo nc -s LocalIP -p53 TargetIP 50000:  sudo为了提权，因为1024以下端口需要系统权限;  -s 为了解决端口冲突，不用-s的话，默认0.0.0.0，使用所有网卡的53端口，一般被dns服务占用
