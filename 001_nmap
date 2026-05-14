@@ -35,8 +35,12 @@ default = top 1000 ports
 --script vuln: use vuln category scripts
 -A: aggresive scane
 
--T3: default speed
--T5: too fast
+-T 5: insane timing template; defaults is 3
+
+--initial-rtt-timeout 50ms --max-rtt-timeout 100ms: rtt too low may overlook hosts
+--max-retries 0: 1 try only; default is 10
+--min-rate 300: send 300 packets per second
+
 
 offical mannual:
   https://nmap.org/book/toc.html
