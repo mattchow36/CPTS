@@ -1,4 +1,5 @@
 -sV:  get services version
+-O: get OS
 
 -sn:  disable ports scan, discover host only
 
@@ -24,6 +25,15 @@ default = top 1000 ports
 -sS:  do TCP 2 shake
 -sT:  do TCP 3 shake
 -sU:  do UDP
+
+-v: show verbose
+--stats-every=5s: show status every 5 seconds
+
+-sC: use default scripts
+--script: use specified scripts
+--script discovery: use discovery category scripts
+--script vuln: use vuln category scripts
+-A: aggresive scane
 
 offical mannual:
   https://nmap.org/book/toc.html
