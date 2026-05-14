@@ -15,6 +15,7 @@
 default = top 1000 ports
 -F:  top 100 ports
 --top-ports=10:  top 10 ports
+-p-:  all ports
 
 -p:  specify ports
 
