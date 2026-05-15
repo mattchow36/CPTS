@@ -1,3 +1,18 @@
 https://crt.sh/
       check subdomains
 
+shodan
+      find devices on the Internet
+
+search for Cloud:
+      https://domain.glass/
+      https://buckets.grayhatwarfare.com/
+
+FTP:
+      active and passive mode
+      tools: ftp, openssl
+
+SMB:
+      CIFS = origin SMB
+      Samba = Linux SMB
+      tools: samclient
