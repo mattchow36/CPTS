@@ -15,4 +15,29 @@ FTP:
 SMB:
       CIFS = origin SMB
       Samba = Linux SMB
-      tools: samclient
+      tools: samclient, rpcclient
+             https://github.com/ShawnDEvans/smbmap
+             https://github.com/byt3bl33d3r/CrackMapExec
+             https://github.com/cddmp/enum4linux-ng
+
+NFS (Network File System):
+      Unix SMB
+      using RPC (Remote Procedure Call)
+
+DNS：
+      dig
+      https://github.com/fwaeytens/dnsenum
+
+SMTP/IMAP/POP3:
+      scan:      namp
+      interact:  curl, openssl, netcat/nc
+      use tag0-n to iteract with imaps
+
+SNMP：
+      onesixtyone
+      snmpwalk
+      braa
+      Onesixtyone can be used to brute-force the community strings. Snmpwalk is used to query the OIDs with their information. Braa is asyn snmpwalk.
+
+SQL:
+      
