@@ -40,4 +40,33 @@ SNMP：
       Onesixtyone can be used to brute-force the community strings. Snmpwalk is used to query the OIDs with their information. Braa is asyn snmpwalk.
 
 SQL:
+
+Oracale DB:
+      The Oracle Transparent Network Substrate (TNS) server is a communication protocol that facilitates communication between Oracle databases and applications.
+      tools: odat.py (Oracle Database Attacking Tool) to scan, sqlplus to connect 
+
+IPMI (Intelligent Platform Management Interface):
+      additional chips with network functions
+
+SSH:
+
+Rsync:
+      A fast and efficient tool for locally and remotely copying files.
+      tools: rsync
+      https://phoenixnap.com/kb/how-to-rsync-over-ssh
+
+R-services:
+      Unix remote commands over TCP/IP. Replaced by SSH.
+      tools: rlogin
+
+RDP:
+      tools: https://github.com/CiscoCXSecurity/rdp-sec-check, xfreerdp, rdesktop, or Remmina
       
+WimRM:
+      is CLI
+      tools: https://learn.microsoft.com/en-us/powershell/module/microsoft.wsman.management/test-wsman?view=powershell-7.6&viewFallbackFrom=powershell-7.2
+             https://github.com/Hackplayers/evil-winrm
+
+WMI(Windows Management Instrumentation)
+      is not a single program but consists of several programs and various databases, also known as repositories.
+      tools: https://github.com/fortra/impacket/blob/master/examples/wmiexec.py
