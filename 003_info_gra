@@ -1,1 +1,11 @@
+whois:
+      whois inlane.com
 
+dig:
+      other tools: nslookup, host, fierce, dnsrecon, theHarvester
+
+dnsenum:  
+
+gobuster：
+      for virtual hosts
+      other tools: Ferobuster, ffuf
