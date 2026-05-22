@@ -9,3 +9,7 @@ dnsenum:
 gobuster：
       for virtual hosts
       other tools: Ferobuster, ffuf
+
+CA check:
+      https://crt.sh/
+      https://search.censys.io/
