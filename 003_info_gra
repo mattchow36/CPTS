@@ -26,6 +26,14 @@ Application firewall fingerprint:
       Nikto
 
 
+Auto tools:
+      https://github.com/thewhiteh4t/FinalRecon
+      https://github.com/lanmaster53/recon-ng
+      https://github.com/laramies/theHarvester
+      https://github.com/smicallef/spiderfoot
+      https://osintframework.com/
+
+
 it's essential to approach data analysis holistically, considering the relationships between different data points and their potential implications for your reconnaissance goals.
 
 
