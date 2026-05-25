@@ -14,6 +14,9 @@ CA check:
       https://crt.sh/
       https://search.censys.io/
 
+Google Dork:
+      https://www.exploit-db.com/google-hacking-database
+
 Application firewall check:
       Wafw00f
 Application firewall fingerprint:
