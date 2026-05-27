@@ -1,3 +1,5 @@
 will not seek to perform privilege escalation, lateral movement, post-exploitation, etc.
 
 
+vul registry: https://www.cve.org/
+vul score:    https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator
