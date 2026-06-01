@@ -1,3 +1,10 @@
 hash:
   md5sum 
   https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-7.6&viewFallbackFrom=powershell-7.2
+
+
+xf:
+  https://learn.microsoft.com/en-us/dotnet/api/system.net.webclient?view=net-5.0
+  https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-expression?view=powershell-7.6&viewFallbackFrom=powershell-7.2
+
+  https://gist.github.com/HarmJ0y/bb48307ffa663256e239
