@@ -1,0 +1,3 @@
+hash:
+  md5sum 
+  https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-7.6&viewFallbackFrom=powershell-7.2
