@@ -3,12 +3,22 @@ hash:
   https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-7.6&viewFallbackFrom=powershell-7.2
 
 
-xf:
+Windows download:
   https://learn.microsoft.com/en-us/dotnet/api/system.net.webclient?view=net-5.0
   https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-expression?view=powershell-7.6&viewFallbackFrom=powershell-7.2
 
   https://gist.github.com/HarmJ0y/bb48307ffa663256e239
 
-
-smb:
   https://github.com/fortra/impacket/blob/master/examples/smbserver.py
+  then copy or mount
+
+
+Windows upload:
+  https://github.com/Densaugeo/uploadserver
+
+  https://github.com/mar10/wsgidav
+
+Linux download:
+  wget
+  curl
+  use pipe to do fileless
