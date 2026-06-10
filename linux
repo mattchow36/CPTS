@@ -1,0 +1,8 @@
+ln
+  -s  soft link
+
+chown
+  -R  recursive
+
+curl
+  -T  upload file
