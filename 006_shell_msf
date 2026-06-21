@@ -28,6 +28,10 @@ playloads generate:
 
 
 find / -name nameoffile -exec /bin/awk 'BEGIN {system("/bin/sh")}' \;
+
+
+Ready for use reverse wed shell playloads:
+  https://github.com/jbarcia/Web-Shells/tree/master/laudanum
   playloads xf:
     https://github.com/fortra/impacket      is a toolset built in Python that provides us with a way to interact with network protocols directly.
 
