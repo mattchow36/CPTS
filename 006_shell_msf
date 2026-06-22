@@ -39,6 +39,11 @@ In most cases, when attempting to gain a shell session with a target, it would b
     https://github.com/fortra/impacket      is a toolset built in Python that provides us with a way to interact with network protocols directly.
 
 
+searchsploit xxx.rb      for off-line search in Exploit-DB
+  nmap -sV 10.10.10.10 -oX target_scan.xml
+  searchsploit --nmap target_scan.xml
 
 
+defence:
+  https://attack.mitre.org/
 
