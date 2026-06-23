@@ -21,6 +21,8 @@ msfconsole:
   the reliability rank (rank:<rank>), 
   and the search name (<pattern>). 
 
+  msf6 exploit(windows/smb/ms17_010_eternalblue) > grep meterpreter show payloads
+
 TTL:
   https://subinsb.com/default-device-ttl-values/
 
