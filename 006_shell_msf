@@ -24,6 +24,11 @@ msfconsole:
   msf6 exploit(windows/smb/ms17_010_eternalblue) > grep meterpreter show payloads
   msf6 exploit(windows/smb/ms17_010_eternalblue) > grep meterpreter grep reverse_tcp show payloads
 
+  mattchow@htb[/htb]$ msfdb reinit
+  mattchow@htb[/htb]$ cp /usr/share/metasploit-framework/config/database.yml ~/.msf4/
+  mattchow@htb[/htb]$ sudo service postgresql restart
+  mattchow@htb[/htb]$ msfconsole -q
+
 TTL:
   https://subinsb.com/default-device-ttl-values/
 
