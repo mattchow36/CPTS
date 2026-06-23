@@ -29,6 +29,9 @@ msfconsole:
   mattchow@htb[/htb]$ sudo service postgresql restart
   mattchow@htb[/htb]$ msfconsole -q
 
+  jobs: background exploits
+  sessions: established foothold
+
 TTL:
   https://subinsb.com/default-device-ttl-values/
 
