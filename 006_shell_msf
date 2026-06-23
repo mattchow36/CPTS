@@ -32,6 +32,8 @@ msfconsole:
   jobs: background exploits
   sessions: established foothold
 
+  https://www.rapid7.com/blog/post/2015/03/25/stageless-meterpreter-payloads/
+
 TTL:
   https://subinsb.com/default-device-ttl-values/
 
