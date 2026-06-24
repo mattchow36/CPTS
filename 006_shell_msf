@@ -45,6 +45,8 @@ msfvenom:
   -k with a normal exe
   -i times of encoding
 
+  check passby score: msf-virustotal -k <API key> -f test.js 
+
 TTL:
   https://subinsb.com/default-device-ttl-values/
 
