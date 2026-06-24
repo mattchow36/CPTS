@@ -33,6 +33,9 @@ msfconsole:
   sessions: established foothold
 
   https://www.rapid7.com/blog/post/2015/03/25/stageless-meterpreter-payloads/
+  https://docs.metasploit.com/api/
+
+  book: Metasploit, 2nd Edition by David Kennedy, Mati Aharoni, Devon Kearns, Jim O’Gorman, and Daniel Graham
 
 TTL:
   https://subinsb.com/default-device-ttl-values/
