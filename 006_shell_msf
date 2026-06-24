@@ -43,6 +43,7 @@ msfconsole:
 
 msfvenom: 
   -k with a normal exe
+  -i times of encoding
 
 TTL:
   https://subinsb.com/default-device-ttl-values/
