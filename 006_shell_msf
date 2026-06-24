@@ -35,7 +35,14 @@ msfconsole:
   https://www.rapid7.com/blog/post/2015/03/25/stageless-meterpreter-payloads/
   https://docs.metasploit.com/api/
 
+  Local Exploit Suggester
+  ms10_015_kitrap0d
+
   book: Metasploit, 2nd Edition by David Kennedy, Mati Aharoni, Devon Kearns, Jim O’Gorman, and Daniel Graham
+
+
+msfvenom: 
+  -k with a normal exe
 
 TTL:
   https://subinsb.com/default-device-ttl-values/
