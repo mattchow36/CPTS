@@ -33,3 +33,6 @@ Crack files:
   It is also possible to crack password-protected or encrypted files with JtR. Multiple "2john" tools.
 
 
+hashcat rule:
+  https://hashcat.net/wiki/doku.php?id=rule_based_attack
+
