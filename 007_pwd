@@ -1,3 +1,9 @@
+tar:
+  -x to extract
+  -v for verbose
+  -z to decompress gzip
+  -f for the filename
+
 check whether a email been pawned:
   https://haveibeenpwned.com/
 
@@ -7,9 +13,23 @@ hash:
   echo -n pwd | sha256sum
 
 
-Brute-forcing:
-    hashcat
-    https://github.com/openwall/john
+identify hash format:
+  https://openwall.info/wiki/john/sample-hashes
+  hashid -m
 
+
+Brute-forcing:
+  hashcat
+  https://github.com/openwall/john
+
+  mode:
+    single        john
+    wordlist      both
+    incremental   john
+    mask          hashcat
+
+
+Crack files:
+  It is also possible to crack password-protected or encrypted files with JtR. Multiple "2john" tools.
 
 
