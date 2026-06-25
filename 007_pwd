@@ -1,0 +1,9 @@
+check whether a email been pawned:
+  https://haveibeenpwned.com/
+
+
+hash:
+  echo -n pwd | md5sum
+  echo -n pwd | sha256sum
+
+
