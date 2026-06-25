@@ -34,5 +34,12 @@ Crack files:
 
 
 hashcat rule:
+  best64.rule
   https://hashcat.net/wiki/doku.php?id=rule_based_attack
+
+  hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list
+
+
+generate wordlist:
+  https://github.com/digininja/CeWL
 
