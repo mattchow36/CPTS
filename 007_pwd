@@ -7,3 +7,9 @@ hash:
   echo -n pwd | sha256sum
 
 
+Brute-forcing:
+    hashcat
+    https://github.com/openwall/john
+
+
+
