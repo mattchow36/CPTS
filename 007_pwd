@@ -43,3 +43,5 @@ hashcat rule:
 generate wordlist:
   https://github.com/digininja/CeWL
 
+
+https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/#device-encryption
