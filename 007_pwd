@@ -45,3 +45,44 @@ generate wordlist:
 
 
 https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/#device-encryption
+bitlocker2john
+hashcat -a 0 -m 22100
+https://github.com/Aorimn/dislocker
+
+
+WinRM:
+  CrackMapExec
+
+  https://github.com/Hackplayers/evil-winrm
+
+  https://github.com/Pennyw0rth/NetExec
+  NFS、FTP、SSH、SMB、WMI、RDP、MSSQL、LDAP、VNC, as well
+
+
+SSH、RDP、SMB:
+  Hydra
+
+  xfreerdp to connect
+  smbclient to connect
+
+
+Password spraying:
+  try one same pwd to many account
+
+  Linux:
+    https://portswigger.net/burp/communitydownload
+  Windows:
+    https://github.com/ropnop/kerbrute
+    https://github.com/Pennyw0rth/NetExec
+
+
+Credential stuffing:
+  try one same pwd and account for many service
+
+Default cres:
+  https://github.com/ihebski/DefaultCreds-cheat-sheet
+  pip3 install defaultcreds-cheat-sheet
+
+  https://www.softwaretestinghelp.com/default-router-username-and-password-list/
+
+
