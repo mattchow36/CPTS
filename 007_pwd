@@ -95,7 +95,7 @@ Windows login:
 
   smbserver.py:  start a smb sever on attk host to pull .save, like http sever
 
-  secretsdump:  decrypt creds
+  secretsdump:  decrypt creds  format:  (uid:rid:lmhash:nthash)
   then hashcat: get pwd
       mode:  https://hashcat.net/wiki/doku.php?id=example_hashes
 
