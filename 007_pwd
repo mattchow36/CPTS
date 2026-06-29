@@ -86,3 +86,25 @@ Default cres:
   https://www.softwaretestinghelp.com/default-router-username-and-password-list/
 
 
+Windows login:
+  HKLM\SAM  local hash of creds hash
+  HKLM\SYSTEM  key to hash SAM
+  HKLM\SECURITY domain and more
+
+  reg.exe save hklm\sam C:\sam.save
+
+  smbserver.py:  start a smb sever on attk host to pull .save, like http sever
+
+  secretsdump:  decrypt creds
+  then hashcat: get pwd
+      mode:  https://hashcat.net/wiki/doku.php?id=example_hashes
+
+  https://github.com/fortra/impacket/blob/master/examples/dpapi.py
+  https://github.com/gentilkiwi/mimikatz
+  https://github.com/login-securite/DonPAPI
+
+  netexec:  dumping LSA, SAM
+
+
+
+  
