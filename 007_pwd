@@ -103,7 +103,7 @@ Windows login:
   https://github.com/gentilkiwi/mimikatz
   https://github.com/login-securite/DonPAPI
 
-  netexec:  dumping LSA, SAM
+  netexec / CrackMapExec:  dumping and decrypt LSA, SAM
 
 
 
