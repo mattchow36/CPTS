@@ -138,9 +138,13 @@ Pass the hash (PtH):
 
 Hunt pwd:
   https://github.com/AlessandroZ/LaZagne
+    python3 laZagne.py all
+  
   https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/findstr
     C:\> findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml *.git *.ps1 *.yml
 
+  https://github.com/unode/firefox_decrypt
+   python3 laZagne.py browsers
 
 Linux::
   https://github.com/pmittaldev/john-the-ripper/blob/master/src/unshadow.c
@@ -149,4 +153,21 @@ Linux::
       sudo cp /etc/shadow /tmp/shadow.bak 
       unshadow /tmp/passwd.bak /tmp/shadow.bak > /tmp/unshadowed.hashes
 
+Bash scripts:
+  config files:  for l in $(echo ".conf .config .cnf");do echo -e "\nFile extension: " $l; find / -name *$l 2>/dev/null | grep -v "lib\|fonts\|share\|core" ;done
+  db files:  for l in $(echo ".sql .db .*db .db*");do echo -e "\nDB File extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share\|man";done
+  txt for no extention:  find /home/* -type f -name "*.txt" -o ! -name "*.*"
+  scripts: for l in $(echo ".py .pyc .pl .go .jar .c .sh");do echo -e "\nFile extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share";done
+
+Enumerate:
+  cronjobs 
+  .bash_history
+  /var/log/
+
+
+Network traffic:
+  https://github.com/lgandx/PCredz
+
+  https://www.wireshark.org/
+  
 
