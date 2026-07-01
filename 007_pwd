@@ -143,7 +143,10 @@ Hunt pwd:
 
 
 Linux::
-  
+  https://github.com/pmittaldev/john-the-ripper/blob/master/src/unshadow.c
+    includes john
+      sudo cp /etc/passwd /tmp/passwd.bak 
+      sudo cp /etc/shadow /tmp/shadow.bak 
+      unshadow /tmp/passwd.bak /tmp/shadow.bak > /tmp/unshadowed.hashes
 
 
-  
