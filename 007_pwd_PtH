@@ -211,6 +211,37 @@ Pass the Tickets (PtT):
 
   https://github.com/GhostPack/Rubeus
 
+  Linux Mimikatz:  https://github.com/CiscoCXSecurity/linikatz
+
+Online-hash-crack:
+  https://crackstation.net/
+
+
+Proxies:
+  https://github.com/jpillora/chisel
+  https://github.com/haad/proxychains
+
+Find keytab in Linux:
+  find / -name *keytab* -ls 2>/dev/null
+  ls -la /tmp | grep krb5
+
+  pass ticket: 
+  export KRB5CCNAME=/root/krb5cc_647401106_9JBodG      (set env variable)
+  kinit 'LINUX01$@INLANEFREIGHT.HTB' -k -t /etc/krb5.keytab      (use kinit)
+
+
+Crack keytab:
+  python3 /opt/keytabextract.py ***.keytab
+  python3 /opt/keytabextract.py /home/carlos@inlanefreight.htb/.scripts/***.kt     （from crontab -l)
+
+Pass certificates:
+  https://github.com/fortra/impacket/blob/master/examples/ntlmrelayx.py
+  https://github.com/ly4k/Certipy
+  https://github.com/dirkjanm/krbrelayx/blob/master/printerbug.py
+  https://github.com/dirkjanm/PKINITtools/blob/master/gettgtpkinit.py
+    https://github.com/wbond/oscrypto
+  https://github.com/ShutdownRepo/pywhisker
+  https://github.com/AlmondOffSec/PassTheCert/
   
 
 
