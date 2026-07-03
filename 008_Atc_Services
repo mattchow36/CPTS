@@ -30,7 +30,7 @@ Coss Platform:
 
 Enumerate acc pwd:
   https://learn.microsoft.com/en-us/sql/t-sql/statements/statements?view=sql-server-ver15
-
+    https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/xp-cmdshell-transact-sql?view=sql-server-ver15
 
 FTP:
   passive
