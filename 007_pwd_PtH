@@ -1,3 +1,7 @@
+appending:
+  echo "SMTIP   dc01.inlanefreight.local" | sudo tee -a /etc/hosts
+
+
 tar:
   -x to extract
   -v for verbose
