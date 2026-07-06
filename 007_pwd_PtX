@@ -241,12 +241,15 @@ Crack keytab:
 Pass certificates:
   https://github.com/fortra/impacket/blob/master/examples/ntlmrelayx.py
   https://github.com/ly4k/Certipy
+
   https://github.com/dirkjanm/krbrelayx/blob/master/printerbug.py
   https://github.com/dirkjanm/PKINITtools/blob/master/gettgtpkinit.py
     https://github.com/wbond/oscrypto
+
   https://github.com/ShutdownRepo/pywhisker
   https://github.com/AlmondOffSec/PassTheCert/
-  
+
+
 
 
 
