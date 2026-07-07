@@ -133,3 +133,29 @@ Socks in Windows:
     https://www.proxifier.com/
 
 
+DefensiveL
+  https://www.netbrain.com/
+  https://app.diagrams.net/
+
+边界优先
+What exactly are we protecting? (我们到底在保护什么？)
+What are the most valuable assets the organization owns that need securing? (组织拥有的需要保护的最有价值的资产是什么？)
+What can be considered the perimeter of our network? (我们网络的边界可以被认为是哪里？)
+What devices & services can be accessed from the Internet? (Public-facing) (哪些设备和服务可以从互联网访问？(面向公众))
+How can we detect & prevent when an attacker is attempting an attack? (当攻击者试图攻击时，我们如何检测和预防？)
+How can we make sure the right person &/or team receives alerts as soon as something isn't right? (我们如何确保一旦出现问题，正确的人员和/或团队能立即收到警报？)
+Who on our team is responsible for monitoring alerts and any actions our technical controls flag as potentially malicious? (我们团队中谁负责监控警报以及我们的技术控制标记为潜在恶意的任何行为？)
+Do we have any external trusts with outside partners? (我们是否与外部合作伙伴有任何外部信任关系？)
+What types of authentication mechanisms are we using? (我们正在使用哪些类型的身份验证机制？)
+Do we require Out-of-Band (OOB) management for our infrastructure. If so, who has access permissions? (我们的基础设施是否需要带外 (OOB) 管理？如果是，谁有访问权限？)
+Do we have a Disaster Recovery plan? (我们有灾难恢复计划吗？)
+
+Are any hosts that require exposure to the internet properly hardened and placed in a DMZ network? (任何需要暴露在互联网上的主机是否都经过了适当的加固并放置在 DMZ 网络中？)
+Are we using Intrusion Detection and Prevention systems within our environment? (我们在环境内部是否使用了入侵检测和防御系统？)
+How are our networks configured? Are different teams confined to their own network segments? (我们的网络是如何配置的？不同的团队是否被限制在各自的网络分段中？)
+Do we have separate networks for production and management networks? (我们是否有独立的生产网络和管理网络？)
+How are we tracking approved employees who have remote access to admin/management networks? (我们如何跟踪被批准远程访问管理员/管理网络的员工？)
+How are we correlating the data we are receiving from our infrastructure defenses and end-points? (我们如何关联从基础设施防御和端点接收到的数据？)
+Are we utilizing host-based IDS, IPS, and event logs? (我们是否利用了基于主机的 IDS、IPS 和事件日志？)
+
+https://attack.mitre.org/tactics/enterprise/
