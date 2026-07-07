@@ -112,3 +112,23 @@ ICMP:
   proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123 /dynamic-resolution
 
     https://github.com/utoni/ptunnel-ng
+
+Socks in Windows:
+  wget https://github.com/nccgroup/SocksOverRDP/releases/download/v1.0/SocksOverRDP-x64.zip
+  wget https://www.proxifier.com/download/ProxifierPE.zip
+
+  xfreerdp
+  either uninstall or turn off Windows Defender
+  scp / cpoy and paste
+  AC: regsvr32.exe SocksOverRDP-Plugin.dll
+  AC: mstsc.exe
+
+  DC: Uninstall-WindowsFeature -Name Windows-Defender
+  scp / cpoy and paste
+  DC: mstsc.exe
+
+    https://github.com/nccgroup/SocksOverRDP
+    +
+    https://www.proxifier.com/
+
+
