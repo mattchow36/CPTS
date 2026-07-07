@@ -26,7 +26,8 @@ Ping sweep:
   for i in {1..254} ;do (ping -c 1 172.16.5.$i | grep "bytes from" &) ;done
   1..254 | % {"172.16.5.$($_): $(Test-Connection -count 1 -comp 172.16.5.$($_) -quiet)"}
   meterpreter > run post/multi/gather/ping_sweep RHOSTS=172.16.5.0/23
-  or
+
+msf socks:
   msf6 > use auxiliary/server/socks_proxy
   meterpreter > run autoroute -s 172.16.5.0/23
 
