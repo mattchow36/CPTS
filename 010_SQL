@@ -1,3 +1,34 @@
 mysql -u root -h docker.hackthebox.eu -P 3306 -p
   no pwd in bash
 
+CREATE DATABASE users;
+SHOW DATABASES;
+USE users;
+CREATE TABLE logins (
+    id INT NOT NULL AUTO_INCREMENT,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    date_of_joining DATETIME DEFAULT NOW(),
+    PRIMARY KEY (id)
+    );
+SHOW TABLES;
+DESCRIBE table;
+INSERT INTO table_name(column2, column3, ...) VALUES (column2_value, column3_value, ...),(column2_value, column3_value, ...)...;
+SELECT * FROM table_name;
+SELECT column1, column2 FROM table_name;
+DROP TABLE logins;
+ALTER TABLE logins ADD newColumn INT;
+ALTER TABLE logins RENAME COLUMN newColumn TO newerColumn;
+ALTER TABLE logins DROP newerColumn;
+UPDATE table_name SET column1=newvalue1, column2=newvalue2, ... WHERE <condition1> AND / OR <condition2>;      && || !
+SELECT * FROM logins ORDER BY password;
+SELECT * FROM logins ORDER BY password DESC, id ASC;
+SELECT * FROM logins LIMIT 2;        show 2
+SELECT * FROM logins LIMIT 1, 2;     show 2 from 1
+SELECT * FROM logins WHERE username LIKE 'admin%';      show where admin...
+SELECT * FROM logins WHERE username like '___';         show where 3 characters
+
+
+Bypass syntax:
+  https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/SQL%20Injection#authentication-bypass
+
