@@ -1,6 +1,10 @@
 Install Burp CA for browser:
   https://portswigger.net/burp/documentation/desktop/external-browser-config/certificate
 
+5 parts linux hash:
+  $argon2i$v=19$m=2048,t=4,p=3$UDhiSFgvTU0uZjBNUGljbw$FAraZTOEEidUQJXHmCkgH08iIuYZP/MQpLg+bBcM5o4
+
+
 mysql -u root -h docker.hackthebox.eu -P 3306 -p
   no pwd in bash
 
