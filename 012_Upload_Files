@@ -15,7 +15,7 @@ Front end controls:
 
 
 Back end controls:
-  Use Burp Intruder to fuff
+  Use Burp Intruder to fuff  (fuff the para of 'filename')
 
   untick url encoding, keep .
 
