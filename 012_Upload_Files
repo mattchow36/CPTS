@@ -31,6 +31,9 @@ Back end controls:
     shell.aspx:.jpg，这也应该会将文件写为 shell.aspx
   
 
+Wordlist:
+  https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Upload%20Insecure%20Files/Extension%20PHP/extensions.lst
+
 Bash hand make wordlist:
   for char in '%20' '%0a' '%00' '%0d0a' '/' '.\\' '.' '…' ':'; do
       for ext in '.php' '.phps'; do
