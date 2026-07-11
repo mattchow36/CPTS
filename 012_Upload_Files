@@ -15,8 +15,16 @@ Front end controls:
 
 
 Back end controls:
-  Use Burp Intruder to fuff  (fuff the para of 'filename')
+  Black list:
+    Use Burp Intruder to fuff  (fuff the para of 'filename')
+  
+    untick url encoding, keep .
+  
+    Send 200 request from Intruder to Repeater
 
-  untick url encoding, keep .
+  White list:
+    use double extention (e.g.  *.jpg.php)
+    BUT
+    if (!preg_match('/^.*\.(jpg|jpeg|png|gif)$/', $fileName))      match the last extention, so can not bypass
 
-  Send 200 request from Intruder to Repeater
+  
