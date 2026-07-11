@@ -23,15 +23,15 @@ Back end controls:
     Send 200 request from Intruder to Repeater
 
   White list:
-    use double extention (e.g. ending with jpg if jpg in white list      *.php.jpg)
+    use double extension (e.g. ending with jpg if jpg in white list      *.php.jpg)
     BUT
-    if (!preg_match('/^.*\.(jpg|jpeg|png|gif)$/', $fileName))      $ match the last extention, so can not bypass
+    if (!preg_match('/^.*\.(jpg|jpeg|png|gif)$/', $fileName))      $ match the last extension, so can not bypass
 
     shell.php%00.jpg 适用于版本为 5.X 或更早的 PHP 服务器，因为它会导致 PHP Web 服务器在 (%00) 之后结束文件名，并将其存储为 (shell.php)，同时仍然通过白名单。
     shell.aspx:.jpg，这也应该会将文件写为 shell.aspx
   
 
-Extention wordlist:
+extension wordlist:
   https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Upload%20Insecure%20Files/Extension%20PHP/extensions.lst
 
 Content-type wordlist:
@@ -46,4 +46,8 @@ Bash hand make wordlist:
           echo "shell.jpg$ext$char" >> wordlist.txt
       done
   done
+
+
+MIME:
+  
 
