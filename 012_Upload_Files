@@ -3,5 +3,20 @@ Web Shell 必须使用运行 Web 服务器的相同编程语言编写，
 这使得 Web Shell 成为非跨平台的脚本。
 因此，第一步将是识别 Web 应用程序运行的是什么语言。
 
+
 Check website stack:
   https://www.wappalyzer.com/
+
+
+Front end controls:
+  Use Burp to modify
+  OR
+  Change front end code
+
+
+Back end controls:
+  Use Burp Intruder to fuff
+
+  untick url encoding, keep .
+
+  Send 200 request from Intruder to Repeater
