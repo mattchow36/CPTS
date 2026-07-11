@@ -23,7 +23,7 @@ Back end controls:
     Send 200 request from Intruder to Repeater
 
   White list:
-    use double extention (e.g.  *.jpg.php)
+    use double extention (e.g. ending with jpg if jpg in white list      *.php.jpg)
     BUT
     if (!preg_match('/^.*\.(jpg|jpeg|png|gif)$/', $fileName))      $ match the last extention, so can not bypass
 
