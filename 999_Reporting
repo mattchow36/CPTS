@@ -1,0 +1,60 @@
+Attack Path (攻击路径) - 如果你在外部渗透测试中获得了一个立足点 (foothold)，或在内部渗透测试中攻陷了一台或多台主机（或 AD 域），则需要在此处概述整个攻击路径。使用截图和命令输出尽可能详细地勾勒出路径，这样以后可以更轻松地将其粘贴到报告中，只需担心格式问题。
+Credentials (凭据) - 一个集中的地方，用于在你进行评估时保存已攻破的凭据和机密信息。
+Findings (发现项) - 我们建议为每个发现项创建一个子文件夹，然后在文件夹中编写我们的描述性文字并保存，同时附上任何证据（截图、命令输出）。在你的笔记工具中保留一个专门的区域来记录发现项信息也很有价值，这有助于为报告组织这些信息。
+Vulnerability Scan Research (漏洞扫描研究) - 一个用于记录你研究和尝试过的漏洞扫描相关事项的区域（这样你就不会重复已经做过的工作）。
+Service Enumeration Research (服务枚举研究) - 一个用于记录你调查过的服务、失败的利用尝试、有希望的漏洞/错误配置等的区域。
+Web Application Research (Web 应用研究) - 一个用于记录通过各种方法（如子域名爆破 (subdomain brute-forcing)）发现的有趣 Web 应用程序的区域。在外部进行彻底的子域名枚举、在内部评估中扫描常见的 Web 端口，并运行 Aquatone 或 EyeWitness 等工具对所有应用程序进行截图，这些都是很好的做法。在审查截图报告时，记下感兴趣的应用程序、你尝试过的常用/默认凭据对等信息。
+AD Enumeration Research (AD 枚举研究) - 一个用于逐步展示你已执行的活动目录 (Active Directory, AD) 枚举操作的区域。记下任何你需要在评估后期跟进的兴趣点。
+OSINT (开源情报) - 一个用于记录你通过开源情报 (OSINT) 收集到的有趣信息的区域，如果适用于该项目。
+Administrative Information (行政管理信息) - 有些人可能会觉得，拥有一个集中的位置来存储项目相关方的联系信息会很有帮助，例如项目经理 (Project Manager, PM) 或客户联系人 (Point of Contact, POC)、交战规则 (Rules of Engagement, RoE) 中定义的独特目标/标志，以及你在整个项目中发现自己经常参考的其他项目。它也可以用作一个动态的待办事项列表。当你有需要执行或想尝试但暂时没时间的测试想法时，要勤于在此处记下，以便稍后回来处理。
+Scoping Information (范围信息) - 在这里，我们可以存储有关范围内 IP 地址/CIDR 范围、Web 应用程序 URL 以及客户提供的用于 Web 应用程序、VPN 或 AD 的任何凭据的信息。它还可以包括与评估范围相关的任何其他信息，这样我们就不必反复打开范围信息文件，并确保我们不会偏离评估范围。
+Activity Log (活动日志) - 对你在评估期间所做的所有事情进行高层次的跟踪，以便进行可能的事件关联 (event correlation)。
+Payload Log (载荷日志) - 与活动日志类似，跟踪你在客户环境中使用的载荷 (payload)（以及任何上传文件的文件哈希值和上传位置）至关重要。稍后会详细介绍这一点。
+
+
+https://obsidian.md/
+https://www.getoutline.com/
+https://github.com/tmux-plugins/tmux-logging
+https://github.com/tmux-plugins/tpm
+https://github.com/tmux-plugins/tmux-sessionist
+https://github.com/tmux-plugins/tmux-pain-control
+https://github.com/tmux-plugins/tmux-resurrect
+https://github.com/tmux-plugins/list
+
+
+https://www.youtube.com/watch?v=Lqehvpe_djs
+https://mavericknerd.github.io/knowledgebase/ippsec/tmux/
+
+
+mattchow@htb[/htb]$ mkdir -p ACME-IPT/{Admin,Deliverables,Evidence/{Findings,Scans/{Vuln,Service,Web,'AD Enumeration'},Notes,OSINT,Wireless,'Logging output','Misc Files'},Retest}
+mattchow@htb[/htb]$ tree ACME-IPT/
+
+the above make:
+Admin
+你正在执行的工作范围说明书 (Scope of Work, SoW)、项目启动会议的笔记、状态报告、漏洞通知等。
+Deliverables
+用于存放你在处理交付物时文件的文件夹。这通常是你的报告，但也可能包括其他项目，如补充电子表格和幻灯片，具体取决于客户的特定要求。
+Evidence
+Findings
+我们建议为计划包含在报告中的每个发现项创建一个文件夹，将每个发现项的证据保存在一个容器中，以便在撰写报告时更容易地将演练过程拼接在一起。
+Scans
+Vulnerability scans
+从你的漏洞扫描器（如果适用于评估类型）导出的文件，用于归档。
+Service Enumeration
+从用于在目标环境中枚举服务的工具（如 Nmap、Masscan、Rumble 等）导出的文件。
+Web
+诸如 ZAP 或 Burp 状态文件、EyeWitness、Aquatone 等工具的导出文件。
+AD Enumeration
+来自 BloodHound 的 JSON 文件、由 PowerView 或 ADRecon 生成的 CSV 文件、Ping Castle 数据、Snaffler 日志文件、CrackMapExec 日志、来自 Impacket 工具的数据等。
+Notes
+一个用于存放你的笔记的文件夹。
+OSINT
+来自 Intelx 和 Maltego 等工具的任何 OSINT 输出，这些输出不太适合放在你的笔记文档中。
+Wireless
+如果无线测试在范围内，则为可选文件夹，你可以使用此文件夹存放来自无线测试工具的输出。
+Logging output
+来自 Tmux、Metasploit 的日志输出，以及任何不适合上述 Scan 子目录的其他日志输出。
+Misc Files
+Web shell、载荷、自定义脚本以及在评估期间生成的与项目相关的任何其他文件。
+Retest
+这是一个可选文件夹，如果你需要在原始评估后返回并重新测试先前发现的发现项。你可能希望在此目录中复制你在初始评估期间使用的文件夹结构，以将你的重新测试证据与原始证据分开。
