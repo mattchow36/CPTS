@@ -1,0 +1,11 @@
+OS commands
+Code
+SQL
+HTML scripts
+除了上述类型之外，还有许多其他类型的注入，例如 LDAP injection、NoSQL Injection、HTTP Header Injection、XPath Injection、IMAP Injection、ORM Injection 等
+
+
+system in PHP
+exec in NodeJS
+
+
