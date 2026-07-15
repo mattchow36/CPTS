@@ -17,4 +17,10 @@ If only has front end control, use Burp repeater to bypass
   {ls,-la}                自动在ls和-la之间，加入空格
   https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Command%20Injection#bypass-without-space
 
+绕过/反斜杠:
+  ${PATH}                   /usr/local/bin:/usr/bin:/bin:/usr/games
+  echo ${PATH:0:1}          /
+  echo ${LS_COLORS:10:1}    ;
+
+
 
