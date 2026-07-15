@@ -13,8 +13,8 @@ If only has front end control, use Burp repeater to bypass
 
 绕过空格:
   tab
-  ${IFS}            默认是空格或tab
-  {ls,-la}          自动在ls和-la之间，加入空格
+  ${IFS}  $IFS            默认是空格或tab
+  {ls,-la}                自动在ls和-la之间，加入空格
   https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Command%20Injection#bypass-without-space
 
 
