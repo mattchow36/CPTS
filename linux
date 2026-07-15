@@ -6,3 +6,11 @@ chown
 
 curl
   -T  upload file
+
+
+
+
+
+
+  code1 & code2:   run both
+  code1 && code2:  code2 only run if code1 true
