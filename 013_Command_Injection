@@ -11,3 +11,7 @@ exec in NodeJS
 
 If only has front end control, use Burp repeater to bypass
 
+绕过空格:
+  tab
+  ${IFS}            默认是空格或tab
+
