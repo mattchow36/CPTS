@@ -22,5 +22,12 @@ If only has front end control, use Burp repeater to bypass
   echo ${PATH:0:1}          /
   echo ${LS_COLORS:10:1}    ;
 
+  if  %HOMEPATH% = \Users\htb-student
+  echo %HOMEPATH:~6,-11%      \            start from \ , end by \
+  $env:HOMEPATH[0]            \
+
+  字符移位 (shifting characters)
+  echo $(tr '!-}' '"-~'<<<[)      \            [ = 91, \ = 92
+
 
 
