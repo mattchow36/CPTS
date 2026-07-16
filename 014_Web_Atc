@@ -32,7 +32,7 @@ The PATCH method applies partial modifications to a resource
 
 
 它位于 /admin/reset.php，要么是 /admin 目录仅限于经过身份认证的用户访问，要么只有 /admin/reset.php 页面受限
-
+由于该页面使用 GET 请求，我们可以发送一个 POST 请求
 
 
 
