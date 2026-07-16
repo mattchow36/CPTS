@@ -19,7 +19,7 @@ CONNECT
 The CONNECT method establishes a tunnel to the server identified by the target resource.
 
 OPTIONS
-The OPTIONS method describes the communication options for the target resource.
+The OPTIONS method describes the communication options for the target resource.            curl -i -X OPTIONS http://SERVER_IP:PORT/
 
 TRACE
 The TRACE method performs a message loop-back test along the path to the target resource.
@@ -29,6 +29,7 @@ The PATCH method applies partial modifications to a resource
 
 
 在 PHP 中，$_REQUEST 是一个超全局变量，它默认包含了 $_GET、$_POST 和 $_COOKIE 的集合。
+
 
 
 它位于 /admin/reset.php，要么是 /admin 目录仅限于经过身份认证的用户访问，要么只有 /admin/reset.php 页面受限
