@@ -30,3 +30,9 @@ The PATCH method applies partial modifications to a resource
 
 在 PHP 中，$_REQUEST 是一个超全局变量，它默认包含了 $_GET、$_POST 和 $_COOKIE 的集合。
 
+
+它位于 /admin/reset.php，要么是 /admin 目录仅限于经过身份认证的用户访问，要么只有 /admin/reset.php 页面受限
+
+
+
+
