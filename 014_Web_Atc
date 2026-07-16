@@ -27,10 +27,9 @@ The TRACE method performs a message loop-back test along the path to the target 
 PATCH
 The PATCH method applies partial modifications to a resource
 
+单纯改上面这些请求方法，也可能绕过
 
-在 PHP 中，$_REQUEST 是一个超全局变量，它默认包含了 $_GET、$_POST 和 $_COOKIE 的集合。
-
-
+在 PHP 中，$_REQUEST 是一个超全局变量，它默认包含了 $_GET、$_POST 和 $_COOKIE 的集合
 
 它位于 /admin/reset.php，要么是 /admin 目录仅限于经过身份认证的用户访问，要么只有 /admin/reset.php 页面受限
 由于该页面使用 GET 请求，我们可以发送一个 POST 请求
