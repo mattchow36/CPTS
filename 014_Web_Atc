@@ -50,3 +50,32 @@ Cookie: role=employee
 另一种潜在的攻击是在用户可编辑字段中放置跨站脚本 (Cross-Site Scripting, XSS) 载荷‘
 
 
+Defensive:
+  Apply RBAC
+  JS code:
+    match /api/profile/{userId} {
+      allow read, write: if user.isAuth == true
+      && (user.uid == userId || user.roles == 'admin');
+  }
+
+绝不应在前端计算哈希值
+
+
+3:
+XML 不侧重于显示数据，而主要用于存储文档数据和表示数据结构
+
+Declaration	通常是 XML 文档的第一行，定义解析时要使用的 XML 版本和编码。	<?xml version="1.0" encoding="UTF-8"?>
+DTD(XML Document Type Definition) XML 文档类型定义   紧跟在第一行的 XML 声明 之后，自定义标签结构
+      <!DOCTYPE email [
+      <!ENTITY company SYSTEM "http://localhost/company.txt">
+      <!ENTITY signature SYSTEM "file:///var/www/html/signature.txt">
+    ]>
+      使用 SYSTEM 关键字在 XML 文档中引用：
+            <!DOCTYPE email SYSTEM "email.dtd">
+            <!DOCTYPE email SYSTEM "http://inlanefreight.com/email.dtd">
+Attribute	存储在标签中的任何元素的可选规范，可供 XML 解析器使用。	version="1.0"/encoding="UTF-8"
+Tag	XML 文档的键，通常用 (< >) 字符包裹。	<date>
+Entity	XML 变量，通常用 (& ;) 字符包裹。	&lt;
+Element	根元素或其任何子元素，其值存储在开始标签和结束标签之间。	<date>01-01-2022</date>
+Comments注释  <!-- 和 --> 
+
