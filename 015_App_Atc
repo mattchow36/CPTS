@@ -22,4 +22,6 @@ Sample box:
 WordPress:
   curl ... | grep 'WordPress' 'themes' 'plugins
 
+  wp-login.php      登录后端
 
+  
