@@ -4,28 +4,25 @@ XML 外部实体注入 (XML External Entity (XXE) Injection)                   3
 
 
 1
-GET  DELETE
+GET
 
-HEAD
-The HEAD method asks for a response identical to a GET request, but without a response body.
+HEAD  -  As GET request, but no response body.
 
-POST
-The POST method submits an entity to the specified resource, often causing a change in state or side effects on the server.
+POST  -  Add.
 
-PUT
-The PUT method RELACEs all current representations of the target resource with the request content.
+PUT   -  Update.
+
+DELETE
 
 CONNECT
 The CONNECT method establishes a tunnel to the server identified by the target resource.
 
-OPTIONS
-The OPTIONS method describes the communication options for the target resource.            curl -i -X OPTIONS http://SERVER_IP:PORT/
+OPTIONS  -  Show the communication option.            curl -i -X OPTIONS http://SERVER_IP:PORT/
 
 TRACE
 The TRACE method performs a message loop-back test along the path to the target resource.
 
-PATCH
-The PATCH method applies partial modifications to a resource
+PATCH  -  Partial modifications.
 
 单纯改上面这些请求方法，也可能绕过
 
@@ -39,3 +36,9 @@ file; cp /flag.txt ./            换路径
 通常应考虑禁用/拒绝所有 HEAD 请求
 
 
+base64 a no. then pass and get:
+  for i in {1..20}; do
+      for hash in $(echo -n $i | base64 -w 0); do
+          curl -sOJ "http://STMIP:STMPO/download.php?contract=$hash"
+      done
+  done
