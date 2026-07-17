@@ -70,6 +70,7 @@ DTD(XML Document Type Definition) XML 文档类型定义   紧跟在第一行的
       <!ENTITY company SYSTEM "http://localhost/company.txt">
       <!ENTITY signature SYSTEM "file:///var/www/html/signature.txt">
     ]>
+    我们也可以使用 PUBLIC 关键字代替 SYSTEM 来加载外部资源，它用于公共声明的实体和标准，例如语言代码 (lang="en")
       使用 SYSTEM 关键字在 XML 文档中引用：
             <!DOCTYPE email SYSTEM "email.dtd">
             <!DOCTYPE email SYSTEM "http://inlanefreight.com/email.dtd">
