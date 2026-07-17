@@ -24,7 +24,8 @@ The TRACE method performs a message loop-back test along the path to the target 
 
 PATCH  -  Partial modifications.
 
-单纯改上面这些请求方法，也可能绕过
+单纯改上面这些请求方法，也可能绕过:
+  比如，用POST更改密码被deny，改用GET，url里加  ?password=abc
 
 在 PHP 中，$_REQUEST 是一个超全局变量，它默认包含了 $_GET、$_POST 和 $_COOKIE 的集合
 
@@ -168,5 +169,18 @@ CDATA:
       ]>
       <root>&content;</root>
 
+  防御：
+    禁用对自定义文档类型定义 (Document Type Definitions, DTD) 的引用
+    禁用对外部 XML 实体 (External XML Entities) 的引用
+    禁用参数实体 (Parameter Entity) 处理
+    禁用对 XInclude 的支持
+    防止实体引用循环 (Entity Reference Loops)
+    许多人也建议使用其他格式，例如 JSON 或 YAML。这也包括避免依赖 XML 的 API 标准（例如 SOAP），转而使用基于 JSON 的 API（例如 REST）
+
+
 Tool for 3:
   https://github.com/enjoiz/XXEinjector
+
+
+Generate random pwd:
+  openssl rand -hex 16
