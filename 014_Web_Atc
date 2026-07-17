@@ -46,4 +46,7 @@ base64 a no. then pass and get:
 Cookie: role=employee
   po vuls
 
+一种攻击类型是修改用户的电子邮件地址，然后请求密码重置链接
+另一种潜在的攻击是在用户可编辑字段中放置跨站脚本 (Cross-Site Scripting, XSS) 载荷‘
+
 
