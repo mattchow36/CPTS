@@ -51,5 +51,18 @@ Joomla:
   droopescan scan joomla --url http://dev.inlanefreight.local/
 
   sudo python3 joomla-brute.py -u http://dev.inlanefreight.local -w /usr/share/metasploit-framework/data/wordlists/http_default_pass.txt -usr admin
+  
+  养成一个好习惯，为 webshell 使用非标准的文件名和参数，以免在评估期间被“路过式”攻击者轻易发现
+  还可以设置密码保护，甚至将访问权限限制在源 IP 地址 (source IP address)
+  记得在使用完 webshell 后立即清理它们，但仍需在给客户的最终报告中包含文件名、文件哈希值和位置
 
 
+Drupal:
+  https://new.drupal.org/home
+
+  curl -s http://drupal.inlanefreight.local | grep Drupal
+
+  curl -s http://drupal-acc.inlanefreight.local/CHANGELOG.txt | grep -m2 "Drupal"
+    -m2  显示最先出现的2个
+  
+  
