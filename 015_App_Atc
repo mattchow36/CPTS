@@ -96,4 +96,5 @@ Tomcat:
   key:  webapps/WEB-INF/web.xml
 
   http://web01.inlanefreight.local:8180 a
-  
+
+  msf6 auxiliary(scanner/http/tomcat_mgr_login) 
