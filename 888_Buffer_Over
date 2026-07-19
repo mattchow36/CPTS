@@ -1,6 +1,15 @@
 漏洞利用可分为四个不同类别：
-Local
-Remote
-DoS
-WebApp
+  Local
+  Remote
+  DoS
+  WebApp
+
+
+有四种不同类型的 ISA：
+
+  CISC - 复杂指令集计算 (Complex Instruction Set Computing)
+  RISC - 精简指令集计算 (Reduced Instruction Set Computing)
+  VLIW - 超长指令字 (Very Long Instruction Word)
+  EPIC - 显式并行指令计算 (Explicitly Parallel Instruction Computing)
+
 
