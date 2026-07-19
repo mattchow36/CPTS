@@ -13,3 +13,6 @@
   EPIC - 显式并行指令计算 (Explicitly Parallel Instruction Computing)
 
 
+MSF:  
+  /usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l 1200 > pattern.txt
+  /usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q 0x69423569(eip address)
