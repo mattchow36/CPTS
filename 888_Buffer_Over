@@ -35,4 +35,11 @@ MSF:
     b specifies the unit in which the output is displayed (which in this case is bytes), 
     and at last, $esp+500 specifies the starting display address
 
-  
+
+这些安全机制包括：
+  Canaries      一旦发生缓冲区溢出，金丝雀值将首先被覆盖
+  Address Space Layout Randomization (ASLR)      需要猜测地址，而错误的地址很可能会导致程序崩溃，相应地，只有一次尝试机会
+  Data Execution Prevention (DEP)      如果某个程序试图以未经授权的方式调用或访问程序代码，DEP 会终止该程序
+
+
+
