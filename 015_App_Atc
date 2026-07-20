@@ -133,4 +133,11 @@ PRTG Network Monitor:
 
 
 osTicket:
+  sudo python3 dehashed.py -q inlanefreight.local -p
+
+  https://github.com/initstring/linkedin2username
+
+Gitlab:
+  不建议对一个应用程序发起各种漏洞利用，如果没有办法枚举版本号（例如通过页面上的日期、第一次公开提交或注册用户），应该坚持搜寻机密信息，而不是盲目地对其尝试多种漏洞利用
+
   
