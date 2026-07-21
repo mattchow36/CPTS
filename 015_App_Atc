@@ -198,3 +198,9 @@ Tick / Fat APP:
 
   x64dbg            show cpu map
   De4Dot            decode .NET binary
+
+  C:\> ls fatty-client\ -recurse | Select-String "8000" | Select Path, LineNumber | Format-List            多文件找string
+
+  https://java-decompiler.github.io/            decode .jar
+
+  
