@@ -253,6 +253,15 @@ ColdFusion:
 
 
 IIS:
+  https://github.com/irsdl/IIS-ShortName-Scanner
+      https://ubuntuhandbook.org/index.php/2022/03/install-jdk-18-ubuntu/
+
+  java -jar iis_shortname_scanner.jar 0 5 http://10.129.204.231/            返回有  TRANSF~1.ASP
+
+  egrep -r ^transf /usr/share/wordlists/* | sed 's/^[^:]*://' > /tmp/list.txt          生成BF词表
+
+  gobuster dir -u http://10.129.204.231/ -w /tmp/list.txt -x .aspx,.asp
   
-  
-  
+
+LDAP (轻量级目录访问协议，Lightweight Directory Access Protocol):
+    
