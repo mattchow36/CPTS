@@ -264,4 +264,34 @@ IIS:
   
 
 LDAP (轻量级目录访问协议，Lightweight Directory Access Protocol):
+  LDAP 有两种流行的实现：OpenLDAP，被广泛使用和支持的开源软件；以及 Microsoft Active Directory
+  虽然 LDAP 可以与 AD 及其他目录服务通信，但它本身并不是目录服务。AD 提供了额外的功能，如策略管理、单点登录以及与各种 Microsoft 产品的集成
+
+  ldapsearch 是一个命令行实用程序，用于使用 LDAP 协议搜索存储在目录中的信息。它通常用于从 LDAP 目录服务中查询和检索数据:
+    ldapsearch -H ldap://ldap.example.com:389 -D
+
+  LDAP 注入攻击类似于 SQL 注入攻击，但其目标是 LDAP 目录服务而不是数据库
+
+  攻击者可以将 * 字符注入 $username 或 $password 字段，以修改 LDAP 查询并绕过身份验证
+  $username = "*";                   $username = "dummy";
+  $password = "dummy";               $password = "*";
+  (&(objectClass=user)(sAMAccountName=$username)(userPassword=$password))
+
+
+
+Web 批量分配漏洞 (Web Mass Assignment Vulnerabilities):
+  直接将表单中用户输入的整套数据插入到对象或数据库中
+  攻击者可以通过篡改发送到服务器的参数来修改其他属性
+  { "user" => { "username" => "hacker", "email" => "hacker@example.com", "admin" => true } }
+  尽管 User 模型没有明确声明 admin 属性是可访问的，但攻击者仍然可以更改它，因为它存在于参数中
+  使用 Burp Suite，我们可以捕获发送到 /register 页面的 HTTP POST 请求，并设置参数 username=new&password=test&confirmed=test
+
+  防御:
+    def user_params
+    params.require(:user).permit(:username, :email)
+    在上面的示例中，user_params 方法返回一个新的哈希 (hash)，其中只包含 username 和 email 属性，忽略客户端可能发送的任何其他输入
+
+
+
+
     
