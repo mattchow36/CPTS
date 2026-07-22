@@ -292,6 +292,8 @@ Web 批量分配漏洞 (Web Mass Assignment Vulnerabilities):
     在上面的示例中，user_params 方法返回一个新的哈希 (hash)，其中只包含 username 和 email 属性，忽略客户端可能发送的任何其他输入
 
 
+ELF  /  DLL:
+  
 
 
     
