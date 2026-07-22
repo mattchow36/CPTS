@@ -1,0 +1,65 @@
+整个流程逻辑其实非常清晰，本质上就是 “解包分析 ➔ 修改代码突破限制 ➔ 拿到服务端 ➔ 发现 SQL 注入 ➔ 再次修改客户端进行漏洞利用” 的过程。
+
+以下是为你梳理出的 5 大核心阶段与关键动作：
+
+阶段一：重构并修补客户端 (fatty-client)
+由于原始 JAR 包限制了通信端口和文件校验，首先需要解包并修补客户端。
+
+修改配置文件：解压客户端，将 beans.xml 中的服务端连接端口从 8000 改为 1337。
+
+解除签名校验：清理 META-INF/MANIFEST.MF 中的哈希校验，并直接删除签名文件 1.RSA 和 1.SF。
+
+重新打包与导出源码：打出新包 fatty-client-new.jar，拖入 JD-GUI 导出完整源码包 fatty-client-new.jar.src.zip。
+
+阶段二：绕过客户端目录限制，获取任意文件查看权
+客户端代码中限制了访问路径，通过修改代码实现目录穿越（Directory Traversal）。
+
+修改路径限制：解压源码包，修改 GUI 源码（ClientGuiTest.java），将写死的 configs 文件夹限制替换为 ..（允许向上跳转目录）。
+
+重新编译并替换 .class：
+
+用 javac 编译修改后的 ClientGuiTest.java。
+
+将编译好的 .class 覆盖到由 fatty-client-new.jar 解压出的 raw 目录结构中。
+
+打包并运行：重新打包生成 traverse.jar。
+
+定位服务端程序：用低权限账号（qtc:clarabibi）登录后，通过文件浏览器查看服务器上的 start.sh，从而发现了服务端程序 fatty-server.jar 的存在。
+
+阶段三：二次修改客户端，强行下载服务端 JAR 包
+为了分析服务端的漏洞，必须把服务端的二进制文件（fatty-server.jar）下载到本地。
+
+改造 open() 函数：修改 Invoker.java 中的 open 方法，加入文件流写入逻辑（FileOutputStream），将服务器返回的二进制流直接保存为本地 Desktop 上的 fatty-server.jar。
+
+二次编译打包：编译 Invoker.java 并更新 raw 目录，重新打包生成 fatty-client-modified.jar。
+
+下载服务端：运行新客户端，调用 open 函数成功把 fatty-server.jar 下载到本地。
+
+阶段四：审计服务端代码，发现 SQL 注入漏洞
+通过反编译导出的服务端代码，分析登录验证机制。
+
+发现注入点（服务端）：用 JD-GUI 反编译 fatty-server.jar，查看 FattyDbSession.class 中的 checkLogin() 函数。
+
+漏洞根源：服务端直接拼接用户名，存在裸写 SQL：
+SELECT id,username,email,password,role FROM users WHERE username='[输入]'
+
+分析密码哈希机制（客户端）：查看客户端 User.java，发现客户端默认会将 用户名 + 密码 + "clarabibimakeseverythingsecure" 强制进行 SHA-256 哈希后提交。
+
+阶段五：绕过客户端密码哈希，执行 SQL 注入提权
+因为客户端会对密码自动做哈希，这会破坏我们构造的 UNION SELECT 注入 Payload，所以必须取消客户端的自动哈希。
+
+去除客户端密码哈希：修改客户端 User.java 的 setPassword() 方法，让密码以明文方式直接发送，不再进行 SHA-256 计算。
+
+最终编译打包：编译 User.java，更新 .class 并重新打包生成 inject.jar。
+
+注入登录并拿到最高权限：
+
+在 inject.jar 的登录界面输入 payload：
+
+用户名：abc' UNION SELECT 1,'abc','a@b.com','abc','admin
+
+密码：abc
+
+利用逻辑：UNION 在内存中硬生生生成了一行伪造的用户数据，其用户名和密码都是 abc，且角色为最高权限 admin。
+
+完成攻击：绕过认证，成功以管理员身份登录系统并获取服务器网卡 IP（172.28.0.3）。
