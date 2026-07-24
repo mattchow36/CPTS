@@ -1,1 +1,12 @@
-
+Tools:
+  https://github.com/GhostPack/Seatbelt            bin:      https://github.com/r3motecontrol/Ghostpack-CompiledBinaries
+  https://github.com/peass-ng/PEASS-ng/tree/master/winPEAS
+  https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/PowerUp.ps1
+  https://github.com/GhostPack/SharpUp            bing:      https://github.com/r3motecontrol/Ghostpack-CompiledBinaries
+  https://github.com/411Hall/JAWS
+  https://github.com/Arvanaghi/SessionGopher
+  https://github.com/rasta-mouse/Watson
+  https://github.com/AlessandroZ/LaZagne            bin:      https://github.com/AlessandroZ/LaZagne/releases/
+  https://github.com/bitsadmin/wesng
+  https://learn.microsoft.com/en-us/sysinternals/downloads/sysinternals-suite
+  
