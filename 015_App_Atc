@@ -293,6 +293,9 @@ Web 批量分配漏洞 (Web Mass Assignment Vulnerabilities):
 
 
 ELF  /  DLL:
+  https://github.com/longld/peda
+    这是标准 GNU 调试器 (GNU Debugger, GDB) 的一个扩展，GDB 用于调试 C 和 C++ 程序。GDB 是一个命令行工具，可以让你单步执行代码、设置断点 (breakpoints) 以及检查和更改变量
+
   
 
 
