@@ -301,6 +301,12 @@ ELF  /  DLL:
   https://github.com/dnSpy/dnSpy
     该工具允许读取、编辑和调试 .NET 程序集（C# 和 Visual Basic）的源代码
 
+
+Lab:
+  gobuster vhost -u inlanefreight.local -w /opt/useful/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -t 50 -k -q            for vhost
+
+  
+
   
 
 
