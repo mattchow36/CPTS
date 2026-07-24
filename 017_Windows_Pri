@@ -10,3 +10,15 @@ Tools:
   https://github.com/bitsadmin/wesng
   https://learn.microsoft.com/en-us/sysinternals/downloads/sysinternals-suite
   
+可以使用多种方法来让我们的工具绕过常见的 AV 产品，例如删除注释、更改函数名、加密可执行文件等
+
+
+ipconfig /all
+arp -a
+route print
+Get-MpComputerStatus
+
+https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/applocker/applocker-overview
+https://learn.microsoft.com/en-us/powershell/module/applocker/get-applockerpolicy?view=windowsserver2019-ps            用来枚举applocker
+
+Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
