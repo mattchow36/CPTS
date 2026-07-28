@@ -1,1 +1,20 @@
+C:\htb> findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml
+        findstr /S /I /M /C:"password" *.*
+
+Get-ChildItem 'C:\Users\htb-student\AppData\Local\Google\Chrome\User Data\' -Recurse -Filter *.txt -ErrorAction SilentlyContinue | Select-String -Pattern 'password'
+
+C:\htb> (Get-PSReadLineOption).HistorySavePath            PS历史保存路径
+从 Windows 10 中的 PowerShell 5.0 开始，PowerShell 将命令历史记录存储到以下文件中：
+C:\Users\<username>\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_his
+
+C:\htb> gc (Get-PSReadLineOption).HistorySavePath            读历史
+
+C:\htb> foreach($user in ((ls C:\users).fullname)){cat "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt" -ErrorAction SilentlyContinue}
+  读所有user的历史
+
+凭据使用 DPAPI (数据保护应用程序编程接口) 进行保护，这通常意味着它们只能由创建它们时的同一用户在同一台计算机上解密
+
+PS C:\htb> $credential = Import-Clixml -Path 'C:\scripts\pass.xml'            可能是自动化留下的pass.xml
+PS C:\htb> $credential.GetNetworkCredential().username  /  .password          只能看同一个用户的
+
 
