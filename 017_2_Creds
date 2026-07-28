@@ -1,5 +1,5 @@
 C:\htb> findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml                                                /M 只显示文件名
-        C:\htb> findstr /si password *.xml *.ini *.txt *.config                                                       显示密码
+        C:\htb> findstr /si password *.xml *.ini *.txt *.config                                                       显示密码，不带引号更模糊
         findstr /S /I /M /C:"password" *.*                                                                            查所有
 
 Get-ChildItem 'C:\Users\htb-student\AppData\Local\Google\Chrome\User Data\' -Recurse -Filter *.txt -ErrorAction SilentlyContinue | Select-String -Pattern 'password'
