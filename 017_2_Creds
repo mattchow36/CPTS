@@ -1,5 +1,6 @@
-C:\htb> findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml
-        findstr /S /I /M /C:"password" *.*
+C:\htb> findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml                                                /M 只显示文件名
+        C:\htb> findstr /si password *.xml *.ini *.txt *.config                                                       显示密码
+        findstr /S /I /M /C:"password" *.*                                                                            查所有
 
 Get-ChildItem 'C:\Users\htb-student\AppData\Local\Google\Chrome\User Data\' -Recurse -Filter *.txt -ErrorAction SilentlyContinue | Select-String -Pattern 'password'
 
@@ -16,5 +17,9 @@ C:\htb> foreach($user in ((ls C:\users).fullname)){cat "$user\AppData\Roaming\Mi
 
 PS C:\htb> $credential = Import-Clixml -Path 'C:\scripts\pass.xml'            可能是自动化留下的pass.xml
 PS C:\htb> $credential.GetNetworkCredential().username  /  .password          只能看同一个用户的
+
+
+爬取.kdbx、.vmdk、.vdhx、.ppk 等
+https://github.com/SnaffCon/Snaffler
 
 
