@@ -290,4 +290,14 @@ $cmd = "net user pwnd /add"
   $s.Send($command)
 ——————
 
-  
+***DLL
+  LoadLibrary API是Windows操作系统的一个函数，它将一个动态链接库 (DLL) 加载到当前进程的内存中，并返回一个可用于获取DLL中函数地址的句柄
+
+  手动映射 (Manual Mapping) 是一种极其复杂和高级的DLL注入方法。它将DLL手动加载到进程的内存中，并解析其导入和重定位。由于不使用被安全和反作弊系统监控的LoadLibrary函数，它避免了被轻易检测
+
+  反射式DLL注入 (Reflective DLL injection) 利用反射式编程 (reflective programming) 将库从内存加载到宿主进程中。库本身通过实现一个最小的可移植可执行文件 (Portable Executable, PE) 加载器来负责其加载过程。
+    https://github.com/stephenfewer/ReflectiveDLLInjection
+
+
+  procmon            https://learn.microsoft.com/sysinternals/downloads/procmon      procmon只在进程活动运行时捕获信息
+  劫持现有或无效DLL，即修改现有代码或替代无效DLL
