@@ -354,3 +354,14 @@ vssadmin delete shadows /for=C: /quiet
 
 使用像 secretsdump 工具来提取本地用户的密码哈希 (password hashes)
 secretsdump.py -sam SAM -security SECURITY -system SYSTEM LOCAL
+
+***
+EOL系统
+C:\htb> wmic qfe        查看当前补丁
+
+使用 Sherlock 枚举缺失的补丁        https://github.com/rasta-mouse/Sherlock
+C:\htb> Set-ExecutionPolicy bypass -Scope process
+C:\htb> Import-Module .\Sherlock.ps1
+C:\htb> Find-AllVulns
+
+
