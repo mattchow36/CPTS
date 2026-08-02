@@ -1,1 +1,4 @@
+利用Sysinternals、WMI、DNS 等原生工具和语言来枚举 AD
+练习攻击，包括密码喷洒 (Password spraying)、Kerberoasting
+使用 Responder、Kerbrute、Bloodhound 等工具
 
