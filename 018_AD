@@ -7,4 +7,23 @@ xfreerdp /v:<MS01 target IP> /u:htb-student /p:Academy_student_AD!
 
 ssh htb-student@<ATTACK01 target IP>
 
+***GO
+https://he.net/       托管了BGP-Toolkit      ASN查询
+https://bgp.he.net/
 
+https://viewdns.info/      在线单DNS查询
+
+google dork:
+filetype:pdf inurl:inlanefreight.com
+intext:"@inlanefreight.com" inurl:inlanefreight.com
+
+target website:
+contact page
+linkedin2username      LinkIn to worklist
+  https://github.com/initstring/linkedin2username
+Dehashed      在泄露数据中搜寻明文凭证和密码哈希
+  sudo python3 dehashed.py -q inlanefreight.local -p
+  https://github.com/sm00v/Dehashed
+
+
+  https://dehashed.com/
