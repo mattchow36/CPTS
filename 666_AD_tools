@@ -1,0 +1,49 @@
+工具	描述
+PowerView/SharpView	一个 PowerShell 工具及其 .NET 移植版本，用于在 AD 中获得态势感知 (situational awareness)。这些工具可以替代各种 Windows net* 命令等。PowerView 和 SharpView 可以帮助我们收集 BloodHound 所能收集的大部分数据，但需要更多工作才能在所有数据点之间建立有意义的关联。这些工具非常适合用于检查我们用一套新凭据可能获得了哪些额外访问权限、定位特定用户或计算机，或者寻找一些“快速突破口”，例如可以通过 Kerberoasting 或 ASREPRoasting 攻击的用户。
+BloodHound	用于直观地绘制出 AD 关系图，并帮助规划那些可能被忽略的攻击路径。它使用 SharpHound PowerShell 或 C# 采集器来收集数据，然后将数据导入到带有 Neo4j 数据库的 BloodHound JavaScript (Electron) 应用程序中，以便对 AD 环境进行图形化分析。
+SharpHound	一个 C# 数据收集器，用于从 Active Directory 中收集关于各种 AD 对象的信息，如用户、组、计算机、ACL、GPO、用户和计算机属性、用户会话等。该工具会生成 JSON 文件，这些文件可以被导入 BloodHound GUI 工具中进行分析。
+BloodHound.py	一个基于 Impacket 工具包 的 Python BloodHound 采集器。它支持大多数 BloodHound 收集方法，并且可以从未加入域的攻击主机上运行。其输出可以导入 BloodHound GUI 中进行分析。
+Kerbrute	一个用 Go 语言编写的工具，利用 Kerberos 预身份验证来枚举 Active Directory 帐户、执行密码喷洒 (password spraying) 和暴力破解。
+Impacket toolkit	一个用 Python 编写的工具集，用于与网络协议进行交互。该工具套件包含各种用于枚举和攻击 Active Directory 的脚本。
+Responder	Responder 是一个专用工具，具有多种功能，可用于毒化 LLMNR、NBT-NS 和 MDNS。
+Inveigh.ps1	与 Responder 类似，是一个用于执行各种网络欺骗和毒化攻击的 PowerShell 工具。
+C# Inveigh (InveighZero)	Inveigh 的 C# 版本，带有一个半交互式控制台，用于与捕获的数据（如用户名和密码哈希）进行交互。
+rpcinfo	rpcinfo 实用程序用于查询 RPC 程序的状态或枚举远程主机上可用的 RPC 服务列表。-p 选项用于指定目标主机。例如，命令 rpcinfo -p 10.0.0.1 将返回远程主机上所有可用 RPC 服务的列表，以及它们的程序号、版本号和协议。请注意，此命令必须以足够的权限运行。
+rpcclient	Linux 发行版中 Samba 套件的一部分，可用于通过远程 RPC 服务执行各种 Active Directory 枚举任务。
+CrackMapExec (CME)	CME 是一个集枚举、攻击和后渗透 (post-exploitation) 于一体的工具包，可以极大地帮助我们利用收集到的数据进行枚举和攻击。CME 试图“就地取材” (live off the land)，滥用 SMB、WMI、WinRM 和 MSSQL 等内置 AD 功能和协议。
+Rubeus	Rubeus 是一个为 Kerberos 滥用而构建的 C# 工具。
+GetUserSPNs.py	另一个 Impacket 模块，旨在查找与普通用户绑定的服务主体名称。
+Hashcat	一款出色的哈希破解和密码恢复工具。
+enum4linux	一个用于从 Windows 和 Samba 系统枚举信息的工具。
+enum4linux-ng	原始 Enum4linux 工具的重制版，其工作方式略有不同。
+ldapsearch	用于与 LDAP 协议交互的内置接口。
+windapsearch	一个 Python 脚本，用于通过 LDAP 查询来枚举 AD 用户、组和计算机。可用于自动化自定义 LDAP 查询。
+DomainPasswordSpray.ps1	DomainPasswordSpray 是一个用 PowerShell 编写的工具，用于对域用户执行密码喷洒攻击。
+LAPSToolkit	该工具包包含用 PowerShell 编写的函数，利用 PowerView 来审计和攻击已部署微软本地管理员密码解决方案 (LAPS) 的 Active Directory 环境。
+smbmap	在整个域中进行 SMB 共享枚举。
+psexec.py	Impacket 工具包的一部分，以半交互式 shell 的形式为我们提供类似 Psexec 的功能。
+wmiexec.py	Impacket 工具包的一部分，提供通过 WMI 执行命令的能力。
+Snaffler	可用于在 Active Directory 中具有可访问文件共享的计算机上查找信息（如凭据）。
+smbserver.py	用于与 Windows 主机交互的简单 SMB 服务器。是在网络内传输文件的简便方法。
+setspn.exe	为 Active Directory 服务帐户添加、读取、修改和删除服务主体名称 (SPN) 目录属性。
+Mimikatz	功能繁多。主要功能包括执行哈希传递 (pass-the-hash) 攻击、提取明文密码以及从主机内存中提取 Kerberos 票据。
+secretsdump.py	从主机远程转储 SAM 和 LSA 机密。
+evil-winrm	通过 WinRM 协议为我们提供主机上的交互式 shell。
+mssqlclient.py	Impacket 工具包的一部分，提供与 MSSQL 数据库交互的能力。
+noPac.py	结合利用 CVE-2021-42278 和 CVE-2021-42287，从标准域用户身份模拟为域管理员 (DA)。
+rpcdump.py	Impacket 工具集的一部分，是一个 RPC 端点映射器。
+CVE-2021-1675.py	Printnightmare 漏洞的 Python PoC (概念验证)。
+ntlmrelayx.py	Impacket 工具集的一部分，用于执行 SMB 中继攻击。
+PetitPotam.py	针对 CVE-2021-36942 的 PoC 工具，通过 MS-EFSRPC 的 EfsRpcOpenFileRaw 或其他函数，强制 Windows 主机向其他机器进行身份验证。
+gettgtpkinit.py	用于操纵证书和 TGT 的工具。
+getnthash.py	该工具将使用现有的 TGT，通过 U2U 为当前用户请求一个 PAC。
+adidnsdump	一个用于从域中枚举和转储 DNS 记录的工具。类似于执行 DNS 区域传送 (DNS Zone transfer)。
+gpp-decrypt	从组策略首选项文件中提取用户名和密码。
+GetNPUsers.py	Impacket 工具包的一部分。用于执行 ASREPRoasting 攻击，以列出并获取那些设置了“不需要 Kerberos 预身份验证”的用户的 AS-REP 哈希。然后，这些哈希被送入像 Hashcat 这样的工具中，尝试进行离线密码破解。
+lookupsid.py	SID 暴力破解工具。
+ticketer.py	一个用于创建和自定义 TGT/TGS 票据的工具。可用于创建黄金票据 (Golden Ticket)、进行子域到父域的信任攻击等。
+raiseChild.py	Impacket 工具包的一部分，是一个用于自动进行子域到父域权限提升的工具。
+Active Directory Explorer	Active Directory Explorer (AD Explorer) 是一款 AD 查看器和编辑器。它可用于浏览 AD 数据库，查看对象属性。它还可以用于保存 AD 数据库的快照以供离线分析。加载 AD 快照后，可以像浏览实时版本的数据库一样进行探索。它还可用于比较两个 AD 数据库快照，以查看对象、属性和安全权限的变化。
+PingCastle	用于根据风险评估和成熟度框架（基于适用于 AD 安全的 CMMI）来审计 AD 环境的安全级别。
+Group3r	Group3r 可用于审计和发现 AD 组策略对象 (GPO) 中的安全配置错误。
+ADRecon	一种用于从目标 AD 环境中提取各种数据的工具。数据可以以 Microsoft Excel 格式输出，并带有摘要视图和分析，以帮助分析并描绘出环境的整体安全状况。
