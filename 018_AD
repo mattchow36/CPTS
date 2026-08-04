@@ -27,3 +27,22 @@ Dehashed      在泄露数据中搜寻明文凭证和密码哈希
 
 
   https://dehashed.com/
+
+
+监听内网:
+sudo -E wireshark
+sudo tcpdump -i ens224
+pktmon.exe，它已添加到所有版本的 Windows 10 中
+
+保存你捕获的 PCAP 流量总是一个好主意
+
+Responder 是一个用于监听、分析和毒化 LLMNR、NBT-NS 和 MDNS 请求和响应的工具
+sudo responder -I ens224 -A
+  https://github.com/lgandx/Responder-Windows
+
+Fping 提供了与标准 ping 应用程序类似的功能，即它利用 ICMP 请求和回复来联系和与主机交互
+fping -asgq 172.16.5.0/23      a显示存活的目标，s结束时打印统计信息，g从 CIDR 网络生成目标列表，q不显示每个目标的结果
+  https://fping.org/
+
+Nmap
+sudo nmap -v -A -iL hosts.txt -oN /home/htb-student/Documents/host-enum
