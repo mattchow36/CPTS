@@ -1,3 +1,9 @@
+工具
+工具简介
+工具url
+命令
+
+
 利用Sysinternals、WMI、DNS 等原生工具和语言来枚举 AD
 练习攻击，包括密码喷洒 (Password spraying)、Kerberoasting
 使用 Responder、Kerbrute、Bloodhound 等工具
@@ -8,41 +14,64 @@ xfreerdp /v:<MS01 target IP> /u:htb-student /p:Academy_student_AD!
 ssh htb-student@<ATTACK01 target IP>
 
 ***GO
-https://he.net/       托管了BGP-Toolkit      ASN查询
+https://he.net/
+托管了BGP-Toolkit，用于ASN查询
 https://bgp.he.net/
 
-https://viewdns.info/      在线单DNS查询
+https://viewdns.info/
+在线单DNS查询
 
 google dork:
 filetype:pdf inurl:inlanefreight.com
 intext:"@inlanefreight.com" inurl:inlanefreight.com
 
-target website:
-contact page
-linkedin2username      LinkIn to worklist
+target website contact page
+
+linkedin2username      
+LinkIn to worklist
   https://github.com/initstring/linkedin2username
-Dehashed      在泄露数据中搜寻明文凭证和密码哈希
-  sudo python3 dehashed.py -q inlanefreight.local -p
+Dehashed
+在泄露数据中搜寻明文凭证和密码哈希
   https://github.com/sm00v/Dehashed
-
-
   https://dehashed.com/
-
+sudo python3 dehashed.py -q inlanefreight.local -p
 
 监听内网:
 sudo -E wireshark
 sudo tcpdump -i ens224
-pktmon.exe，它已添加到所有版本的 Windows 10 中
+pktmon.exe，已添加到所有版本的 Windows 10 中
 
 保存你捕获的 PCAP 流量总是一个好主意
 
-Responder 是一个用于监听、分析和毒化 LLMNR、NBT-NS 和 MDNS 请求和响应的工具
-sudo responder -I ens224 -A
+Responder
+用于监听、分析和毒化 LLMNR、NBT-NS 和 MDNS 请求和响应的工具
   https://github.com/lgandx/Responder-Windows
+sudo responder -I ens224 -A
 
-Fping 提供了与标准 ping 应用程序类似的功能，即它利用 ICMP 请求和回复来联系和与主机交互
-fping -asgq 172.16.5.0/23      a显示存活的目标，s结束时打印统计信息，g从 CIDR 网络生成目标列表，q不显示每个目标的结果
+Fping
+提供了与标准 ping 应用程序类似的功能，利用 ICMP 请求和回复来联系和与主机交互
   https://fping.org/
+fping -asgq 172.16.5.0/23      a显示存活的目标，s结束时打印统计信息，g从 CIDR 网络生成目标列表，q不显示每个目标的结果
 
 Nmap
 sudo nmap -v -A -iL hosts.txt -oN /home/htb-student/Documents/host-enum
+务必使用 -oA 标志
+
+Kerbrute
+是域帐户枚举中一个更隐蔽的选项
+它利用了 Kerberos 预身份验证 (pre-authentication) 失败通常不会触发日志或警报
+结合 Insidetrust 的 jsmith.txt 或 jsmith2.txt 用户列表来使用 Kerbrute
+  https://github.com/ropnop/kerbrute
+  https://github.com/insidetrust/statistically-likely-usernames
+sudo git clone https://github.com/ropnop/kerbrute.git      下载二进制文件
+make help      查看编译器帮助
+sudo make all  编译所有平台的格式
+./kerbrute_linux_amd64      运行
+echo $PATH
+/home/htb-student/.local/bin:/snap/bin:/usr/sandbox/:
+/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:
+/usr/share/games:/usr/local/sbin:/usr/sbin:/sbin:/snap/bin:
+/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:
+/usr/local/games:/usr/games:/home/htb-student/.dotnet/tools      添加到PAHT
+
+
