@@ -70,21 +70,30 @@ Hashcat，使用哈希模式 5600 来处理我们通常用 Responder 获得的 N
 sudo responder -I ens224 -A
 hashcat -m 5600 ntlmv2.txt /usr/share/wordlists/rockyou.txt
 
-Inveigh
-跨平台的 MITM 平台，可用于欺骗和投毒攻击
-  https://github.com/Kevin-Robertson/Inveigh
 
+Inveigh
+跨平台的 MITM 平台，可用于欺骗和投毒攻击，Windows平台Responder
+  https://github.com/Kevin-Robertson/Inveigh
+  https://github.com/Kevin-Robertson/Inveigh/wiki/Parameters
+C:\htb> Invoke-Inveigh Y -NBNS Y -ConsoleOutput Y -FileOutput Y      这个PS版本不维护了
+C:\htb> .\Inveigh.exe                                                用C#版本
+GET NTLMV2UNIQUE 查看捕获到的唯一哈希值
+GET NTLMV2USERNAMES 查看收集到的用户名
+perl -p -i -e 's/\R//g;' ntlmv2.txt      删除换行
+hashcat -m 5600 ntlmv2.txt /usr/share/wordlists/rockyou.txt
 
 Fping
 提供了与标准 ping 应用程序类似的功能，利用 ICMP 请求和回复来联系和与主机交互
   https://fping.org/
 fping -asgq 172.16.5.0/23      a显示存活的目标，s结束时打印统计信息，g从 CIDR 网络生成目标列表，q不显示每个目标的结果
 
+
 Nmap
 sudo nmap -v -A -iL hosts.txt -oN /home/htb-student/Documents/host-enum
 sudo nmap -A -v -Pn 172.16.5.5
 sudo nmap -A -Pn -T5 -oG ./nmapOutput 172.16.5.0/23
 务必使用 -oA 标志
+
 
 Kerbrute
 是域帐户枚举中一个更隐蔽的选项
@@ -99,4 +108,23 @@ sudo make all  编译所有平台的格式
 export PATH=/usr/local/bin/kerbrute:$PATH      添加到PAHT
 kerbrute userenum -d INLANEFREIGHT.LOCAL --dc 172.16.5.5 jsmith.txt -o valid_ad_users      枚举用户
 
+
+防御
+组策略 (Group Policy) 禁用 LLMNR，路径为：计算机配置 (Computer Configuration) -> 管理模板 (Administrative Templates) -> 网络 (Network) -> DNS 客户端 (DNS Client)，关闭多播名称解析 (Turn OFF Multicast Name Resolution)
+NBT-NS 无法通过组策略禁用，必须在每台主机上本地禁用。打开控制面板 (Control Panel)下的网络和共享中心 (Network and Sharing Center)，更改适配器设置 (Change adapter settings)，右键点击适配器属性，选择Internet 协议版本 4 (TCP/IPv4)，点击属性 (Properties)按钮，点击高级 (Advanced)并选择WINS选项卡，禁用 TCP/IP 上的 NetBIOS (Disable NetBIOS over TCP/IP)
+在“计算机配置 (Computer Configuration)” --> “Windows 设置 (Windows Settings)” --> “脚本(启动/关机) (Script (Startup/Shutdown))” --> “启动 (Startup)”下创建一个 PowerShell 脚本
+  ——————
+  $regkey = "HKLM:SYSTEM\CurrentControlSet\services\NetBT\Parameters\Interfaces"
+  Get-ChildItem $regkey |foreach { Set-ItemProperty -Path "$regkey\$($_.pschildname)" -Name NetbiosOptions -Value 2 -Verbose}
+  ——————
+本地组策略编辑器中，双击启动 (Startup)，选择PowerShell 脚本 (PowerShell Scripts)选项卡，并将“对于此 GPO，按以下顺序运行脚本 (For this GPO, run scripts in the following order)”设置为首先运行 Windows PowerShell 脚本 (Run Windows PowerShell scripts first)，点击添加 (Add)并选择该脚本
+重启目标系统或网络适配器
+要将此策略推送到域中的所有主机，在域控制器 (Domain Controller) 上使用组策略管理 (Group Policy Management)创建一个 GPO，并将脚本托管在 scripts 文件夹下的 SYSVOL 共享中，然后通过其 UNC 路径调用它，例如：
+\\inlanefreight.local\SYSVOL\INLANEFREIGHT.LOCAL\scripts
+一旦 GPO 应用于特定的组织单位 (OU)，并且这些主机重新启动，该脚本将在下次重启时运行并禁用 NBT-NS，前提是该脚本仍然存在于 SYSVOL 共享上，并且主机可以通过网络访问它
+
+过滤网络流量以阻止 LLMNR/NetBIOS 流量
+启用 SMB 签名 (SMB Signing) 以防止 NTLM 中继攻击
+网络入侵检测和防御系统
+网络分段 (network segmentation) 隔离那些需要启用 LLMNR 或 NetBIOS 才能正常运行的主机
 
