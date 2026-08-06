@@ -1,8 +1,26 @@
 工具
 工具简介
+工具要点
 工具url
 命令
 
+在主机上获得 SYSTEM 级别访问权限有多种方法，不限于：
+远程 Windows 漏洞利用，如 MS08-067、EternalBlue 或 BlueKeep。
+滥用在 SYSTEM 帐户 上下文中运行的服务，或使用 Juicy Potato 滥用服务帐户的 SeImpersonate 权限。这类攻击在较旧的 Windows 操作系统上是可能的，但在 Windows Server 2019 上不总是可行。
+Windows 操作系统中的本地权限提升 (privilege escalation) 缺陷，如 Windows 10 任务计划程序 0-day 漏洞。
+在已加入域的主机上使用本地帐户获得管理员访问权限，并使用 Psexec 启动一个 SYSTEM cmd 窗口。
+
+通过在已加入域的主机上获得 SYSTEM 级别的访问权限，不限于：
+使用内置工具或攻击性工具（如 BloodHound 和 PowerView）枚举域。
+在同一域内执行 Kerberoasting / ASREPRoasting 攻击。
+运行 Inveigh 等工具来收集 Net-NTLMv2 哈希或执行 SMB 中继攻击。
+执行令牌模拟以劫持特权域用户帐户。
+执行 ACL 攻击。
+
+在进行规避性渗透测试、对抗性评估或红队演练 (red team engagement) 时，你是在试图模仿潜在攻击者的工具、战术和程序（TTPs），隐蔽性 (stealth) 就很重要了
+
+本地链路多播名称解析 (LLMNR) 和 NetBIOS 名称服务 (NBT-NS) 是 Microsoft Windows 的组件，当 DNS 解析失败时，它们可作为主机识别的备用方法
+当使用 LLMNR/NBT-NS 进行名称解析时，网络上的任何主机都可以回复。这就是我们使用 Responder 来投毒这些请求的切入点
 
 利用Sysinternals、WMI、DNS 等原生工具和语言来枚举 AD
 练习攻击，包括密码喷洒 (Password spraying)、Kerberoasting
@@ -45,8 +63,17 @@ pktmon.exe，已添加到所有版本的 Windows 10 中
 
 Responder
 用于监听、分析和毒化 LLMNR、NBT-NS 和 MDNS 请求和响应的工具
+HASH位于 /usr/share/responder/logs 目录中
+以 sudo 权限或 root 身份运行该工具，并确保我们的攻击主机上以下端口可用
+Hashcat，使用哈希模式 5600 来处理我们通常用 Responder 获得的 NTLMv2 哈希
   https://github.com/lgandx/Responder-Windows
 sudo responder -I ens224 -A
+hashcat -m 5600 ntlmv2.txt /usr/share/wordlists/rockyou.txt
+
+Inveigh
+跨平台的 MITM 平台，可用于欺骗和投毒攻击
+  https://github.com/Kevin-Robertson/Inveigh
+
 
 Fping
 提供了与标准 ping 应用程序类似的功能，利用 ICMP 请求和回复来联系和与主机交互
@@ -55,6 +82,8 @@ fping -asgq 172.16.5.0/23      a显示存活的目标，s结束时打印统计�
 
 Nmap
 sudo nmap -v -A -iL hosts.txt -oN /home/htb-student/Documents/host-enum
+sudo nmap -A -v -Pn 172.16.5.5
+sudo nmap -A -Pn -T5 -oG ./nmapOutput 172.16.5.0/23
 务必使用 -oA 标志
 
 Kerbrute
@@ -67,11 +96,7 @@ sudo git clone https://github.com/ropnop/kerbrute.git      下载二进制文件
 make help      查看编译器帮助
 sudo make all  编译所有平台的格式
 ./kerbrute_linux_amd64      运行
-echo $PATH
-/home/htb-student/.local/bin:/snap/bin:/usr/sandbox/:
-/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:
-/usr/share/games:/usr/local/sbin:/usr/sbin:/sbin:/snap/bin:
-/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:
-/usr/local/games:/usr/games:/home/htb-student/.dotnet/tools      添加到PAHT
+export PATH=/usr/local/bin/kerbrute:$PATH      添加到PAHT
+kerbrute userenum -d INLANEFREIGHT.LOCAL --dc 172.16.5.5 jsmith.txt -o valid_ad_users      枚举用户
 
 
