@@ -65,6 +65,7 @@ pktmon.exe，已添加到所有版本的 Windows 10 中
 
 保存你捕获的 PCAP 流量总是一个好主意
 
+
 Responder
 用于监听、分析和毒化 LLMNR、NBT-NS 和 MDNS 请求和响应的工具
 HASH位于 /usr/share/responder/logs 目录中
@@ -128,6 +129,7 @@ C:\htb> net use \\DC01\ipc$ "" /u:""       建立空对话
 C:\htb> net use \\DC01\ipc$ "" /u:guest    测试账号禁用
 C:\htb> net use \\DC01\ipc$ "password" /u:guest  测试密码错误 OR 账号锁定
 
+
 windapsearch.py
 ldapsearch
 ad-ldapdomaindump.py
@@ -135,6 +137,13 @@ LDAP 匿名绑定允许未经身份验证的攻击者从域中检索信息，例
 使用 netexec / crackmapexec 提取密码策略更加直接
   https://linux.die.net/man/1/ldapsearch
 ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
+
+
+查看密码策略
+C:\htb> net accounts
+OR
+PS C:\htb> import-module .\PowerView.ps1
+PS C:\htb> Get-DomainPolicy
 
 防御
 组策略 (Group Policy) 禁用 LLMNR，路径为：计算机配置 (Computer Configuration) -> 管理模板 (Administrative Templates) -> 网络 (Network) -> DNS 客户端 (DNS Client)，关闭多播名称解析 (Turn OFF Multicast Name Resolution)
