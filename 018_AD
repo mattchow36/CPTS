@@ -4,6 +4,12 @@
 工具url
 命令
 
+
+请记住，在整个项目过程中，应该记录传输到域中主机以及从主机传出的每个文件，以及它们在磁盘上的存放位置
+如果需要与客户澄清我们的行为，这是一个好习惯
+此外，根据项目的范围，要确保在项目结束时掩盖自己的踪迹并清理你在环境中放置的任何东西
+
+
 在主机上获得 SYSTEM 级别访问权限有多种方法，不限于：
 远程 Windows 漏洞利用，如 MS08-067、EternalBlue 或 BlueKeep。
 滥用在 SYSTEM 帐户 上下文中运行的服务，或使用 Juicy Potato 滥用服务帐户的 SeImpersonate 权限。这类攻击在较旧的 Windows 操作系统上是可能的，但在 Windows Server 2019 上不总是可行。
@@ -202,6 +208,10 @@ Bloodhound.py
   https://github.com/dirkjanm/BloodHound.py
 bloodhound-python -h      看帮助
 sudo bloodhound-python -u 'forend' -p 'Klmcargo2' -ns 172.16.5.5 -d inlanefreight.local -c all
+C:\Tools> .\SharpHound.exe -c All --zipfilename ILFREIGHT      在目标机收集信息
+C:\Tools\BloodHound-GUI> .\BloodHound.exe
+clicking on "Upload Data" in BH-GUI
+Under the "Analysis" tab, students need to choose the "List all Kerberostable Accounts" query      查询Kerberostable用户
 
 
 Bloodhound GUI
