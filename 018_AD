@@ -26,6 +26,9 @@ Windows 操作系统中的本地权限提升 (privilege escalation) 缺陷，如
 练习攻击，包括密码喷洒 (Password spraying)、Kerberoasting
 使用 Responder、Kerbrute、Bloodhound 等工具
 
+SPN
+<service class>/<host>:<port>/<service name>      格式，:后两项可选
+
 
 xfreerdp /v:<MS01 target IP> /u:htb-student /p:Academy_student_AD!
 
@@ -199,6 +202,51 @@ Bloodhound.py
   https://github.com/dirkjanm/BloodHound.py
 bloodhound-python -h      看帮助
 sudo bloodhound-python -u 'forend' -p 'Klmcargo2' -ns 172.16.5.5 -d inlanefreight.local -c all
+
+
+Bloodhound GUI
+可以逐个上传每个 JSON 文件，也可以用 zip -r ilfreight_bh.zip *.json 将它们压缩，然后上传 Zip 文件
+https://hausec.com/2019/09/09/bloodhound-cypher-cheatsheet/      cypher语言
+https://wadcoms.github.io/      cml in cs
+
+
+ActiveDirectory PowerShell 模块
+一组 PowerShell cmdlet，用于从命令行管理 Active Directory 环境
+C:\htb> Import-Module ActiveDirectory
+C:\htb> Get-Module
+C:\htb> Get-ADDomain      枚举域信息
+C:\htb> Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName      找出所有"绑定了服务"的域用户账户
+C:\htb> Get-ADTrust -Filter *      查询当前域（或指定域）中配置的所有入站（Inbound）和出站（Outbound）信任
+C:\htb> Get-ADGroup -Filter * | select name      收集 AD 组信息，只输出name
+C:\htb> Get-ADGroup -Identity "Backup Operators"      "Backup Operators"组明细
+C:\htb> Get-ADGroupMember -Identity "Backup Operators"      查询组成员
+
+
+PowerView
+用 PowerShell 编写，在 AD 环境中获得态势感知 (situational awareness)，与 BloodHound 非常相似
+需要更多手动工作来确定域内的错误配置和关系，但如果使用得当，可以帮助识别细微的错误配置
+  https://github.com/PowerShellMafia/PowerSploit/tree/master/Recon
+C:\Tools> Import-Module .\PowerView.ps1
+C:\htb> Get-DomainUser -Identity mmorgan -Domain inlanefreight.local | Select-Object -Property      morgan用户信息
+C:\htb>  Get-DomainGroupMember -Identity "Domain Admins" -Recurse      查询组成员
+C:\htb> Get-DomainTrustMapping            查询信任
+C:\htb> Test-AdminAccess -ComputerName ACADEMY-EA-MS01    测试管理员权限
+C:\htb> Get-DomainUser -SPN -Properties samaccountname,ServicePrincipalName      找出所有"绑定了服务"的域用户账户
+
+
+SharpView
+PowerView 的一个 .NET 移植版本
+  https://github.com/BC-SECURITY/Empire/blob/main/empire/server/data/module_source/situational_awareness/network/powerview.ps1
+C:\htb> .\SharpView.exe Get-DomainUser -Help
+C:\htb> .\SharpView.exe Get-DomainUser -Identity forend
+
+
+Snaffler
+获取域内的主机列表，然后枚举这些主机的共享和可读目录，获取凭据 (credentials) 或其他敏感数据
+要求在已加入域的主机上或在域用户上下文中运行
+  https://github.com/SnaffCon/Snaffler
+Snaffler.exe -s -d inlanefreight.local -o snaffler.log -v data
+-s 将结果打印到控制台，-d 指定要搜索的域，-o 结果写入日志文件。-v 选项是详细级别 (verbosity level)。通常 data 是最佳level
 
 
 查看密码策略
