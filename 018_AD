@@ -197,6 +197,8 @@ python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmc
 Bloodhound.py
 对AD创建图形表示或“攻击路径 (attack paths)
   https://github.com/dirkjanm/BloodHound.py
+bloodhound-python -h      看帮助
+sudo bloodhound-python -u 'forend' -p 'Klmcargo2' -ns 172.16.5.5 -d inlanefreight.local -c all
 
 
 查看密码策略
