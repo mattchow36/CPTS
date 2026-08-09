@@ -8,6 +8,10 @@ echo %USERDOMAIN%	                                        显示主机所属的�
 echo %logonserver%	                                      打印出主机用于签入的域控制器的名称
 systeminfo                                                ***来涵盖以上所有信息***
 
+arp -a	            arp 表中存储的所有已知主机，展示所在的主机知道哪些主机，以及主机已知哪些网络，在黑盒评估的发现阶段尤其有用
+route print	        路由表（IPv4 和 IPv6），识别与主机共享的已知网络和三层路由，横向移动 (lateral movement) 的潜在途径，在黑盒评估的发现阶段尤其有用
+netsh advfirewall show allprofiles      主机防火墙的状态，可以确定它是否激活并过滤流量
+
 
 PS
 Get-Module	                              列出已加载可用的模块
@@ -27,3 +31,47 @@ C:\htb> powershell.exe -version 2
 C:\htb> netsh advfirewall show allprofiles      检查防火墙
 C:\htb> sc query windefend                      检查防火墙
 C:\htb> Get-MpComputerStatus                    检查防火墙
+
+
+C:\htb> qwinsta      唯一登录人？
+
+
+Windows Management Instrumentation (WMI)
+一个脚本引擎，在 Windows 企业环境中被广泛用于检索信息和在本地及远程主机上运行管理任务。
+我们用于在主机和其他域主机上创建关于域用户、组、进程和其他信息的 WMI 报告
+  https://learn.microsoft.com/en-us/windows/win32/wmisdk/about-wmi
+  https://learn.microsoft.com/en-us/windows/win32/wmisdk/using-wmi
+C:\htb> wmic ntdomain get Caption,Description,DnsForestName,DomainName,DomainControllerAddress
+wmic qfe get Caption,Description,HotFixID,InstalledOn	                              已应用的修补程序的补丁级别和描述
+wmic computersystem get Name,Domain,Manufacturer,Model,Username,Roles /format:List	基本主机信息，包括列表中的任何属性
+wmic process list /format:list	                                                    主机上所有进程的列表
+wmic ntdomain list /format:list	                                                    有关域和域控制器的信息
+wmic useraccount list /format:list	                                                有关所有本地账户以及已登录到该设备的任何域账户的信息
+wmic group list /format:list	                                                      所有本地组的信息
+wmic sysaccount list /format:list	                                                  转储有关任何用作服务账户的系统账户的信息
+
+
+Net
+查询本地主机和远程主机，很像 WMI 提供的功能
+  https://learn.microsoft.com/en-us/windows/win32/winsock/net-exe-2
+net accounts	                                  有关密码要求的信息
+net accounts /domain	                          密码和锁定策略
+net group /domain	                              有关域组的信息
+net group "Domain Admins" /domain	              列出具有域管理员权限的用户
+net group "domain computers" /domain	          连接到域的 PC 列表
+net group "Domain Controllers" /domain	        域控制器的 PC 账户列表
+net group <domain_group_name> /domain	          属于该组的用户
+net groups /domain	                            域组列表
+net localgroup	                                所有可用组
+net localgroup administrators /domain	          列出属于域内 administrators 组的用户（默认情况下 Domain Admins 组包含在此）
+net localgroup Administrators	                  有关组（管理员）的信息
+net localgroup administrators [username] /add   将用户添加到 administrators 组
+net share	                                      检查当前共享
+net user <ACCOUNT_NAME> /domain	                获取域内用户的信息
+net user /domain	                              列出域的所有用户
+net user %username%	                            有关当前用户的信息
+net use x: \computer\share	                    在本地挂载共享
+net view	                                      获取计算机列表
+net view /all /domain[:domainname]	            域上的共享
+net view \computer /ALL	                        列出计算机的共享
+net view /domain                              	域的 PC 列表
