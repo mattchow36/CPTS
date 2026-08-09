@@ -75,3 +75,13 @@ net view	                                      获取计算机列表
 net view /all /domain[:domainname]	            域上的共享
 net view \computer /ALL	                        列出计算机的共享
 net view /domain                              	域的 PC 列表
+
+输入 net1 代替 net 将执行相同的功能，不会有被 net 字符串触发警报的潜在风险
+
+
+Dsquery
+命令行工具，可用于查找 Active Directory 对象，很容易地用像 BloodHound 和 PowerView 等工具来替代，但可能并不总是有这些工具
+  https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc732952(v=ws.11)
+C:\htb> dsquery user
+C:\htb> dsquery computer
+C:\htb> dsquery * "CN=Users,DC=INLANEFREIGHT,DC=LOCAL"      使用 dsquery 通配符搜索 来查看一个 OU 中的所有对象
