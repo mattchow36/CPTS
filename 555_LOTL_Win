@@ -84,4 +84,10 @@ Dsquery
   https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc732952(v=ws.11)
 C:\htb> dsquery user
 C:\htb> dsquery computer
-C:\htb> dsquery * "CN=Users,DC=INLANEFREIGHT,DC=LOCAL"      使用 dsquery 通配符搜索 来查看一个 OU 中的所有对象
+dsquery * "CN=Users,DC=INLANEFREIGHT,DC=LOCAL"      使用 dsquery 通配符搜索对象
+dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=32))" -attr distinguishedName userAccountControl  密码永不过期的用户
+  1.2.840.113556.1.4.803 是 LDAP_MATCHING_RULE_BIT_AND 的 OID（对象标识符）
+  :=32 表示检查第 5 位（2^5 = 32）
+  LDAP 过滤器语法: (<操作符><属性><值>)
+dsquery * -filter "(userAccountControl:1.2.840.113556.1.4.803:=8192)" -limit 5 -attr sAMAccountName      搜索域控制器
+
