@@ -1,0 +1,5 @@
+AD环境中的一种横向移动 (lateral movement)/权限提升 (privilege escalation) 技术
+攻击的目标是服务主体名称 (Service Principal Names, SPN) 帐户
+SPN 是 Kerberos 用来将服务实例映射到运行该服务的服务帐户的唯一标识符，就是一个服务
+需要一个帐户的明文密码（或 NTLM 哈希）、一个域用户帐户上下文中的 shell，或者在一台已加入域的主机上的 SYSTEM 级别访问权限
+
