@@ -6,4 +6,33 @@ ACL 有两种类型：
   如果 DACL 存在，但没有任何 ACE 条目指定特定的安全设置，系统将拒绝所有试图访问它的用户、组或进程的访问。
 系统访问控制列表 (System Access Control Lists, SACL) - 允许管理员记录对受保护对象的访问尝试。
 
+ACL 中的设置本身被称为 访问控制条目 (Access Control Entries, ACE)。每个 ACE 都对应一个用户、组或进程（也称为安全主体 (security principals)）
+
+
+ACE 类型有三种：
+拒绝访问 ACE	在 DACL 中使用，表示明确拒绝某个用户或组访问一个对象
+允许访问 ACE	在 DACL 中使用，表示明确授予某个用户或组访问一个对象
+系统审核 ACE	在 SACL 中使用，当用户或组尝试访问一个对象时生成审核日志，记录访问是否被授予以及发生了哪种类型的访问
+
+
+每个 ACE 由四个部分组成：
+有权访问该对象的用户/组的安全标识符 (security identifier, SID)（或图形化显示的主体名称）
+表示 ACE 类型的标志（拒绝访问、允许访问或系统审核 ACE）
+一组标志，指定子容器/对象是否可以从主对象或父对象继承给定的 ACE 条目
+一个访问掩码 (access mask)，它是一个 32 位的值，定义了授予对象的权限
+
+
+ACE无法被漏洞扫描工具检测到，并且通常多年未被检查，尤其是在大型和复杂的环境中
+
+
+可使用如 BloodHound 之类的工具进行枚举（和可视化），并且通过 PowerView 等工具进行滥用：
+ForceChangePassword，可通过 Set-DomainUserPassword 滥用
+Add Members，可通过 Add-DomainGroupMember 滥用
+GenericAll，可通过 Set-DomainUserPassword 或 Add-DomainGroupMember 滥用
+GenericWrite，可通过 Set-DomainObject 滥用
+WriteOwner，可通过 Set-DomainObjectOwner 滥用
+WriteDACL，可通过 Add-DomainObjectACL 滥用
+AllExtendedRights，可通过 Set-DomainUserPassword 或 Add-DomainGroupMember 滥用
+AddSelf，可通过 Add-DomainGroupMember 滥用
+
 
