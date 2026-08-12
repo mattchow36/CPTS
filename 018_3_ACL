@@ -36,3 +36,46 @@ AllExtendedRights，可通过 Set-DomainUserPassword 或 Add-DomainGroupMember �
 AddSelf，可通过 Add-DomainGroupMember 滥用
 
 
+C:\htb> Import-Module .\PowerView.ps1
+C:\htb> $sid = Convert-NameToSid wley      设置sid参数
+C:\htb> Get-DomainObjectACL -Identity * | ? {$_.SecurityIdentifier -eq $sid}      只枚举wley
+返回      ObjectAceType : 00299570-246d-11d0-a768-00aa006e0529      
+用google查这个GUID，对应ForceChangePassword权限
+OR
+反向搜索
+C:\htb> $guid= "00299570-246d-11d0-a768-00aa006e0529"
+C:\htb> Get-ADObject -SearchBase "CN=Extended-Rights,$((Get-ADRootDSE).ConfigurationNamingContext)" -Filter {ObjectClass -like 'ControlAccessRight'} -Properties * |Select Name,DisplayName,DistinguishedName,rightsGuid| ?{$_.rightsGuid -eq $guid} | fl
+OR
+直接加  -ResolveGUIDs
+C:\htb> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $sid}
+另外一个方式
+C:\htb> Get-ADUser -Filter * | Select-Object -ExpandProperty SamAccountName > ad_users.txt      创建所有域用户的列表
+C:\htb> foreach($line in [System.IO.File]::ReadLines("C:\Users\htb-student\Desktop\ad_users.txt")) 
+        {get-acl  "AD:\$(Get-ADUser $line)" |             检索每个域用户的 ACL 信息
+        Select-Object Path -ExpandProperty Access |       只选择 Access 属性
+        Where-Object {$_.IdentityReference -match 'INLANEFREIGHT\\wley'}}      设置为wley
+发现用户wley对用户damundsen有ForceChangePassword权限
+继续枚举damundsen
+C:\htb> $sid2 = Convert-NameToSid damundsen
+C:\htb> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $sid2} -Verbose
+发现用户 damundsen 对 Help Desk Level 1 组拥有 GenericWrite 权限，除了其他功能外，可以将任何用户（或自己）添加到该组，并继承该组所拥有的任何权限
+C:\htb> Get-DomainGroup -Identity "Help Desk Level 1" | select memberof      调查 Help Desk Level 1 组
+
+回顾一下进展：
+控制了用户 wley，其哈希值是我们在本模块（评估）前面使用 Responder 获取的，并使用 Hashcat 离线破解得到了明文密码值。
+举了用户 wley 所控制的对象，发现我们可以强制更改用户 damundsen 的密码。
+发现，damundsen 用户可以使用 GenericWrite 权限将成员添加到 Help Desk Level 1 组中。
+Help Desk Level 1 组嵌套在 Information Technology 组中，这使得该组的成员可以获得分配给 Information Technology 组的任何权限。
+现在看看 Information Technology 的成员是否能做些什么。
+再次使用 Get-DomainObjectACL 进行搜索
+C:\htb> $itgroupsid = Convert-NameToSid "Information Technology"
+C:\htb> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $itgroupsid} -Verbose
+结果显示 Information Technology 组的成员对用户 adunn 拥有 GenericAll 权限，这意味着可以：
+修改组成员身份
+强制更改密码
+执行有针对性的 Kerberoasting 攻击，并尝试破解该用户的密码（如果密码较弱）
+
+
+
+如果 PowerView 被导入，cmdlet 将会导致错误，可能需要从一个新的 PowerShell 会话中运行它
+
