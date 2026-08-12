@@ -36,6 +36,7 @@ AllExtendedRights，可通过 Set-DomainUserPassword 或 Add-DomainGroupMember �
 AddSelf，可通过 Add-DomainGroupMember 滥用
 
 
+以下使用PowerView，Bloodhound更容易完成
 C:\htb> Import-Module .\PowerView.ps1
 C:\htb> $sid = Convert-NameToSid wley      设置sid参数
 C:\htb> Get-DomainObjectACL -Identity * | ? {$_.SecurityIdentifier -eq $sid}      只枚举wley
@@ -71,11 +72,28 @@ Help Desk Level 1 组嵌套在 Information Technology 组中，这使得该组�
 C:\htb> $itgroupsid = Convert-NameToSid "Information Technology"
 C:\htb> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $itgroupsid} -Verbose
 结果显示 Information Technology 组的成员对用户 adunn 拥有 GenericAll 权限，这意味着可以：
-修改组成员身份
-强制更改密码
-执行有针对性的 Kerberoasting 攻击，并尝试破解该用户的密码（如果密码较弱）
-
+            修改组成员身份
+            强制更改密码
+            执行有针对性的 Kerberoasting 攻击，并尝试破解该用户的密码（如果密码较弱）
+再看adunn用户
+C:\htb> $adunnsid = Convert-NameToSid adunn
+C:\htb> Get-DomainObjectACL -ResolveGUIDs -Identity * | ? {$_.SecurityIdentifier -eq $adunnsid} -Verbose
+结果显示 adunn 用户对域对象拥有 DS-Replication-Get-Changes 和 DS-Replication-Get-Changes-In-Filtered-Set 权限，可以利用该用户执行 DCSync 攻击
 
 
 如果 PowerView 被导入，cmdlet 将会导致错误，可能需要从一个新的 PowerShell 会话中运行它
+C:\Tools> Get-DomainObjectAcl -ResolveGUIDs -Identity "GPO Management" | ? {$_.SecurityIdentifier -eq $sid}      -Identity设置只看GPO Management组，与上面无关
+
+
+开始abuse
+回顾一下目前所处的位置以及想要达成的目标
+已经控制了 wley 用户，其 NTLMv2 哈希是我们在此次评估早期通过运行 Responder 获取的
+该用户使用了弱密码，能够使用 Hashcat 离线破解哈希并检索出其明文值
+可以利用此访问权限发起一个攻击链 (attack chain)，最终控制能够执行 DCSync 攻击的 adunn 用户
+这将能够检索域中所有用户的 NTLM 密码哈希，并将权限提升 (escalate privileges) 到域/企业管理员 (Domain/Enterprise Admin) 实现持久化 (persistence)，完全控制该域
+执行以下操作：
+            使用 wley 用户更改 damundsen 用户的密码
+            以 damundsen 用户身份进行身份验证，并利用 GenericWrite 权限将我们控制的用户添加到 Help Desk Level 1 组
+            利用 Information Technology 组中的嵌套组员身份，并利用 GenericAll 权限来控制 adunn 用户
+
 
