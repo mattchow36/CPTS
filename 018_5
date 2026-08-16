@@ -38,3 +38,12 @@ SQL> enable_xp_cmdshell      启动xp_cmdshell (Transact-SQL)
   https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/xp-cmdshell-transact-sql?view=sql-server-ver15
 xp_cmdshell whoami /priv      执行命令
 
+
+双跳
+以网络认证方式连接向目标主机进行认证时，用户的票据授予服务 (TGS, Ticket-Granting Service) 票据被发送到远程服务，
+这允许命令执行，但用户的 TGT 票据并未发送跳板机
+当用户尝试在跳到访问域中的后续资源时 TGT 将不会出现在请求中，远程服务将无法证明认证尝试是有效的，远程服务访问将被拒绝
+如果服务器上启用了非约束性委派 (unconstrained delegation)，很可能不会遇到“双跳”问题
+因为，当用户发送其 TGS 票据以访问目标服务器时，TGT 票据将随请求一同发送
+https://posts.slayerlabs.com/double-hop/      解决双跳
+
