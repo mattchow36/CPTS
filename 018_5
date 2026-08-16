@@ -14,8 +14,12 @@ C:\htb> Get-NetLocalGroupMember -ComputerName ACADEMY-EA-MS01 -GroupName "Remote
 从 Windows 主机进行攻击，可以使用 mstsc.exe
 
 C:\htb> Get-NetLocalGroupMember -ComputerName ACADEMY-EA-MS01 -GroupName "Remote Management Users"    枚举WinRM权限用户
-也可以在 BloodHound 中利用自定义 Cypher 查询
-方法是将查询粘贴到屏幕底部的 Raw Query 框中，然后按 Enter 键
+也可以在 BloodHound 中利用自定义 Cypher 查询，
+.\SharpHound.exe            收集信息
+cd .\BloodHound-GUI\        启动BH
+.\BloodHound.exe
+upload收集的zip
+将查询粘贴到屏幕底部的 Raw Query 框中，然后按 Enter 键
   MATCH p1=shortestPath((u1:User)-[r1:MemberOf*1..]->(g1:Group)) MATCH p2=(u1)-[:CanPSRemote*1..]->(c:Computer) RETURN p2
 C:\htb> $password = ConvertTo-SecureString "Klmcargo2" -AsPlainText -Force                                    登录WRM
 C:\htb> $cred = new-object System.Management.Automation.PSCredential ("INLANEFREIGHT\forend", $password)
