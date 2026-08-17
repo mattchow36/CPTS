@@ -65,4 +65,7 @@ C:\htb> Enter-PSSession -ComputerName DEV01 -Credential INLANEFREIGHT\backupadm 
 还可以使用其他方法，例如 CredSSP (凭据安全支持提供程序)、端口转发 (port forwarding) 或注入到在目标用户上下文（牺牲进程, sacrificial process）中运行的进程中
 
 
-
+2021-2024年的攻击：
+NoPac (SamAccountName 欺骗)
+PrintNightmare (远程)
+PetitPotam (MS-EFSRPC)
