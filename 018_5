@@ -46,4 +46,23 @@ xp_cmdshell whoami /priv      执行命令
 如果服务器上启用了非约束性委派 (unconstrained delegation)，很可能不会遇到“双跳”问题
 因为，当用户发送其 TGS 票据以访问目标服务器时，TGT 票据将随请求一同发送
 https://posts.slayerlabs.com/double-hop/      解决双跳
+两种方法：
+第一种是在 evil-winrm 会话中工作时使用的方法
+第二种是当有权访问 Windows 主机的 GUI 时（无论是在网络中的攻击主机还是已攻陷的已加入域的主机）
+#1
+*Evil-WinRM* PS C:\Users\backupadm\Documents> import-module .\PowerView.ps1
+*Evil-WinRM* PS C:\Users\backupadm\Documents> $SecPassword = ConvertTo-SecureString '!qazXSW@' -AsPlainText -Force      创建票据
+*Evil-WinRM* PS C:\Users\backupadm\Documents>  $Cred = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\backupadm', $SecPassword)
+*Evil-WinRM* PS C:\Users\backupadm\Documents> get-domainuser -spn -credential $Cred | select samaccountname      查找SPN账户
+C:\htb> klist      查看跳板机内存中的票据
+#2
+C:\htb> Register-PSSessionConfiguration -Name backupadmsess -RunAsCredential inlanefreight\backupadm            新建会话配置
+如果有当前无效的 PSSession ，键入 Restart-Service WinRM 退出
+C:\htb> Enter-PSSession -ComputerName DEV01 -Credential INLANEFREIGHT\backupadm -ConfigurationName  backupadmsess      建立WRM
+此方法无法通过 evil-winrm 会话工作，因为它需要 GUI 访问获得凭据弹出窗口
+由于 PowerShell on Linux 如何处理 Kerberos 凭据的某些限制, 无法在 Linux 上使y用
+
+还可以使用其他方法，例如 CredSSP (凭据安全支持提供程序)、端口转发 (port forwarding) 或注入到在目标用户上下文（牺牲进程, sacrificial process）中运行的进程中
+
+
 
