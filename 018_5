@@ -203,5 +203,3 @@ Get-GPO -All | Select DisplayName      枚举 GPO 名称
 C:\htb> $sid=Convert-NameToSid "Domain Users"
 C:\htb> Get-DomainGPO | Get-ObjectAcl | ?{$_.SecurityIdentifier -eq $sid}      枚举 Domain Users 的 GPO 权限，找例如 WriteProperty 和 WriteDacl 权限
 C:\htb Get-GPO -Guid 7CA9C789-14CE-46E3-A722-83F4097AF532      将 GPO GUID 转换为名称
-
-
