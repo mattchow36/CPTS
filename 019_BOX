@@ -1,1 +1,59 @@
+步骤
+项目前期 (Pre-Engagement)
+信息收集 (Information Gathering)
+漏洞评估 (Vulnerability Assessment)
+漏洞利用 (Exploitation)
+后渗透 (Post-Exploitation)
+横向移动 (Lateral Movement)
+概念验证 (Proof of Concept)
+项目后期 (Post-Engagement)
 
+
+被拆分到前面的 27 个模块中
+Active Directory Enumeration & Attacks 模块章节中一次 Active Directory 渗透测试的横向剖析（分步讲解）
+Active Directory Enumeration & Attacks 技能评估中的 2 次小型/模拟 Active Directory 渗透测试
+Shells & Payloads 模块技能评估中的 1 次小型/模拟渗透测试
+Pivoting, Tunneling, & Port Forwarding 模块技能评估中的 1 次小型/模拟渗透测试
+Documentation & Reporting 模块中的 1 次小型/模拟内部渗透测试（探索式学习与引导式学习相结合）
+
+
+项目启动
+一份由我方公司管理层和客户授权人员共同签署的工作范围说明书 (Scope of Work, SoW)
+这份 SoW 文件列出了测试的具体内容、方法论 (methodology)、时间线 (timeline) 以及商定的会议和交付物 (deliverables)
+客户还签署了一份单独的交战规则 (RoE) 文件，也称为测试授权书 (Authorization to Test document)
+测试前，持有这份文件至关重要
+其中列出所有评估类型的范围（URL、单个 IP 地址、CIDR 网络范围，以及适用的凭据）
+还列出双方的关键人员（双方至少各两名联系人，包括手机号码和电子邮件地址）
+还列出具体细节，如测试的开始和结束日期，以及允许的测试窗口期 (testing window)
+获得了一周的测试时间，额外的两天用于撰写报告草稿（在测试过程中同步进行撰写工作）
+
+
+外部信息收集
+sudo nmap --open -oA inlanefreight_ept_tcp_1k -iL scope
+确保所有扫描输出保存到项目目录中的相关子目录中
+sudo nmap --open -p- -A -oA inlanefreight_ept_tcp_all_svc -iL scope      -A 除了运行了 -sC ,更完整激进
+整理结果示例，剩下端口和服务
+  egrep -v "^#|Status: Up" inlanefreight_ept_tcp_all_svc.gnmap | cut -d ' ' -f4- | tr ',' '\n' | \                                                               
+  sed -e 's/^[ \t]*//' | awk -F '/' '{print $7}' | grep -v "^$" | sort | uniq -c \
+  | sort -k 1 -nr
+dig axfr inlanefreight.local @10.129.203.101    发现 DNS，尝试找 subdomain
+其它方式
+  https://dnsdumpster.com/
+  信息收集模块列出了几种被动子域名枚举 (Passive Subdomain Enumeration)和主动子域名枚举 (Active Subdomain Enumeration)的方法，如使用 ffuf 执行虚拟主机 (vhost) 枚举
+sudo sh -c 'echo "10.129.197.76 inlanefreight.local" >> /etc/hosts'      追加 vhost
+curl -sI http://10.129.203.114/ -H "Host: defnotvalid.inlanefreight.local" | grep "Content-Length:"      查看无效结果
+ffuf -w namelist.txt:FUZZ -u http://10.129.203.101/ -H 'Host:FUZZ.inlanefreight.local' -fs 15157      排除 15157 无效结果
+手动追加到 /etc/hosts
+sudo tee -a /etc/hosts > /dev/null <<EOT
+## inlanefreight hosts 
+10.129.203.101 inlanefreight.local blog.inlanefreight.local careers.inlanefreight.local dev.inlanefreight.local gitlab.inlanefreight.local ir.inlanefreight.local status.inlanefreight.local support.inlanefreight.local tracking.inlanefreight.local vpn.inlanefreight.local
+EOT
+尝试匿名FTP
+ftp 10.129.203.101
+Name (10.129.203.101:tester): anonymous
+ls
+get
+put    发现不能上传
+其他攻击，例如 FTP 反弹攻击 (FTP Bounce Attack)，可能性不大
+搜索 vsFTPd 3.0.3 的公开漏洞利用 (public exploits) 只找到了这个针对远程拒绝服务 (Remote Denial of Service) 的 PoC (概念验证)，超出了测试的范围
+nc -nv 10.129.203.101 22      抓取 SSH 的 banner
