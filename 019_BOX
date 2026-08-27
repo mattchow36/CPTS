@@ -57,3 +57,22 @@ put    发现不能上传
 其他攻击，例如 FTP 反弹攻击 (FTP Bounce Attack)，可能性不大
 搜索 vsFTPd 3.0.3 的公开漏洞利用 (public exploits) 只找到了这个针对远程拒绝服务 (Remote Denial of Service) 的 PoC (概念验证)，超出了测试的范围
 nc -nv 10.129.203.101 22      抓取 SSH 的 banner
+sudo nmap -sV -sC -p25 10.129.203.101      扫描SMTP
+telnet 10.129.203.101 25
+使用 VRFY 命令来枚举系统用户 (enumerate system users)
+VRFY root
+VRFY www-data
+VRFY randomuser
+用这个列表对 FTP 和 SSH 服务以及可能的服务发起密码暴力破解，尽管这个风险较低，但作为报告中的一个低危 (Low) 发现项是值得的
+如果没有业务需要，应该建议 VRFY
+可以尝试使用像 smtp-user-enum 这样的工具来枚举更多用户
+  https://github.com/pentestmonkey/smtp-user-enum
+telnet 10.129.203.101 110     连接POP3
+user  randomuser      枚举用户
+如果使用 Office 365 或本地部署的 Exchange，可以发起一次密码喷洒
+nmap -p25 -Pn --script smtp-open-relay  10.129.203.101      检查开放中继，有的话可以任意编辑发件人钓鱼
+网络钓鱼不在本次范围内，对于大多数外部渗透测试也是，遇到这种类型的漏洞，值得报告
+端口 111 是 rpcbind 服务，不应该对外暴露，可以为此编写一个不必要的暴露服务 (Unnecessary Exposed Services) 的低危发现
+在现代环境中，很少看到像存在漏洞的 FTP 服务器或类似的，能直接导致远程代码执行 (Remote Code Execution, RCE)
+eyewitness -f ilfreight_subdomains -d      ilfreight_subdomains 里存放了subdomains
+  https://github.com/RedSiege/EyeWitness
