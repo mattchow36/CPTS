@@ -246,3 +246,26 @@ use post/multi/gather/ping_sweep      扫描内网主机
 root@dmz01:~# for i in $(seq 254); do ping 172.16.8.$i -c1 -W1 & done | grep from      在跳板机执行，同样扫描
 也可以通过 Proxychains 使用 Nmap 来枚举 172.16.8.0/23 子网中的主机，但非常慢
 
+172.16.8.3 是一个域控制器 (Domain Controller)
+因为看到像 Kerberos 和 LDAP 这样的开放端口
+暂时可以先把它放在一边，因为不太可能被直接利用
+
+快速检查域控制器是否存在 SMB 空会话 (NULL session)
+如果能导出用户列表
+就可以尝试进行有节制的密码喷洒 (password spraying) 攻击
+如果知道密码策略，就可以合理安排攻击时间以避免账户锁定 (account lockout)
+如果找不到其他可利用点
+可以回过头来使用 Kerbrute，通过各种用户列表以及（在真实渗透测试中）从公司 LinkedIn 页面枚举出的潜在用户名来枚举有效用户名
+有了用户列表，可以尝试进行 1-2 次喷洒攻击
+也可以尝试进行 ASREPRoasting 攻击
+
+proxychains enum4linux -U -P 172.16.8.3      尝试获得用户列表和密码策略
+
+通过 proxychains msfconsole 启动另一个使用 Proxychains 的 Metasploit 实例
+auxiliary/scanner/http/tomcat_mgr_login      攻击 Tomecat
+
+ DotNetNuke (DNN)
+一个用 .NET 编写的内容管理系统 (CMS)，基本上是 .NET 领域的 WordPress
+
+
+
