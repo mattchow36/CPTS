@@ -242,4 +242,7 @@ exploit
 background
 use post/multi/manage/autoroute 
 run
+use post/multi/gather/ping_sweep      扫描内网主机
+root@dmz01:~# for i in $(seq 254); do ping 172.16.8.$i -c1 -W1 & done | grep from      在跳板机执行，同样扫描
+也可以通过 Proxychains 使用 Nmap 来枚举 172.16.8.0/23 子网中的主机，但非常慢
 
