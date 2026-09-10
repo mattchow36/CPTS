@@ -358,3 +358,19 @@ secretsdump.py LOCAL -system ~/Downloads/SYSTEM.SAVE -sam ~/Downloads/SAM.SAVE -
 可以下载该可执行文件（但最好自己编译工具，绕过查杀）
 使用 DNN 文件管理器上传
 c:\DotNetNuke\Portals\0> SharpHound.exe -c All
+
+sudo neo4j start      启动 neo4j 服务，节点数据库
+bloodhound      打开GUI
+搜索用户 hporter
+选择 First Degree Object Control（一级对象控制）
+看到该用户对 ssmalls 用户拥有 ForceChangePassword（强制更改密码）权限
+另外，看到所有域用户 (Domain Users) 都对 DEV01 主机拥有 RDP 访问权限
+意味着域中的任何用户都可以通过 RDP 登录
+如果他们能够提升权限 (escalate privileges)
+就有可能窃取凭据等敏感数据
+这一点值得作为一个发现记录下来；称之为 Excessive Active Directory Group Privileges（活动目录组权限过高），将其标记为中等风险
+如果整个组对某台主机拥有本地管理员权限 (local admin rights)，是一个高风险发现
+使用 PowerView 来更改 ssmalls 的密码
+
+ssh -i dmz01_key -L 13389:172.16.8.20:3389 root@10.129.203.111            本地 13389 -> 枢纽 3389 -> 目标
+
