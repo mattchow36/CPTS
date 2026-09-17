@@ -1,0 +1,24 @@
+所有测试活动均在 2022 年 1 月 7 日至 2022 年 1 月 19 日期间进行
+还可以添加免责声明，例如：
+本报告代表了在上述测试期间的时间快照，Acme Consulting, LLC 无法证明在此测试窗口期之外任何客户拥有的信息资产的状态
+
+每个工作日结束时都会将测试证据备份到一个共享空间
+
+确保向客户索取一份应从任何扫描或其他测试活动中明确排除的单个 IP 地址和主机名的具体列表
+
+网络设备上都启用调试模式，这与正常的 Nmap 扫描相结合，使设备不堪重负并导致速度变慢
+
+以下是有帮助的 “结构”，但按具体情况进行调整
+Attack Path (攻击路径) - 概述整个攻击路径。使用截图和命令输出尽可能详细地勾勒出路径
+Credentials (凭据) - 集中保存已攻破的凭据和机密信息
+Findings (发现项) - 建议为每个发现项创建一个子文件夹，在文件夹中编写描述性文字，同时附上任何证据（截图、命令输出）
+Vulnerability Scan Research (漏洞扫描研究) - 记录尝试过的漏洞扫描相关事项
+Service Enumeration Research (服务枚举研究) - 记录调查过的服务、失败的利用尝试、有希望的漏洞/错误配置等
+Web Application Research (Web 应用研究) - 记录通过各种方法（如子域名爆破 (subdomain brute-forcing)）发现的有趣 Web 应用程序；运行 Aquatone 或 EyeWitness 等工具对所有应用程序进行截图，记下感兴趣的应用程序、尝试过的常用/默认凭据对等
+AD Enumeration Research (AD 枚举研究) - 展示已执行的活动目录 (Active Directory, AD) 枚举操作，任何需要在评估后期跟进的兴趣点
+OSINT (开源情报) - 记录通过开源情报 (OSINT) 收集到的有趣信息
+Administrative Information (行政管理信息) - 集中存储项目相关方的联系信息会，例如项目经理 (Project Manager, PM) 或客户联系人 (Point of Contact, POC)、交战规则 (Rules of Engagement, RoE) 中定义的独特目标/标志，可以用作一个动态的待办事项列表。当需要执行或想尝试但暂时没时间的测试想法时，在此处记下
+Scoping Information (范围信息) - 存储有关范围内 IP 地址/CIDR 范围、Web 应用程序 URL 以及客户提供的用于 Web 应用程序、VPN 或 AD 的任何凭据的信息
+Activity Log (活动日志) - 对在评估期间所做的所有事情进行跟踪，以便进行可能的事件关联 (event correlation)
+Payload Log (载荷日志) - 与活动日志类似，跟踪在客户环境中使用的载荷 (payload)（以及任何上传文件的文件哈希值和上传位置）
+
