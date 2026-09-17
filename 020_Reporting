@@ -22,3 +22,111 @@ Scoping Information (范围信息) - 存储有关范围内 IP 地址/CIDR 范围
 Activity Log (活动日志) - 对在评估期间所做的所有事情进行跟踪，以便进行可能的事件关联 (event correlation)
 Payload Log (载荷日志) - 与活动日志类似，跟踪在客户环境中使用的载荷 (payload)（以及任何上传文件的文件哈希值和上传位置）
 
+
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+touch .tmux.conf
+包含以下
+——————
+  # List of plugins
+  
+  set -g @plugin 'tmux-plugins/tpm'
+  set -g @plugin 'tmux-plugins/tmux-sensible'
+  set -g @plugin 'tmux-plugins/tmux-logging'
+  
+  # Initialize TMUX plugin manager (keep at bottom)
+  run '~/.tmux/plugins/tpm/tpm'
+——————
+tmux source ~/.tmux.conf 
+
+接下来，启动一个新的 Tmux 会话
+tmux new -s setup
+进入会话后
+键入 [Ctrl] + [B]，然后按 [Shift] + [I]（如果未使用默认前缀键，则为 prefix + [Shift] + [I]），插件将会安装（这可能需要大约 5 秒钟才能完成）
+插件安装后
+键入 [Ctrl] + [B] 后跟 [Shift] + [P] (prefix + [Shift] + [P]) 来开始记录当前会话（或窗格）
+如果一切顺利
+窗口底部将显示日志记录已启用以及输出文件
+要停止日志记录
+重复 prefix + [Shift] + [P] 组合键或键入 exit 来终止会话
+注意，只有在停止日志记录或退出 Tmux 会话后，日志文件才会被填充
+
+tmux 默认的 prefix 是 [Ctrl] + [B]
+
+如果忘记启用 Tmux 日志记录并且已经深入项目，可以通过键入 [Ctrl] + [B] 然后按 [Alt] + [Shift] + [P] (prefix + [Alt] + [Shift] + [P]) 来执行追溯日志记录
+保存的数据量取决于 Tmux 的 history-limit 或 Tmux 回滚缓冲区中保留的行数
+如果保留默认值并尝试执行追溯日志记录，很可能会丢失评估早期的部分数据
+可以在 .tmux.conf 文件中添加以下行（并根据需要调整行数）：
+set -g history-limit 50000
+
+  https://www.youtube.com/watch?v=Lqehvpe_djs
+  https://mavericknerd.github.io/knowledgebase/ippsec/tmux/
+
+
+文件夹架构
+mkdir -p ACME-IPT/{Admin,Deliverables,Evidence/{Findings,Scans/{Vuln,Service,Web,'AD Enumeration'},Notes,OSINT,Wireless,'Logging output','Misc Files'},Retest}
+
+tree ACME-IPT/
+ACME-IPT/
+├── Admin
+├── Deliverables
+├── Evidence
+│   ├── Findings
+│   ├── Logging output
+│   ├── Misc Files
+│   ├── Notes
+│   ├── OSINT
+│   ├── Scans
+│   │   ├── AD Enumeration
+│   │   ├── Service
+│   │   ├── Vuln
+│   │   └── Web
+│   └── Wireless
+└── Retest            再次测试，对比
+
+更复杂的例子
+tree
+.
+└── Inlanefreight Penetration Test
+    ├── Admin
+    ├── Deliverables
+    ├── Evidence
+    │   ├── Findings
+    │   │   ├── H1 - Kerberoasting.md
+    │   │   ├── H2 - ASREPRoasting.md
+    │   │   ├── H3 - LLMNR&NBT-NS Response Spoofing.md
+    │   │   └── H4 - Tomcat Manager Weak Credentials.md
+    │   ├── Logging output
+    │   ├── Misc files
+    │   ├── Notes
+    │   │   ├── 10. AD Enumeration Research.md
+    │   │   ├── 11. Attack Path.md
+    │   │   ├── 12. Findings.md
+    │   │   ├── 1. Administrative Information.md
+    │   │   ├── 2. Scoping Information.md
+    │   │   ├── 3. Activity Log.md
+    │   │   ├── 4. Payload Log.md
+    │   │   ├── 5. OSINT Data.md
+    │   │   ├── 6. Credentials.md
+    │   │   ├── 7. Web Application Research.md
+    │   │   ├── 8. Vulnerability Scan Research.md
+    │   │   └── 9. Service Enumeration Research.md
+    │   ├── OSINT
+    │   ├── Scans
+    │   │   ├── AD Enumeration
+    │   │   ├── Service
+    │   │   ├── Vuln
+    │   │   └── Web
+    │   └── Wireless
+    └── Retest
+
+凭据和个人身份信息 (Personal Identifiable Information, PII) 应在截图中进行隐藏，任何在道德上令人反感的内容，如露骨材料或不雅评论和语言，也应如此
+使用 Greenshot 等工具，使用黑色条块（或其他实心形状）
+保留了原始命令和输出，但对其进行了增强（例如，改变颜色）
+
+在图片上添加箭头或方框等注释（不要在 MS Word 中这样做）
+在图片周围添加一个最小的边框，使其在文档的白色背景中脱颖而出
+只显示相关信息（例如，只显示一个基本的登录表单，而不是全屏截图）
+在浏览器截图中包含地址栏或其他指示你连接到哪个 URL 或主机的信息
+
+可以缩短/删去不必要的输出，并用 <SNIP> 标记删除的部分
+绝不能篡改
