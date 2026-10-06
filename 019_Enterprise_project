@@ -530,6 +530,7 @@ ssmallsadm@MGMT01:~$ chmod +x dirtypipe
 ssmallsadm@MGMT01:~$ find / -perm -4000 2>/dev/null      寻找 SUID 二进制文件，找到 /usr/lib/openssh/ssh-keysign
 ssmallsadm@MGMT01:~$ ./dirtypipe /usr/lib/openssh/ssh-keysign
 
+
 如果存在任何域信任
 可以利用子域到父域的信任关系、林内信任或外部林信任
 与客户确认目标域是否在测试范围内
@@ -548,9 +549,9 @@ ssmallsadm@MGMT01:~$ ./dirtypipe /usr/lib/openssh/ssh-keysign
 应该在测试时就记录下发现
 尽可能多地包含命令输出和证据
 确保在失去对内部网络的访问权限或停止任何外部测试之前
-有一份按优先级排序的发现项列表
+有一份按优先级排序的发现项列表，最高风险到最低风险的顺序来组织
 以及所有必要的命令输出和截图
-最高风险到最低风险的顺序来组织
+
 
 记下：
 每一次扫描
