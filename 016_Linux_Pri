@@ -38,5 +38,5 @@ find / -type f -name ".*" -exec ls -l {} \; 2>/dev/null | grep htb-student      
 find / -type d -name ".*" -ls 2>/dev/null                                               隐藏目录
 ls -l /tmp /var/tmp /dev/shm                                                            临时文件
 
-find / -name *.sh 2>/dev/null | xargs cat | grep "HTB"                从 / 开始找 .sh 文件，打印给cat，只显示包含'HTB'的行
+find / -name "*.sh" 2>/dev/null | xargs cat | grep "HTB"                从 / 开始找 .sh 文件，打印给cat，只显示包含'HTB'的行
 
