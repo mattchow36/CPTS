@@ -2,8 +2,13 @@
   https://github.com/rebootuser/LinEnum
   https://github.com/peass-ng/PEASS-ng/tree/master/linPEAS
 
+
+command1 | xargs [选项] command2, 把 command1 的输出（按空白/换行分割）作为参数追加到 command2 后面
+echo "a.txt b.txt" | xargs rm
+
+
 手工枚举命令：
-ps au
+ps au                                                                  查看进程，类似 find /proc -name cmdline -exec cat {} \; 2>/dev/null | tr " " "\n"
 ps aux
 ls /home
 ls -la /home/stacey.jenkins/
@@ -40,3 +45,6 @@ ls -l /tmp /var/tmp /dev/shm                                                    
 
 find / -name "*.sh" 2>/dev/null | xargs cat | grep "HTB"                从 / 开始找 .sh 文件，打印给cat，只显示包含'HTB'的行
 
+lastlog            最后登录
+
+apt list --installed | tr "/" " " | cut -d" " -f1,3 | sed 's/[0-9]://g' | tee -a installed_pkgs.list            已安装的软件包
