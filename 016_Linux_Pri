@@ -1,1 +1,42 @@
-https://github.com/rebootuser/LinEnum
+枚举工具：
+  https://github.com/rebootuser/LinEnum
+  https://github.com/peass-ng/PEASS-ng/tree/master/linPEAS
+
+手工枚举命令：
+ps au
+ps aux
+ls /home
+ls -la /home/stacey.jenkins/
+ls -l ~/.ssh
+history                                                                bash历史
+sudo -l                                                                看nopasswd
+cat /etc/passwd                                                        用户名:密码:用户 ID (UID):组 ID (GID):用户信息:家目录:登录Shell
+cat /etc/passwd | cut -f1 -d:                                          用户名
+ls -la /etc/cron.daily/                                                计划任务
+lsblk                                                                  看块设备，如硬盘
+find / -path /proc -prune -o -type d -perm -o+w 2>/dev/null            查找可写目录
+find / -path /proc -prune -o -type f -perm -o+w 2>/dev/null            查找可写文件
+whoami                                                                 用户身份
+id                                                                     属于哪些组
+hostname                                                               服务器名称
+ifconfig 或 ip a                                                       子网，额外网卡
+cat /etc/os-release                                                    操作系统
+echo $PATH                                                             路径环境变量
+env                                                                    所有环境变量
+uname -a 或 cat /proc/version                                          内核
+lscpu                                                                  cpu信息
+cat /etc/shells                                                        可用登录shell
+lpstat                                                                 查找打印机
+cat /etc/fstab                                                         文件挂载配置
+route 或 netstat -rn                                                   路由表
+arp -a                                                                 arp表
+cat /etc/group                                                         组信息
+getent group sudo                                                      查看sudo组，同时覆盖本地文件和网络目录
+df -h                                                                  已挂载磁盘的空间
+cat /etc/fstab | grep -v "#" | column -t                               未挂载的文件系统
+find / -type f -name ".*" -exec ls -l {} \; 2>/dev/null | grep htb-student              隐藏文件
+find / -type d -name ".*" -ls 2>/dev/null                                               隐藏目录
+ls -l /tmp /var/tmp /dev/shm                                                            临时文件
+
+find / -name *.sh 2>/dev/null | xargs cat | grep "HTB"                从 / 开始找 .sh 文件，打印给cat，只显示包含'HTB'的行
+
