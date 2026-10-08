@@ -82,5 +82,6 @@ echo "" > -- --checkpoint=1
 # 4. 等待 cron job 执行，2和3文件被当作参数，执行了1
 
 
-
+逃逸shell
+  https://vk9-sec.com/linux-restricted-shell-bypass/#google_vignette
 
