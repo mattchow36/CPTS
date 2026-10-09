@@ -96,3 +96,11 @@ htb_student@NIX02:~$ sudo /usr/sbin/tcpdump -ln -i ens192 -w /dev/null -W 1 -G 1
 mattchow@htb[/htb]$ nc -lnvp 443
 
 
+lxc     启动特权容器 (privileged container)，security.privileged 设置为 true，这样容器运行时就不会有 UID 映射，容器内的 root 用户与主机上的 root 用户相同
+组
+docker  将用户放入 docker 组基本上等同于授予了对文件系统的 root 级别访问权限，且无需密码
+disk    对 /dev 中包含的任何设备完全访问权限，例如通常作为操作系统主设备的 /dev/sda1；可以使用 debugfs 以 root 级别的权限访问整个文件系统
+adm     能够读取存储在 /var/log 中的所有日志，不会授予 root 访问权限，但可以用来收集日志文件中的敏感数据，或枚举用户操作和正在运行的 cron jobs
+
+
+
