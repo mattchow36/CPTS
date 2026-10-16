@@ -2,6 +2,7 @@
   https://github.com/rebootuser/LinEnum
   https://github.com/peass-ng/PEASS-ng/tree/master/linPEAS
 
+/etc/sudoers 文件指定了哪些用户或组可以运行哪些程序，以及拥有哪些权限
 
 command1 | xargs [选项] command2, 把 command1 的输出（按空白/换行分割）作为参数追加到 command2 后面
 echo "a.txt b.txt" | xargs rm
