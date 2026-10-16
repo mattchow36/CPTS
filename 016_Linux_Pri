@@ -340,3 +340,11 @@ find / -perm -4000 2>/dev/null      查找 SUID 二进制文件
 wget https://raw.githubusercontent.com/google/security-research/master/pocs/linux/cve-2021-22555/exploit.c
 git clone https://github.com/Bonfee/CVE-2022-25636.git
 git clone https://github.com/Liuk3r/CVE-2023-32233
+
+
+加固
+Puppet、SaltStack、Zabbix 和 Nagios 这样的配置管理自动化工具
+DISA 的安全技术实施指南 (STIGs)
+许多合规框架，如 ISO27001、PCI-DSS 和 HIPAA
+用于审计基于 Unix 的系统（Linux、macOS、BDS 等）的有用工具 Lynis
+  https://github.com/CISOfy/lynis
