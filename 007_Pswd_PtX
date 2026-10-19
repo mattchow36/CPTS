@@ -21,12 +21,13 @@ echo -n pswd | sha256sum
 
 identify hash format:
 hashid -m
-  https://openwall.info/wiki/john/sample-hashes
-
+  https://github.com/psypanda/hashID
 
 
 Brute-forcing:
-  hashcat
+hashcat
+  https://github.com/hashcat/hashcat
+john
   https://github.com/openwall/john
 
   mode:
@@ -37,7 +38,9 @@ Brute-forcing:
 
 
 Crack files:
-  It is also possible to crack password-protected or encrypted files with JtR. Multiple "2john" tools.
+locate *2john*      找工具
+<tool> <file_to_crack> > file.hash      得到哈希，再用 hashcat 破解文件
+hashcat -m 10500 -a 0 file.hash /path/to/wordlist.txt
 
 
 hashcat rule:
