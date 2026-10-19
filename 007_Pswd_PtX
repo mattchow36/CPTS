@@ -19,8 +19,8 @@ echo -n pswd | sha256sum
   https://github.com/danielmiessler/SecLists
 
 
-identify hash format:
-hashid -m
+识别哈希格式:
+hashid -m  '$1$FNr44XZC$wQxY6HHLrgrGX0e1195k.1'
   https://github.com/psypanda/hashID
 
 
@@ -48,9 +48,11 @@ locate *2john*      找工具
 hashcat -m 10500 -a 0 file.hash /path/to/wordlist.txt
 
 
-hashcat rule:
-  best64.rule
-  https://hashcat.net/wiki/doku.php?id=rule_based_attack
+hashcat:
+hashcat -a 0 -m 0 <hashes> [wordlist, rule, mask, ...]
+hashcat -a 0 -m 0 e3e3ec5831ad5e7288241960e5d4fdb8 /usr/share/wordlists/rockyou.txt
+hashcat -a 0 -m 0 1b0556a75770563578569ae21392630c /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule      加规则
+hashcat -a 3 -m 0 1e293d6912d074c0fd15844d803400dd '?u?l?l?l?l?d?s'                                                              加掩码
 
   hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list
 
