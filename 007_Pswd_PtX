@@ -56,8 +56,7 @@ hashcat -m 0 e3e3ec5831ad5e7288241960e5d4fdb8 --show                            
 hashcat -a 0 -m 0 1b0556a75770563578569ae21392630c /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule      加规则
 hashcat -a 3 -m 0 1e293d6912d074c0fd15844d803400dd '?u?l?l?l?l?d?s'                                                              加掩码
 
-hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list      按 custom.rule 的规则，对 password.list 里的每行字符生成多个密码
-
+hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list      按 custom.rule 的规则，和 password.list 里的字符，自动生成密码表
 
 generate wordlist:
   https://github.com/digininja/CeWL
