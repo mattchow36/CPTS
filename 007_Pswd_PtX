@@ -1,25 +1,28 @@
 appending:
-  echo "SMTIP   dc01.inlanefreight.local" | sudo tee -a /etc/hosts
+echo "SMTIP   dc01.inlanefreight.local" | sudo tee -a /etc/hosts
 
 
 tar:
-  -x to extract
-  -v for verbose
-  -z to decompress gzip
-  -f for the filename
+-x to extract
+-v for verbose
+-z to decompress gzip
+-f for the filename
 
 check whether a email been pawned:
   https://haveibeenpwned.com/
 
 
 hash:
-  echo -n pwd | md5sum
-  echo -n pwd | sha256sum
+echo -n pswd | md5sum            不加 -n，echo 会输出 pswd\n 的哈希
+echo -n pswd | sha256sum
+  工具、词表
+  https://github.com/danielmiessler/SecLists
 
 
 identify hash format:
+hashid -m
   https://openwall.info/wiki/john/sample-hashes
-  hashid -m
+
 
 
 Brute-forcing:
