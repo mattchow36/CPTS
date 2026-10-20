@@ -1,8 +1,8 @@
-appending:
+appending
 echo "SMTIP   dc01.inlanefreight.local" | sudo tee -a /etc/hosts
 
 
-tar:
+tar
 -x to extract
 -v for verbose
 -z to decompress gzip
@@ -12,19 +12,19 @@ check whether a email been pawned:
   https://haveibeenpwned.com/
 
 
-hash:
+hash
 echo -n pswd | md5sum            不加 -n，echo 会输出 pswd\n 的哈希
 echo -n pswd | sha256sum
   工具、词表
   https://github.com/danielmiessler/SecLists
 
 
-识别哈希格式:
+识别哈希格式
 hashid -m  '$1$FNr44XZC$wQxY6HHLrgrGX0e1195k.1'
   https://github.com/psypanda/hashID
 
 
-Brute-forcing:
+Brute-forcing
 hashcat
   https://github.com/hashcat/hashcat
 john
@@ -42,13 +42,13 @@ john --format=ripemd-128 --wordlist=./rockyou.txt hash.txt            incrementa
     mask          hashcat
 
 
-Crack files:
+Crack files
 locate *2john*      找工具
 <tool> <file_to_crack> > file.hash      得到哈希，再用 hashcat 破解文件
 hashcat -m 10500 -a 0 file.hash /path/to/wordlist.txt
 
 
-hashcat:
+hashcat
 hashcat -a 0 -m 0 <hashes> [wordlist, rule, mask, ...]
 
 hashcat -a 0 -m 0 e3e3ec5831ad5e7288241960e5d4fdb8 /usr/share/wordlists/rockyou.txt
@@ -58,14 +58,29 @@ hashcat -a 3 -m 0 1e293d6912d074c0fd15844d803400dd '?u?l?l?l?l?d?s'             
 
 hashcat --force password.list -r custom.rule --stdout | sort -u > mut_password.list      按 custom.rule 的规则，和 password.list 里的字符，自动生成密码表
 
-generate wordlist:
+generate wordlist
   https://github.com/digininja/CeWL
 
 
-https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/#device-encryption
-bitlocker2john
-hashcat -a 0 -m 22100
-https://github.com/Aorimn/dislocker
+寻找密钥和加密文件
+ssh-keygen -yf < 密钥路径 >              测试密钥是否被加密
+ssh2john.py SSH.private > ssh.hash      破解加密用哈希
+john --wordlist=rockyou.txt ssh.hash    破解密钥，得到明文
+
+
+file GZIP.gzip      查看 GZIP.gzip 的实际格式
+for i in $(cat rockyou.txt);do openssl enc -aes-256-cbc -d -in GZIP.gzip -k $i 2>/dev/null| tar xz;done      字典攻击
+
+
+Bitlocker
+bitlocker2john -i Backup.vhd > backup.hashes                                    获得全盘加密的4个哈希
+grep "bitlocker\$0" backup.hashes > backup.hash                                 提取第一个用户密码哈希
+hashcat -a 0 -m 22100 '$bitlocker$0$HASH' /usr/share/wordlists/rockyou.txt      破解
+在Windows 双击打开 vhd
+在Linux 用 dislocker 把 vhd 打开加密磁盘
+  https://github.com/Aorimn/dislocker
+sudo losetup -f -P Private.vhd                                  把 vhd 映射成磁盘
+sudo dislocker /dev/loop0p2 -u1234qwer -- /media/bitlocker      打开加密磁盘，接着 mount
 
 
 WinRM:
