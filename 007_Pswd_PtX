@@ -150,15 +150,25 @@ Where to find pswd hash:
 
 
 Windows安全系统
-SAM文件，用于存储用户帐户凭据
+SAM文件，用于存储用户帐户凭证
 位于 %SystemRoot%\system32\config\SAM，并挂载在 HKLM\SAM     %SystemRoot% 是环境变量，通常展开为 C:\Windows，HKLM\SAM 是注册表一个键
   HKLM\SAM           本地用户哈希
   HKLM\SYSTEM        系统哈希
   HKLM\SECURITY      域用户和服务哈希
 
-域凭证
-%SystemRoot%\NTDS\ntds.dit
-  
+如果加入了域，验证 NTDS
+位于 %SystemRoot%\NTDS\ntds.dit
+包含：
+  用户和哈希
+  组帐户
+  计算机帐户
+  组策略对象 (Group policy objects)
+  等等
+
+
+
+
+
 reg.exe save hklm\sam C:\sam.save
 
   smbserver.py:  start a smb sever on attk host to pull .save, 
