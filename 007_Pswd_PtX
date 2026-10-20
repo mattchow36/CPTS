@@ -49,7 +49,7 @@ hashcat -m 10500 -a 0 file.hash /path/to/wordlist.txt
 
 
 hashcat
-hashcat -a 0 -m 0 <hashes> [wordlist, rule, mask, ...]
+用法  hashcat -a 0 -m 0 <hashes> [wordlist, rule, mask, ...]
 
 hashcat -a 0 -m 0 e3e3ec5831ad5e7288241960e5d4fdb8 /usr/share/wordlists/rockyou.txt
 hashcat -m 0 e3e3ec5831ad5e7288241960e5d4fdb8 --show                                                                             在终端显示密码
@@ -83,8 +83,10 @@ sudo losetup -f -P Private.vhd                                  把 vhd 映射�
 sudo dislocker /dev/loop0p2 -u1234qwer -- /media/bitlocker      打开加密磁盘，接着 mount
 
 
-WinRM:
-  CrackMapExec
+NetExec
+支持 NFS、FTP、SSH、WinRM、SMB、WMI、RDP、MSSQL、LDAP 和 VNC
+  https://github.com/Pennyw0rth/NetExec
+用法  netexec <proto> <target-IP> -u <user or userlist> -p <password or passwordlist>
 
   https://github.com/Hackplayers/evil-winrm
 
