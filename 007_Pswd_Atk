@@ -481,8 +481,16 @@ ps -ef | grep -i "winbind\|sssd"            检查 Winbind 或 SSSD 进程是否
 
 find / -name *keytab* -ls 2>/dev/null      找 keytab，包含一个或多个用户的密钥
 
+crontab -l      查计划任务，发现 /home/carlos@inlanefreight.htb/.scripts/kerberos_script_test.sh
+cat /home/carlos@inlanefreight.htb/.scripts/kerberos_script_test.sh    打开脚本，发现使用了kinit，用于向 Kerberos 认证，并获取一张 TGT，缓存到本地（ccache 文件）
+  https://web.mit.edu/kerberos/krb5-1.12/doc/user/user_commands/kinit.html
+
+env | grep -i krb5      查看环境变量，确定 Kerberos 凭证缓存位置
+
+ls -la /tmp      ccache 文件默认位于 /tmp，以 root 或 特权用户身份访问
 
 
+klist -k -t /opt/specialfiles/carlos.keytab      看 carlos.keytab 文件，kinit 是区分大小写
 
 
 
