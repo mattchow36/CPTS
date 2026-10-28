@@ -465,6 +465,28 @@ c:\tools>powershell      启动 PS
 PS C:\tools> Enter-PSSession -ComputerName DC01      通过 winRM 横向移动到 DC01，进行交互
 
 
+使用 Linux 传递
+
+默认，Linux 将 Kerberos 票据存储为 /tmp 目录中的 ccache 文件，Kerberos 票据的位置存储在环境变量 KRB5CCNAME
+
+keytab 文件包含成对的 Kerberos 主体 (principal) 和加密密钥（派生自 Kerberos 密码）
+可以使用 keytab 文件通过 Kerberos 对各种远程系统进行身份验证，而无需输入密码
+
+
+realm list      查看机器有没有加入域 和 相关信息
+  https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/windows_integration_guide/cmd-realmd      如果 realm 不可用，可以寻找其它工具，如 sssd 或 winbind
+
+ps -ef | grep -i "winbind\|sssd"            检查 Winbind 或 SSSD 进程是否正在运行
+
+
+find / -name *keytab* -ls 2>/dev/null      找 keytab，包含一个或多个用户的密钥
+
+
+
+
+
+
+
 
 
 Proxies:
