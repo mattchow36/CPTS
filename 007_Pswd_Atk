@@ -472,6 +472,7 @@ PS C:\tools> Enter-PSSession -ComputerName DC01      通过 winRM 横向移动�
 keytab 文件包含成对的 Kerberos 主体 (principal) 和加密密钥（派生自 Kerberos 密码）
 默认在 /etc/krb5.keytab
 可以使用 keytab 文件通过 Kerberos 对各种远程系统进行身份验证，而无需输入密码
+kinit 'LINUX01$@INLANEFREIGHT.HTB' -k -t /etc/krb5.keytab            用 root 身份申请票据
 
 
 realm list      查看机器有没有加入域 和 相关信息
