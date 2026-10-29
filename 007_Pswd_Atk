@@ -542,9 +542,26 @@ wget https://raw.githubusercontent.com/CiscoCXSecurity/linikatz/master/linikatz.
 /opt/linikatz.sh                                                                        启动，自动找票据
 
 
+传递证书
+
+PKINIT = 初始认证用公钥（证书）非对称加密 + 后续通信仍用对称密钥      的 Kerberos
+
+五个步骤：
+确认目标 AD CS 服务器的 Web 注册端点（如 http://<CA>/certsrv/）是否通过 HTTP 提供服务，并且接受 NTLM 认证，同时未启用扩展保护（EPA）
+在攻击者控制的机器上，使用 ntlmrelayx.py 或 Certipy 等工具启动一个 NTLM 中继监听器
+使用强制认证技术（如 PetitPotam、PrinterBug 或 DFSCoerce），迫使域控制器 DC 向监听器发起 NTLM 认证
+攻击者捕获到域控制器的 NTLM 认证请求后，会将其转发给 AD CS 的 Web 注册端点，便会以域控制器机器账户（如 DC01$）的身份签发一张证书，一个 Base64 编码的 PFX 证书文件
+使用 Certipy auth 等工具，通过 PKINIT 向 KDC 申请该机器账户的 Kerberos TGT，同时返回该账户的 NTLM 哈希，接着执行 DCSync 攻击，导出域内所有用户的哈希（包括 krbtgt），完全接管域
+
+impacket-ntlmrelayx -t http://10.129.234.110/certsrv/certfnsh.asp --adcs -smb2support --template KerberosAuthentication      开启监听
 
 
 
+
+
+
+没有 PKINIT？
+  https://offsec.almond.consulting/authenticating-with-certificates-when-pkinit-is-not-supported.html
 
 
 
