@@ -588,17 +588,5 @@ evil-winrm -i dc01.inlanefreight.local -r inlanefreight.local          登录
   https://offsec.almond.consulting/authenticating-with-certificates-when-pkinit-is-not-supported.html
 
 
-
-
- 
-
-
-
-
-  
-
-
-
-
-
-
+生成强密码
+  https://1password.com/password-generator
