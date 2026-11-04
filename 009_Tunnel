@@ -29,7 +29,27 @@ ip route        查看路由表
   https://app.diagrams.net/
 
 
-netstat -antp | grep 1234
+端口转发 (Port forwarding) 
+将一个端口的通信请求重定向到另一个端口
+使用 TCP 作为主要通信层
+可以使用不同的应用层协议（如 SSH）
+甚至非应用层协议 SOCKS 来封装转发的流量
+
+ssh -L 1234:localhost:3306 ubuntu@10.129.202.64      从攻击机 1234 端口，连接 10.129.202.64:3306
+同
+ssh -L 1234:127.0.0.1:3306 ubuntu@10.129.202.64
+
+ssh -L 1234:localhost:3306 -L 8080:localhost:80 ubuntu@10.129.202.64      同时、多个 转发
+
+netstat -antp | grep 1234      检查转发
+或
+nmap -v -sV -p1234 localhost
+
+
+
+
+
+
 
 
 Steps:
