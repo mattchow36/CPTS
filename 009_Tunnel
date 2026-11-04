@@ -1,9 +1,33 @@
+横向移动、跳板、隧道，对比
 Laternal movement:  same network
 Pivot:  cross network
 Tunnel:  key in toy
 
 
-ifconfig / ipconfig
+动态 (dynamically)分配
+静态 (statically)分配
+IP 地址会被分配给一个网络接口控制器 (Network Interface Controller)（NIC）
+NIC 称为网卡 (Network Interface Card)或网络适配器 (Network Adapter)
+一台计算机可以有多个 NIC（物理和虚拟的）
+可以被分配多个 IP 地址，允许它在不同的网络上通信
+使用 
+ifconfig (在 macOS 和 Linux 中)
+ipconfig (在 Windows 中) 检查额外的 NIC
+
+
+NAT 通常用于将私有 IP 地址转换为公网 IP 地址
+VPN 会加密流量，通过网络地址转换 (NAT) 建立一个隧道，进入内部/私有网络
+面向互联网的设备上看到公网 IP，这些设备通常托管在 DMZ 中
+其他 NIC 拥有私有 IP 地址，这些地址可以在内部网络中路由，不能在公共互联网上路由，路由表 default 出去公网
+
+
+任何计算机都可以成为路由器
+netstat -r      查看路由表
+ip route        查看路由表
+
+画图工具，画路由图
+  https://app.diagrams.net/
+
 
 netstat -antp | grep 1234
 
