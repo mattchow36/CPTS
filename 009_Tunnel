@@ -185,7 +185,15 @@ Windows GUI 工具，通过 SSH 会话启动 SOCKS 隧道
   https://www.proxifier.com/
 
 
-
+Sshuttle
+Python 编写
+无需配置 proxychains，在攻击机启动
+只适用于通过 SSH 进行流量转发 (pivoting)
+不提供通过 TOR 或 HTTPS 代理服务器进行转发
+  https://github.com/sshuttle/sshuttle
+sudo apt-get install sshuttle
+sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 -v      SSH 到跳板机 ubuntu@10.129.202.64，用 sshuttle 在本机建立隧道，直接访问 172.16.5.0/23 内网网段
+sudo nmap -v -A -sT -p3389 172.16.5.19 -Pn                  扫描 172.16.5.0/23
 
 
 
