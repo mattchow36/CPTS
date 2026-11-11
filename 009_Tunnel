@@ -310,8 +310,24 @@ proxychains nmap -sV -sT 172.16.5.19 -p3389
 proxychains xfreerdp /v:172.16.5.19 /u:victor /p:pass@123 /dynamic-resolution /d:.
 
 
-
-
+https://github.com/nccgroup/SocksOverRDP/releases            建立 RDP 隧道
+https://www.proxifier.com/download/#win-tab                  代理流量到隧道
+wget https://www.proxifier.com/download/ProxifierPE.zip                                        下载
+wget https://github.com/nccgroup/SocksOverRDP/releases/download/v1.0/SocksOverRDP-x64.zip      下载
+unzip SocksOverRDP-x64.zip
+unzip ProxifierPE.zip
+xfreerdp /v:STMIP /u:htb-student /p:HTB_@cademy_stdnt!                                   RDP 到跳板
+关闭跳板防火墙
+将 SocksOverRDPx64.zip 或者仅将 SocksOverRDP-Server.exe 传输到 172.16.5.19 （跳板）        直接在 GUI 复贴
+将 Proxifier 便携版 传输到跳板                                                             直接在 GUI 复贴
+C:\Users\htb-student\Desktop\SocksOverRDP-x64> regsvr32.exe SocksOverRDP-Plugin.dll      在跳板启动 SORDP
+C:\Users\htb-student\Desktop\SocksOverRDP-x64> mstsc.exe                                 在跳板启动 RDP，IP 是 DC，非最终目标
+如果性能缓慢，将“性能”(Performance) 设置为“调制解调器”(Modem)
+DC:> Uninstall-WindowsFeature -Name Windows-Defender                                     卸载 DC 的防火墙
+将 SocksOverRDPx64.zip 或者仅将 SocksOverRDP-Server.exe 传输到 DC                          直接在 GUI 复贴
+在 DC 以管理员启动 SORDP
+在 Proxifier GUI 上，添加 127.0.0.1:1080 为 SOCKS5                                        在跳板启动 Proxifier
+C:\Users\htb-student\Desktop\SocksOverRDP-x64> mstsc.exe                                 在跳板，通过 DC 连接到最终目标
 
 
 
