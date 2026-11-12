@@ -375,6 +375,8 @@ PS C:\Users\mlefay> 1..254 | % {"172.16.6.$($_): $(Test-Connection -count 1 -com
 
 
 
+
+
 外部、边界因素
 What exactly are we protecting? (我们到底在保护什么？)
 What are the most valuable assets the organization owns that need securing? (组织拥有的需要保护的最有价值的资产是什么？)
