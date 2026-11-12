@@ -1,6 +1,25 @@
-hash:
-  md5sum 
-  https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-7.6&viewFallbackFrom=powershell-7.2
+在一次渗透测试
+通过一个无限制文件上传漏洞
+在 IIS Web 服务器上获得了远程代码执行 (remote code execution, RCE) 权限
+上传了一个网页后门 (web shell)，向自己发送了一个反向 Shell (reverse shell)
+使用 PowerShell 传输 PowerUp.ps1（用于枚举权限提升漏洞的 PowerShell 脚本），但 PowerShell 被应用程序控制策略阻止
+手动执行本地枚举，发现有 SeImpersonatePrivilege 权限，需要将一个二进制文件传输到目标机器上，以使用 PrintSpoofer 工具进行权限提升
+尝试使用 Certutil 直接从自己的 GitHub 下载编译的文件，但该组织部署了网页内容过滤机制，无法访问 GitHub、Dropbox、Google Drive 等可用于传输文件的网站
+建立了一个 FTP 服务器，尝试使用 Windows FTP 客户端传输文件，但网络防火墙阻止了 TCP 21 端口的出站流量
+尝试使用 Impacket smbserver 工具创建一个文件夹，发现发往 TCP 445 端口 (SMB) 的出站流量是允许的,利用这种文件传输方法，成功传输二进制文件
+
+
+Astaroth 攻击
+https://www.microsoft.com/en-us/security/blog/2019/07/08/dismantling-a-fileless-campaign-microsoft-defender-atp-next-gen-protection-exposes-astaroth-attack/
+
+
+md5sum id_rsa                                                      计算 id_rsa 的哈希，用于核对文件 base64 编码解码后的同一性
+cat id_rsa |base64 -w 0;echo                                       编码 id_rsa
+PS C:\htb> Get-FileHash C:\Users\Public\id_rsa -Algorithm md5      解码，核对 md5 哈希，但非常大的字符串，可能出错
+
+
+
+
 
 
 Windows download:
